@@ -96,7 +96,11 @@ export const authHandlers = [
     const newUser: StoredUser = {
       id: generateId('user'),
       name: payload.name!.trim(),
+      // Nome de usuário derivado do e-mail, com um sufixo curto para reduzir a chance de
+      // colisão — a tela de perfil permite trocar por qualquer outro valor livremente.
+      username: `${payload.email!.split('@')[0].toLowerCase()}-${generateId('u').slice(-4)}`,
       email: payload.email!.toLowerCase(),
+      ensName: null,
       avatarUrl: null,
       passwordHash,
     }

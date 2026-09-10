@@ -71,8 +71,7 @@ export function SiteHeader() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              {/* TODO(perfil): apontar para /perfil quando a rota existir (fase 8 do plano) */}
-              <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="flex items-center gap-2" aria-label="Ver perfil">
+              <Link to="/perfil" className="flex items-center gap-2" aria-label="Ver perfil">
                 <Avatar className="size-8">
                   <AvatarFallback className="bg-brand-accent-alt text-brand-card">
                     {initial}

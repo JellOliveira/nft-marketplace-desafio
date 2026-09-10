@@ -4,11 +4,16 @@
 // carrinho, perfil, carteiras e pedidos permanecem consistentes entre si, e a persistência
 // local sustenta um refresh de página sem perder o cenário simulado.
 import type { User } from '@/types/auth'
+import type { Wallet } from '@/types/profile'
 
 /** Registro de usuário como fica persistido no mock — inclui o hash da senha, nunca a senha
- *  em claro (ver src/lib/crypto.ts). */
+ *  em claro (ver src/lib/crypto.ts). Os campos de perfil estendido (username, ENS) moram
+ *  aqui também — é o mesmo registro que a sessão e o perfil leem, só com visões diferentes
+ *  do que é exposto publicamente. */
 export interface StoredUser extends User {
   passwordHash: string
+  username: string
+  ensName: string | null
 }
 
 /** Formato completo do estado simulado. Cada fase do projeto adiciona suas próprias
@@ -77,6 +82,8 @@ export interface MockDatabase {
    *  original. Garante que reenviar a mesma tentativa devolve o mesmo pedido, e que reusar
    *  a chave com conteúdo diferente gera conflito (item 5 do desafio). */
   idempotency: Record<string, { orderId: string; requestHash: string }>
+  /** id do usuário -> carteiras cadastradas. Isolado por usuário, como favoritos e carrinho. */
+  wallets: Record<string, { primary?: Wallet; secondary?: Wallet }>
 }
 
 const STORAGE_KEY = 'nft-marketplace:mock-db'
@@ -90,7 +97,9 @@ function createSeed(): MockDatabase {
       {
         id: 'user_colecionador',
         name: 'Ana Colecionadora',
+        username: 'ana.colecionadora',
         email: 'colecionadora@kurio.app',
+        ensName: null,
         avatarUrl: null,
         // senha de exemplo: "colecionador123" (ver README.md, seção de credenciais fictícias)
         passwordHash:
@@ -99,7 +108,9 @@ function createSeed(): MockDatabase {
       {
         id: 'user_artista',
         name: 'Theo Artista',
+        username: 'theo.artista',
         email: 'artista@kurio.app',
+        ensName: null,
         avatarUrl: null,
         // senha de exemplo: "artista456" (ver README.md, seção de credenciais fictícias)
         passwordHash:
@@ -110,6 +121,7 @@ function createSeed(): MockDatabase {
     favorites: {},
     carts: {},
     orders: {},
+    wallets: {},
     idempotency: {},
   }
 }

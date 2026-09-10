@@ -6,6 +6,7 @@ import { cartHandlers } from './handlers/cart'
 import { favoriteHandlers } from './handlers/favorites'
 import { nftHandlers } from './handlers/nfts'
 import { orderHandlers } from './handlers/orders'
+import { profileHandlers } from './handlers/profile'
 
 export const handlers = [
   ...authHandlers,
@@ -13,4 +14,5 @@ export const handlers = [
   ...favoriteHandlers,
   ...cartHandlers,
   ...orderHandlers,
+  ...profileHandlers,
 ]

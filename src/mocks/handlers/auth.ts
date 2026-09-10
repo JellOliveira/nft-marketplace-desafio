@@ -21,6 +21,33 @@ function errorResponse(status: number, body: ApiErrorBody) {
   return HttpResponse.json(body, { status })
 }
 
+/** Mescla o carrinho do visitante (identificado pelo header X-Guest-Id) no carrinho do
+ *  usuário que acabou de autenticar, somando quantidades de linhas equivalentes — exigido
+ *  pelo item 3 do desafio ("preservar os itens do visitante ao autenticar"). Chamado pelos
+ *  handlers de login e cadastro logo após a sessão ser criada. */
+function mergeGuestCartIntoUser(db: ReturnType<typeof readDb>, request: Request, userId: string) {
+  const guestId = request.headers.get('x-guest-id')
+  if (!guestId || guestId === userId) return
+
+  const guestCart = db.carts[guestId]
+  if (!guestCart || guestCart.lines.length === 0) return
+
+  const userCart = db.carts[userId] ?? { lines: [], couponCode: null, quoteVersion: 1 }
+  for (const guestLine of guestCart.lines) {
+    const existing = userCart.lines.find(
+      (line) => line.nftId === guestLine.nftId && line.edition === guestLine.edition,
+    )
+    if (existing) {
+      existing.quantity += guestLine.quantity
+    } else {
+      userCart.lines.push({ ...guestLine })
+    }
+  }
+  userCart.quoteVersion += 1
+  db.carts[userId] = userCart
+  delete db.carts[guestId]
+}
+
 /** Resolve o usuário autenticado a partir do header Authorization enviado pelo Axios
  *  (ver src/lib/http.ts). Compartilhado por qualquer handler que exija sessão válida. */
 export function resolveAuthenticatedUser(request: Request): StoredUser | null {
@@ -76,6 +103,7 @@ export const authHandlers = [
     const token = generateId('token')
     db.users.push(newUser)
     db.sessions[token] = newUser.id
+    mergeGuestCartIntoUser(db, request, newUser.id)
     writeDb(db)
 
     const body: AuthResponse = { user: toPublicUser(newUser), token }
@@ -104,6 +132,7 @@ export const authHandlers = [
 
     const token = generateId('token')
     db.sessions[token] = user.id
+    mergeGuestCartIntoUser(db, request, user.id)
     writeDb(db)
 
     const body: AuthResponse = { user: toPublicUser(user), token }

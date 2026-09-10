@@ -14,10 +14,29 @@ export interface StoredUser extends User {
 /** Formato completo do estado simulado. Cada fase do projeto adiciona suas próprias
  *  coleções aqui (nfts, favoritos, carrinho, pedidos, carteiras) — mantendo tudo num único
  *  objeto serializável, o reset de cenário (item 6) vira uma única substituição atômica. */
+/** Uma linha do carrinho como fica persistida — só a referência ao NFT, edição e
+ *  quantidade. Preço, disponibilidade e totais são sempre recalculados na leitura a partir
+ *  do catálogo atual, nunca congelados aqui (é o catálogo que reflete eventos de tempo real). */
+export interface StoredCartLine {
+  nftId: string
+  edition: string
+  quantity: number
+}
+
+export interface StoredCart {
+  lines: StoredCartLine[]
+  couponCode: string | null
+  quoteVersion: number
+}
+
 export interface MockDatabase {
   users: StoredUser[]
   /** token de sessão -> id do usuário autenticado por ele */
   sessions: Record<string, string>
+  /** id do usuário -> ids de NFT favoritados. Isolado por usuário (nunca uma chave global). */
+  favorites: Record<string, string[]>
+  /** chave = id do usuário autenticado OU id de visitante (ver src/lib/guest-id.ts). */
+  carts: Record<string, StoredCart>
 }
 
 const STORAGE_KEY = 'nft-marketplace:mock-db'
@@ -48,6 +67,8 @@ function createSeed(): MockDatabase {
       },
     ],
     sessions: {},
+    favorites: {},
+    carts: {},
   }
 }
 
@@ -59,7 +80,11 @@ export function readDb(): MockDatabase {
   if (cache) return cache
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    cache = raw ? (JSON.parse(raw) as MockDatabase) : createSeed()
+    // `?? createSeed()` acima cobre a ausência total do registro; o spread abaixo cobre uma
+    // versão mais antiga do estado salvo no navegador, sem uma coleção adicionada depois
+    // (ex.: alguém que testou o app antes da fase de favoritos existir) — evita que o app
+    // quebre por causa de um localStorage desatualizado em vez de corrompido.
+    cache = raw ? { ...createSeed(), ...(JSON.parse(raw) as MockDatabase) } : createSeed()
   } catch {
     // localStorage indisponível (ex.: modo privado) ou JSON corrompido — recomeça do zero
     // em memória, sem quebrar a aplicação.

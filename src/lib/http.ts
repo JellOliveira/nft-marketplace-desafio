@@ -2,6 +2,7 @@
 // nenhum componente ou hook chama `fetch` diretamente nem contém resposta simulada própria;
 // a simulação vive inteiramente nos handlers do MSW, que interceptam estas requisições.
 import axios from 'axios'
+import { getGuestId } from './guest-id'
 import { clearSessionToken, getSessionToken } from './session-token'
 
 export const http = axios.create({
@@ -9,13 +10,15 @@ export const http = axios.create({
   timeout: 15_000,
 })
 
-// Anexa o token de sessão (quando existe) em toda requisição — é assim que os handlers mock
-// identificam qual usuário está autenticado, sem depender de nenhum estado global do React.
+// Anexa o token de sessão (quando existe) e o id de visitante em toda requisição. Os
+// handlers de carrinho usam o token quando presente; sem sessão, caem para o id de
+// visitante — é assim que o carrinho sobrevive a um refresh mesmo antes do login.
 http.interceptors.request.use((config) => {
   const token = getSessionToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  config.headers['X-Guest-Id'] = getGuestId()
   return config
 })
 

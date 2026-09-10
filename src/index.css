@@ -85,3 +85,43 @@ body {
     @apply border-border outline-ring/50;
   }
 }
+
+/* Skeleton com shimmer: brilho varrendo da esquerda pra direita sobre o fundo do
+   placeholder, usado em catálogo, detalhe e resumo do carrinho enquanto os dados carregam
+   (item 8 do desafio). As dimensões do skeleton devem sempre casar com as do conteúdo real
+   que ele antecede, para não causar layout shift quando os dados chegam. */
+@layer utilities {
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .skeleton-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-brand-text) 8%, transparent),
+      transparent
+    );
+    animation: skeleton-sweep 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Usuários que pedem menos movimento ao sistema operacional não veem a varredura — o
+   skeleton fica estático (só a cor de fundo), preservando a indicação de carregamento sem a
+   animação. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
+    display: none;
+  }
+}

@@ -1,7 +1,10 @@
-// Contador de itens do carrinho exibido no ícone do header. Placeholder retornando 0 até a
-// fase do carrinho (próxima) implementar a query real contra /api/cart — mantido como hook
-// isolado desde já para que o Header não precise ser tocado de novo quando o carrinho ficar
-// pronto, só o corpo desta função muda.
+import { useCart } from './use-cart'
+
+// Contador de itens do carrinho exibido no ícone do header — soma as quantidades de todas as
+// linhas do carrinho real (substituiu o placeholder inicial assim que o carrinho ficou
+// disponível).
 export function useCartCount(): number {
-  return 0
+  const { data } = useCart()
+  if (!data) return 0
+  return data.lines.reduce((sum, line) => sum + line.quantity, 0)
 }

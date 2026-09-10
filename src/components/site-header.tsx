@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useCartCount } from '@/features/cart/use-cart-count'
 import { useLogout, useSession } from '@/features/auth/use-session'
+import { DEFAULT_CATALOG_SEARCH } from '@/types/nft'
 
 /** Links de navegação fora do escopo da entrega — renderizados como não-interativos,
  *  visualmente idênticos ao link ativo, com indicação explícita via aria/tooltip. */
@@ -26,13 +27,13 @@ export function SiteHeader() {
   return (
     <header className="border-b border-brand-border/60">
       <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-5 lg:px-[120px]">
-        <Link to="/" className="text-sm font-bold tracking-[1.4px] text-brand-text">
+        <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="text-sm font-bold tracking-[1.4px] text-brand-text">
           KURIO
         </Link>
 
         <nav className="hidden items-center gap-10 md:flex" aria-label="Navegação principal">
           <Link
-            to="/"
+            to="/" search={DEFAULT_CATALOG_SEARCH}
             className="text-base font-bold text-brand-text [&.active]:text-brand-accent-alt"
             activeProps={{ className: 'active' }}
           >
@@ -52,14 +53,14 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-4 lg:gap-7">
           <Link
-            to="/"
+            to="/" search={DEFAULT_CATALOG_SEARCH}
             aria-label="Buscar NFTs"
             className="hidden text-brand-text/80 hover:text-brand-text sm:block"
           >
             <Search size={20} />
           </Link>
 
-          <Link to="/" aria-label="Ver carrinho" className="relative text-brand-text/80 hover:text-brand-text">
+          <Link to="/" search={DEFAULT_CATALOG_SEARCH} aria-label="Ver carrinho" className="relative text-brand-text/80 hover:text-brand-text">
             <ShoppingCart size={20} />
             {cartCount > 0 && (
               <span className="absolute -top-2 -right-2 flex size-4 items-center justify-center rounded-full bg-brand-accent-alt text-[10px] font-medium text-brand-card">
@@ -71,7 +72,7 @@ export function SiteHeader() {
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
               {/* TODO(perfil): apontar para /perfil quando a rota existir (fase 8 do plano) */}
-              <Link to="/" className="flex items-center gap-2" aria-label="Ver perfil">
+              <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="flex items-center gap-2" aria-label="Ver perfil">
                 <Avatar className="size-8">
                   <AvatarFallback className="bg-brand-accent-alt text-brand-card">
                     {initial}
@@ -115,7 +116,7 @@ export function SiteHeader() {
               className="border-brand-border bg-brand-card text-brand-text"
             >
               <nav className="mt-10 flex flex-col gap-6 px-4" aria-label="Navegação principal (mobile)">
-                <Link to="/" className="text-base font-bold text-brand-text">
+                <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="text-base font-bold text-brand-text">
                   Início
                 </Link>
                 {OUT_OF_SCOPE_LINKS.map((label) => (

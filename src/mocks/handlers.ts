@@ -2,5 +2,8 @@
 // em `src/mocks/handlers/`, concatenado aqui. Os handlers de catálogo, carrinho, cotação,
 // pedidos, perfil e carteiras entram nas próximas fases.
 import { authHandlers } from './handlers/auth'
+import { cartHandlers } from './handlers/cart'
+import { favoriteHandlers } from './handlers/favorites'
+import { nftHandlers } from './handlers/nfts'
 
-export const handlers = [...authHandlers]
+export const handlers = [...authHandlers, ...nftHandlers, ...favoriteHandlers, ...cartHandlers]

@@ -41,63 +41,64 @@ export function CatalogFilters({
   onPriceChange,
 }: CatalogFiltersProps) {
   return (
-    <aside
-      className="w-full shrink-0 rounded-xl bg-brand-card p-5 lg:w-[220px]"
-      aria-label="Filtros do catálogo"
-    >
-      <section>
-        <h2 className="mb-3 text-lg font-bold text-brand-text">Coleções</h2>
-        <ul className="flex flex-col gap-2">
-          {categories.map((facet) => (
-            <li key={facet.category}>
-              <FilterRow
-                label={facet.category}
-                count={facet.count}
-                active={selectedCategory === facet.category}
-                onClick={() =>
-                  onCategoryChange(selectedCategory === facet.category ? null : facet.category)
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
+    <aside className="w-full shrink-0 lg:w-[220px]" aria-label="Filtros do catálogo">
+      <div className="rounded-xl bg-brand-card p-5">
+        <section>
+          <h2 className="mb-3 text-lg font-bold text-brand-text">Coleções</h2>
+          <ul className="flex flex-col gap-2">
+            {categories.map((facet) => (
+              <li key={facet.category}>
+                <FilterRow
+                  label={facet.category}
+                  count={facet.count}
+                  active={selectedCategory === facet.category}
+                  onClick={() =>
+                    onCategoryChange(selectedCategory === facet.category ? null : facet.category)
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-bold text-brand-text">Faixa de preço</h2>
-        {priceBounds ? (
-          <PriceRangeControl
-            bounds={priceBounds}
-            priceMin={priceMin}
-            priceMax={priceMax}
-            onApply={onPriceChange}
-          />
-        ) : (
-          <div className="h-16 animate-pulse rounded-md bg-brand-border/40" aria-hidden />
-        )}
-      </section>
+        <section className="mt-8">
+          <h2 className="mb-3 text-lg font-bold text-brand-text">Faixa de preço</h2>
+          {priceBounds ? (
+            <PriceRangeControl
+              bounds={priceBounds}
+              priceMin={priceMin}
+              priceMax={priceMax}
+              onApply={onPriceChange}
+            />
+          ) : (
+            <div className="h-16 animate-pulse rounded-md bg-brand-border/40" aria-hidden />
+          )}
+        </section>
 
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-bold text-brand-text">Rede</h2>
-        <ul className="flex flex-col gap-2">
-          {networks.map((facet) => (
-            <li key={facet.network}>
-              <FilterRow
-                label={NETWORK_LABELS[facet.network]}
-                count={facet.count}
-                active={selectedNetwork === facet.network}
-                onClick={() =>
-                  onNetworkChange(selectedNetwork === facet.network ? null : facet.network)
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
+        <section className="mt-8">
+          <h2 className="mb-3 text-lg font-bold text-brand-text">Rede</h2>
+          <ul className="flex flex-col gap-2">
+            {networks.map((facet) => (
+              <li key={facet.network}>
+                <FilterRow
+                  label={NETWORK_LABELS[facet.network]}
+                  count={facet.count}
+                  active={selectedNetwork === facet.network}
+                  onClick={() =>
+                    onNetworkChange(selectedNetwork === facet.network ? null : facet.network)
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
 
-      <section className="mt-8">
+      {/* Separado do painel de filtros de propósito (Products.svg): "NFT em destaque" tem seu
+       *  próprio fundo em degradê, não o mesmo bg-brand-card sólido de Coleções/Rede. */}
+      <div className="mt-8">
         <FeaturedNftCard />
-      </section>
+      </div>
     </aside>
   )
 }

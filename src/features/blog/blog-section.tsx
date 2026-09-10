@@ -15,26 +15,28 @@ export function BlogSection() {
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {BLOG_POSTS.map((post) => (
-          <article key={post.id}>
+          <article key={post.id} className="overflow-hidden rounded-xl bg-brand-card">
             <img
               src={post.image}
               alt=""
               aria-hidden
-              className="aspect-[4/3] w-full rounded-xl object-cover"
+              className="aspect-[4/3] w-full object-cover"
               loading="lazy"
             />
-            <p className="mt-3 text-xs text-brand-muted">
-              {post.date} <span aria-hidden> | </span> {post.readingTime}
-            </p>
-            <h3 className="mt-1 text-base font-bold text-brand-text">{post.title}</h3>
-            <p className="mt-1 text-sm text-brand-muted">{post.excerpt}</p>
-            <span
-              aria-disabled="true"
-              title="Fora do escopo desta entrega"
-              className="mt-2 inline-block cursor-not-allowed text-sm font-bold text-brand-accent-alt/60"
-            >
-              Ler mais →
-            </span>
+            <div className="p-4">
+              <p className="text-xs text-brand-gold">
+                {post.date} <span aria-hidden> | </span> {post.readingTime}
+              </p>
+              <h3 className="mt-1 text-base font-bold text-brand-text">{post.title}</h3>
+              <p className="mt-1 text-sm text-brand-gold">{post.excerpt}</p>
+              <span
+                aria-disabled="true"
+                title="Fora do escopo desta entrega"
+                className="mt-2 inline-block cursor-not-allowed text-sm font-bold text-brand-accent/60"
+              >
+                Ler mais →
+              </span>
+            </div>
           </article>
         ))}
       </div>

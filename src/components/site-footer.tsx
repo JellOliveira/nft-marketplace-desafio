@@ -78,15 +78,16 @@ const SOCIAL_LINKS = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-brand-border/60 bg-brand-bg text-brand-text">
+      <ContactStrip />
+
       <div className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_repeat(3,auto)]">
-          <SocialColumn />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-[repeat(3,auto)_1fr]">
           <FooterColumn title="Meu perfil">
             <ul className="flex flex-col gap-2">
               {PROFILE_LINKS.map((item) =>
                 item.to ? (
                   <li key={item.label}>
-                    <Link to={item.to} className="text-sm text-brand-muted hover:text-brand-accent-alt">
+                    <Link to={item.to} className="text-sm text-brand-text hover:text-brand-accent-alt">
                       {item.label}
                     </Link>
                   </li>
@@ -112,7 +113,7 @@ export function SiteFooter() {
                   <Link
                     to="/"
                     search={{ ...DEFAULT_CATALOG_SEARCH, category }}
-                    className="text-sm text-brand-muted hover:text-brand-accent-alt"
+                    className="text-sm text-brand-text hover:text-brand-accent-alt"
                   >
                     {category}
                   </Link>
@@ -120,6 +121,8 @@ export function SiteFooter() {
               ))}
             </ul>
           </FooterColumn>
+
+          <SocialColumn />
         </div>
 
         <p className="mt-10 text-center text-xs text-brand-muted">
@@ -127,6 +130,26 @@ export function SiteFooter() {
         </p>
       </div>
     </footer>
+  )
+}
+
+/** Faixa de contato entre o rodapé e a faixa de destaques/newsletter (Footer.svg): logo
+ *  "KURIO" + descrição curta + e-mail e telefone (mailto:/tel:, reais e funcionais — não é
+ *  um link "fora do escopo" fingindo uma central de contato). */
+function ContactStrip() {
+  return (
+    <div className="border-b border-brand-border/60 bg-brand-dark">
+      <div className="mx-auto flex max-w-[1200px] flex-col flex-wrap items-center gap-4 px-5 py-6 text-center sm:flex-row sm:justify-between sm:text-left lg:px-[120px]">
+        <span className="text-sm font-bold tracking-[1.4px] text-brand-text">KURIO</span>
+        <p className="text-sm text-brand-text">Feito para colecionadores, criadores e cultura</p>
+        <a href="mailto:contato@email.com" className="text-sm text-brand-text hover:text-brand-accent-alt">
+          contato@email.com
+        </a>
+        <a href="tel:+551140028922" className="text-sm text-brand-text hover:text-brand-accent-alt">
+          +55 11 4002 8922
+        </a>
+      </div>
+    </div>
   )
 }
 
@@ -140,9 +163,9 @@ function SocialColumn() {
             <span
               aria-disabled="true"
               title="Fora do escopo desta entrega"
-              className="flex size-8 cursor-not-allowed items-center justify-center rounded-full border border-brand-border text-brand-muted"
+              className="flex size-10 cursor-not-allowed items-center justify-center rounded-md bg-brand-accent-alt text-brand-bg"
             >
-              <Icon className="size-4" aria-hidden />
+              <Icon className="size-5" aria-hidden />
               <span className="sr-only">{label}</span>
             </span>
           </li>
@@ -150,7 +173,7 @@ function SocialColumn() {
       </ul>
 
       <h3 className="mt-6 mb-2 text-sm font-bold text-brand-text">Carteiras compatíveis</h3>
-      <p className="text-xs tracking-wide text-brand-gold">
+      <p className="w-fit rounded-md bg-brand-dark px-3 py-1.5 text-xs tracking-wide text-brand-accent">
         METAMASK · WALLETCONNECT · COINBASE
       </p>
     </div>
@@ -172,7 +195,7 @@ function OutOfScopeItem({ label }: { label: string }) {
       <span
         aria-disabled="true"
         title="Fora do escopo desta entrega"
-        className="cursor-not-allowed text-sm text-brand-muted/50"
+        className="cursor-not-allowed text-sm text-brand-text/50"
       >
         {label}
       </span>

@@ -35,19 +35,22 @@ export function NewsletterSection() {
   }
 
   return (
-    <section className="border-t border-brand-border/60 bg-brand-card/40">
+    <section className="border-t border-brand-border/60 bg-brand-card">
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.6fr] lg:px-[120px]">
-        {FEATURES.map(({ Icon, title, description }) => (
-          <div key={title}>
-            <span className="flex size-10 items-center justify-center rounded-full bg-brand-accent-alt/20 text-brand-accent-alt">
-              <Icon size={18} aria-hidden />
+        {FEATURES.map(({ Icon, title, description }, index) => (
+          <div
+            key={title}
+            className={index > 0 ? 'lg:border-l lg:border-brand-border/60 lg:pl-8' : undefined}
+          >
+            <span className="flex size-16 items-center justify-center rounded-full bg-brand-accent-alt text-brand-bg">
+              <Icon size={26} aria-hidden />
             </span>
             <h3 className="mt-4 text-base font-bold text-brand-text">{title}</h3>
-            <p className="mt-1 text-sm text-brand-muted">{description}</p>
+            <p className="mt-1 text-sm text-brand-gold">{description}</p>
           </div>
         ))}
 
-        <div>
+        <div className="lg:border-l lg:border-brand-border/60 lg:pl-8">
           <h3 className="text-base font-bold text-brand-text">
             Antecipe-se ao próximo lançamento
           </h3>
@@ -62,18 +65,17 @@ export function NewsletterSection() {
                   setStatus('idle')
                 }}
                 placeholder="digite seu e-mail…"
-                className="h-9 w-full rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none"
+                className="h-10 w-full rounded-md border border-transparent bg-brand-dark px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none"
               />
             </label>
             <Button
               type="submit"
-              size="sm"
-              className="bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+              className="h-10 bg-brand-accent-alt px-5 text-brand-bg hover:bg-brand-accent"
             >
               Enviar
             </Button>
           </form>
-          <p className="mt-2 text-xs text-brand-muted" role="status">
+          <p className="mt-2 text-xs text-brand-gold" role="status">
             {status === 'subscribed'
               ? 'Inscrição confirmada — obrigado!'
               : status === 'invalid'

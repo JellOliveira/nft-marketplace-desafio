@@ -124,8 +124,7 @@ export function SiteHeader() {
           ) : (
             <Button
               asChild
-              className="bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
-              size="sm"
+              className="h-9 rounded-md bg-brand-accent-alt px-3 font-bold text-brand-bg hover:bg-brand-accent"
             >
               <Link to="/login" search={{ redirect: location.pathname }}>
                 <UserIcon className="size-4" />
@@ -155,7 +154,7 @@ export function SiteHeader() {
                   </span>
                 ))}
                 {!isAuthenticated && (
-                  <Button asChild className="bg-brand-accent-alt text-brand-card hover:bg-brand-accent">
+                  <Button asChild className="h-9 rounded-md bg-brand-accent-alt font-bold text-brand-bg hover:bg-brand-accent">
                     <Link to="/login" search={{ redirect: location.pathname }}>
                       Entrar
                     </Link>

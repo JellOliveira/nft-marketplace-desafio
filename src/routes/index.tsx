@@ -124,7 +124,7 @@ function HomePage() {
         />
 
         <section className="min-w-0 flex-1">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-6 flex flex-col flex-wrap gap-x-8 gap-y-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-6" role="tablist" aria-label="Filtro rápido do catálogo">
               <QuickTabButton
                 active={quickTab === 'all'}

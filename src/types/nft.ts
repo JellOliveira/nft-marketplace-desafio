@@ -92,3 +92,8 @@ export interface NetworkFacet {
   network: NftNetwork
   count: number
 }
+
+export interface PriceBounds {
+  min: number
+  max: number
+}

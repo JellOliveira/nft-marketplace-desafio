@@ -12,7 +12,7 @@ test.describe('Catálogo — busca, filtros e paginação', () => {
     await expect(page).toHaveURL(/q=Emerald/)
     // Toda linha visível do grid precisa conter o termo buscado — sem isso, a busca não
     // estaria filtrando de verdade, só decorando a URL.
-    const cardTitles = page.locator('main h3')
+    const cardTitles = page.locator('[data-testid="nft-grid"] h3')
     await expect(cardTitles.first()).toBeVisible()
     const count = await cardTitles.count()
     for (let i = 0; i < count; i++) {
@@ -34,7 +34,7 @@ test.describe('Catálogo — busca, filtros e paginação', () => {
 
   test('paginação avança e o histórico do navegador restaura o estado anterior', async ({ page }) => {
     await page.goto('/')
-    const firstCardTitle = page.locator('main h3').first()
+    const firstCardTitle = page.locator('[data-testid="nft-grid"] h3').first()
     const firstPageFirstTitle = await firstCardTitle.innerText()
 
     await page.getByRole('button', { name: 'Próxima página' }).click()

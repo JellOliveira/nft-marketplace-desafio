@@ -156,10 +156,14 @@ equivalentes (`mergeGuestCartIntoUser` em `src/mocks/handlers/auth.ts`).
 ## Substituições de asset e desvios do Figma
 
 - **Imagens dos NFTs**: o Figma disponibiliza apenas capturas de tela das composições, sem
-  os assets individuais de cada NFT exportados. Cada card usa uma imagem gerada localmente
-  (SVG com gradiente determinístico + iniciais, `src/lib/placeholder-image.ts`) — sem
-  depender de nenhum serviço externo de imagens, para o catálogo funcionar 100% offline dos
-  mocks (e sem flakiness de rede na auditoria Lighthouse).
+  os assets individuais de cada NFT exportados. As artes usadas nos cards (`src/assets/
+  nft-art`, `hero`, `promo`, `blog`) foram recortadas dessas capturas e otimizadas em webp —
+  um conjunto de 8 artes únicas, cicladas deterministicamente por índice na fixture
+  (`src/mocks/data/nfts.ts`), já que não há arte individual por NFT para todos os 64 itens
+  gerados. `src/lib/placeholder-image.ts` (SVG com gradiente determinístico + iniciais)
+  segue existindo só como 4º item da galeria de cada NFT (varia por item sem exigir mais
+  recortes) — nenhuma imagem depende de serviço externo, então o catálogo continua
+  funcionando 100% offline dos mocks (sem flakiness de rede na auditoria Lighthouse).
 - **Coração de favoritar**: no Figma, os ícones de ação do card (carrinho, coração, busca)
   só aparecem no hover. Implementado sempre visível — um controle interativo que só aparece
   no hover é inoperável por teclado, o que violaria o requisito de navegação por teclado.

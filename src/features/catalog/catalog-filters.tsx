@@ -2,9 +2,12 @@
 // preço e rede. Filtros são combináveis — vários podem estar ativos ao mesmo tempo — e cada
 // mudança aqui reinicia a paginação para a página 1 (feito pelo componente pai, que possui o
 // estado da URL; este componente só emite a intenção de mudança).
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
-import type { CategoryFacet, NetworkFacet, NftNetwork } from '@/types/nft'
+import type { CategoryFacet, NetworkFacet, NftNetwork, PriceBounds } from '@/types/nft'
+import { FeaturedNftCard } from './featured-nft-card'
 
 const NETWORK_LABELS: Record<NftNetwork, string> = {
   ethereum: 'Ethereum',
@@ -19,6 +22,7 @@ interface CatalogFiltersProps {
   selectedNetwork: NftNetwork | null
   priceMin: number | null
   priceMax: number | null
+  priceBounds: PriceBounds | undefined
   onCategoryChange: (category: string | null) => void
   onNetworkChange: (network: NftNetwork | null) => void
   onPriceChange: (min: number | null, max: number | null) => void
@@ -31,6 +35,7 @@ export function CatalogFilters({
   selectedNetwork,
   priceMin,
   priceMax,
+  priceBounds,
   onCategoryChange,
   onNetworkChange,
   onPriceChange,
@@ -62,47 +67,16 @@ export function CatalogFilters({
 
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-bold text-brand-text">Faixa de preço</h2>
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(event) => {
-            event.preventDefault()
-            const form = new FormData(event.currentTarget)
-            const min = form.get('priceMin')
-            const max = form.get('priceMax')
-            onPriceChange(min ? Number(min) : null, max ? Number(max) : null)
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              name="priceMin"
-              min={0}
-              step={0.01}
-              defaultValue={priceMin ?? ''}
-              placeholder="Mín."
-              aria-label="Preço mínimo em ETH"
-              className="h-9 w-full rounded-md border border-brand-border bg-transparent px-2 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none"
-            />
-            <span className="text-brand-muted">–</span>
-            <input
-              type="number"
-              name="priceMax"
-              min={0}
-              step={0.01}
-              defaultValue={priceMax ?? ''}
-              placeholder="Máx."
-              aria-label="Preço máximo em ETH"
-              className="h-9 w-full rounded-md border border-brand-border bg-transparent px-2 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none"
-            />
-          </div>
-          <Button
-            type="submit"
-            size="sm"
-            className="mt-1 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
-          >
-            Aplicar
-          </Button>
-        </form>
+        {priceBounds ? (
+          <PriceRangeControl
+            bounds={priceBounds}
+            priceMin={priceMin}
+            priceMax={priceMax}
+            onApply={onPriceChange}
+          />
+        ) : (
+          <div className="h-16 animate-pulse rounded-md bg-brand-border/40" aria-hidden />
+        )}
       </section>
 
       <section className="mt-8">
@@ -127,7 +101,66 @@ export function CatalogFilters({
           ))}
         </ul>
       </section>
+
+      <section className="mt-8">
+        <FeaturedNftCard />
+      </section>
     </aside>
+  )
+}
+
+/** Barra dupla de preço (design-refs/Desktop/Início.png: "Faixa de preço" com trilha
+ *  laranja + "Preço: 0,02 - 12,30 ETH" + botão Aplicar). O arraste só atualiza o rótulo local
+ *  — a mudança só vira navegação/consulta real ao clicar "Aplicar", igual ao comportamento
+ *  já existente com os inputs numéricos que este componente substitui. */
+function PriceRangeControl({
+  bounds,
+  priceMin,
+  priceMax,
+  onApply,
+}: {
+  bounds: PriceBounds
+  priceMin: number | null
+  priceMax: number | null
+  onApply: (min: number | null, max: number | null) => void
+}) {
+  const [range, setRange] = useState<[number, number]>([
+    priceMin ?? bounds.min,
+    priceMax ?? bounds.max,
+  ])
+
+  // Se o usuário limpar o filtro em outro lugar (ex.: "Limpar filtros"), o slider acompanha.
+  useEffect(() => {
+    setRange([priceMin ?? bounds.min, priceMax ?? bounds.max])
+  }, [priceMin, priceMax, bounds.min, bounds.max])
+
+  return (
+    <form
+      className="flex flex-col gap-3"
+      onSubmit={(event) => {
+        event.preventDefault()
+        onApply(range[0], range[1])
+      }}
+    >
+      <Slider
+        min={bounds.min}
+        max={bounds.max}
+        step={0.01}
+        value={range}
+        onValueChange={(value) => setRange([value[0], value[1]] as [number, number])}
+        aria-label="Faixa de preço em ETH"
+      />
+      <p className="text-sm text-brand-muted">
+        Preço: {range[0].toFixed(2)} – {range[1].toFixed(2)} ETH
+      </p>
+      <Button
+        type="submit"
+        size="sm"
+        className="w-fit bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+      >
+        Aplicar
+      </Button>
+    </form>
   )
 }
 

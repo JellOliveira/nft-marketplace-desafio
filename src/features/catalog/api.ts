@@ -1,7 +1,14 @@
 // Funções de acesso ao recurso de NFTs e favoritos. Nenhuma lógica de mock mora aqui — só a
 // chamada HTTP tipada, exatamente como bateria contra uma API real.
 import { http } from '@/lib/http'
-import type { CategoryFacet, NetworkFacet, Nft, NftListParams, PaginatedResult } from '@/types/nft'
+import type {
+  CategoryFacet,
+  NetworkFacet,
+  Nft,
+  NftListParams,
+  PaginatedResult,
+  PriceBounds,
+} from '@/types/nft'
 
 function buildQuery(params: NftListParams): Record<string, string> {
   const query: Record<string, string> = {
@@ -31,6 +38,7 @@ export async function fetchNftList(
 export async function fetchNftFacets(): Promise<{
   categories: CategoryFacet[]
   networks: NetworkFacet[]
+  priceBounds: PriceBounds
 }> {
   const { data } = await http.get('/nfts/facets')
   return data

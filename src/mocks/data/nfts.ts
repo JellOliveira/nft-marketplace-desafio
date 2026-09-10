@@ -7,8 +7,35 @@
 // composição visual, sem NFTs individuais correspondentes exportados — os facets exibidos
 // na barra lateral são computados a partir deste conjunto gerado, não copiados do mockup.
 // Documentado em ARCHITECTURE.md como decisão de dado, não de layout.
+//
+// Imagens: o Figma não exporta assets individuais por NFT, só as telas inteiras como
+// screenshot. As artes (as "fotos de macaco") foram recortadas dessas capturas
+// (design-refs/Desktop/Início.png) e otimizadas para src/assets/nft-art — usar a arte real
+// do design em vez de um placeholder gerado evita a divergência visual apontada em revisão.
+// O conjunto (8 artes únicas) é insuficiente para 64 NFTs distintos, então cicla
+// deterministicamente por índice — mesma seed, mesmo resultado, sem repetir a mesma arte em
+// cards vizinhos na grade (offset de 3 entre index e index usado na galeria).
 import { placeholderImage } from '@/lib/placeholder-image'
 import type { Nft, NftNetwork } from '@/types/nft'
+import celebrantAvatar from '@/assets/nft-art/emerald-ape.webp'
+import sageNomadArt from '@/assets/nft-art/sage-nomad.webp'
+import neonVesselArt from '@/assets/nft-art/neon-vessel.webp'
+import cosmicBloomArt from '@/assets/nft-art/cosmic-bloom.webp'
+import violetNomadArt from '@/assets/nft-art/violet-nomad.webp'
+import ivoryBaronArt from '@/assets/nft-art/ivory-baron.webp'
+import featuredArt from '@/assets/nft-art/featured.webp'
+import goldenBeatArt from '@/assets/nft-art/golden-beat.webp'
+
+export const NFT_ART_POOL = [
+  celebrantAvatar,
+  sageNomadArt,
+  neonVesselArt,
+  cosmicBloomArt,
+  violetNomadArt,
+  ivoryBaronArt,
+  featuredArt,
+  goldenBeatArt,
+]
 
 function mulberry32(seed: number) {
   let a = seed
@@ -106,6 +133,7 @@ function generateCatalog(count: number): Nft[] {
     const artist = ARTISTS[Math.floor(random() * ARTISTS.length)]
     const id = `nft_${i + 1}`
     const seedImage = `${name}-${i}`
+    const artIndex = i % NFT_ART_POOL.length
 
     items.push({
       id,
@@ -120,11 +148,11 @@ function generateCatalog(count: number): Nft[] {
         'com arte desbloqueável e acesso para colecionadores.',
       priceEth,
       compareAtPriceEth,
-      imageUrl: placeholderImage(seedImage, name),
+      imageUrl: NFT_ART_POOL[artIndex],
       gallery: [
-        placeholderImage(`${seedImage}-1`, name),
-        placeholderImage(`${seedImage}-2`, name),
-        placeholderImage(`${seedImage}-3`, name),
+        NFT_ART_POOL[artIndex],
+        NFT_ART_POOL[(artIndex + 3) % NFT_ART_POOL.length],
+        NFT_ART_POOL[(artIndex + 5) % NFT_ART_POOL.length],
         placeholderImage(`${seedImage}-4`, name),
       ],
       category,

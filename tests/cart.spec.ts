@@ -11,8 +11,9 @@ test.describe('Carrinho', () => {
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
 
-    const href = await page.locator('a[href^="/nft/"]').first().getAttribute('href')
-    await page.locator(`a[href="${href}"]`).click()
+    // .first() posicional em vez de reconsultar por href exato: o NFT em destaque da barra
+    // lateral pode repetir o href de um card da grade e tornar o seletor ambíguo.
+    await page.locator('a[href^="/nft/"]').first().click()
     await page.waitForURL(/\/nft\//)
     await page.getByRole('button', { name: 'Comprar' }).click()
     await page.waitForURL(/\/carrinho/)
@@ -48,8 +49,9 @@ test.describe('Carrinho', () => {
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
 
-    const href = await page.locator('a[href^="/nft/"]').first().getAttribute('href')
-    await page.locator(`a[href="${href}"]`).click()
+    // .first() posicional em vez de reconsultar por href exato: o NFT em destaque da barra
+    // lateral pode repetir o href de um card da grade e tornar o seletor ambíguo.
+    await page.locator('a[href^="/nft/"]').first().click()
     await page.waitForURL(/\/nft\//)
     await page.getByRole('button', { name: 'Comprar' }).click()
     await page.waitForURL(/\/carrinho/)

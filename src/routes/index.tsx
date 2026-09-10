@@ -8,6 +8,9 @@ import { CatalogFilters } from '@/features/catalog/catalog-filters'
 import { NftCard } from '@/features/catalog/nft-card'
 import { NftGridSkeleton } from '@/features/catalog/nft-grid-skeleton'
 import { useNftFacets, useNftList } from '@/features/catalog/use-catalog'
+import { PromoBanner } from '@/features/home/promo-banner'
+import { NewsletterSection } from '@/features/home/newsletter-section'
+import { BlogSection } from '@/features/blog/blog-section'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -23,6 +26,9 @@ import {
   type NftNetwork,
   type NftSortOption,
 } from '@/types/nft'
+import heroImage from '@/assets/hero/hero.webp'
+import banner1Image from '@/assets/promo/banner-1.webp'
+import banner2Image from '@/assets/promo/banner-2.webp'
 
 const PAGE_SIZE = 9
 
@@ -90,6 +96,7 @@ function HomePage() {
           selectedNetwork={search.network}
           priceMin={search.priceMin}
           priceMax={search.priceMax}
+          priceBounds={facets?.priceBounds}
           onCategoryChange={(category) => updateSearch({ category })}
           onNetworkChange={(network) => updateSearch({ network })}
           onPriceChange={(priceMin, priceMax) => updateSearch({ priceMin, priceMax })}
@@ -175,27 +182,60 @@ function HomePage() {
           )}
         </section>
       </div>
+
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-5 pb-14 sm:flex-row lg:px-[120px]">
+        <PromoBanner
+          image={banner1Image}
+          title="Lançamentos gênese de edição limitada"
+          description="Colecione edições escassas diretamente dos criadores antes da revelação pública."
+        />
+        <PromoBanner
+          image={banner2Image}
+          title="Arte digital selecionada e muito mais"
+          description="Explore novos artistas, coleções verificadas e obras digitais que definem a cultura."
+          category="Arte digital"
+        />
+      </div>
+
+      <BlogSection />
+      <NewsletterSection />
     </main>
   )
 }
 
 function HeroSection({ onExplore }: { onExplore: () => void }) {
   return (
-    <section className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
-      <p className="text-sm text-brand-muted">Bem-vindo à Kurio</p>
-      <h1 className="mt-3 max-w-xl text-[32px] leading-tight font-bold text-brand-text lg:text-[43px] lg:leading-[70px]">
-        SEJA DONO DO FUTURO DA ARTE DIGITAL
-      </h1>
-      <p className="mt-3 max-w-md text-sm text-brand-muted">
-        Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte
-        digital rara, apoie artistas e tenha uma parte da cultura da internet.
-      </p>
-      <Button
-        onClick={onExplore}
-        className="mt-6 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
-      >
-        Explorar
-      </Button>
+    <section className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:items-center lg:px-[120px]">
+      <div className="flex-1">
+        <p className="text-sm text-brand-muted">Bem-vindo à Kurio</p>
+        <h1 className="mt-3 max-w-xl text-[32px] leading-tight font-bold text-brand-text lg:text-[43px] lg:leading-[70px]">
+          SEJA DONO DO FUTURO DA ARTE DIGITAL
+        </h1>
+        <p className="mt-3 max-w-md text-sm text-brand-muted">
+          Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte
+          digital rara, apoie artistas e tenha uma parte da cultura da internet.
+        </p>
+        <Button
+          onClick={onExplore}
+          className="mt-6 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+        >
+          Explorar
+        </Button>
+      </div>
+
+      <div className="flex flex-1 flex-col items-center lg:items-end">
+        <img
+          src={heroImage}
+          alt="Ilustração de um dos NFTs em destaque da coleção Kurio"
+          className="w-full max-w-sm rounded-2xl object-cover"
+          loading="eager"
+        />
+        <div className="mt-4 flex gap-1.5" aria-hidden>
+          <span className="size-1.5 rounded-full bg-brand-muted" />
+          <span className="size-1.5 rounded-full bg-brand-muted" />
+          <span className="size-1.5 rounded-full bg-brand-muted" />
+        </div>
+      </div>
     </section>
   )
 }
@@ -240,7 +280,7 @@ function CatalogResults({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
+    <div data-testid="nft-grid" className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
       {items.map((nft) => (
         <NftCard key={nft.id} nft={nft} />
       ))}

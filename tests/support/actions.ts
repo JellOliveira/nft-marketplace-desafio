@@ -16,11 +16,15 @@ export async function login(page: Page, credentials = COLLECTOR) {
  *  (extraído do href do card) para quem precisar disparar um evento sobre ele. */
 export async function addFirstNftToCart(page: Page): Promise<string> {
   await page.goto('/')
-  const href = await page.locator('a[href^="/nft/"]').first().getAttribute('href')
+  // O NFT em destaque (barra lateral) pode repetir o href de um card da grade — usar sempre
+  // o mesmo `.first()` posicional (em vez de reconsultar por href exato) evita ambiguidade
+  // de seletor quando os dois apontam para o mesmo id.
+  const firstNftLink = page.locator('a[href^="/nft/"]').first()
+  const href = await firstNftLink.getAttribute('href')
   if (!href) throw new Error('Nenhum NFT encontrado no catálogo.')
   const nftId = href.split('/nft/')[1]
 
-  await page.locator(`a[href="${href}"]`).click()
+  await firstNftLink.click()
   await page.waitForURL(/\/nft\//)
   await page.getByRole('button', { name: 'Comprar' }).click()
   await page.waitForURL(/\/carrinho/)

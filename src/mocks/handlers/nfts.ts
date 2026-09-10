@@ -64,13 +64,22 @@ export const nftHandlers = [
     await simulateNetwork()
     const categories = new Map<string, number>()
     const networks = new Map<NftNetwork, number>()
-    for (const nft of getEffectiveCatalog()) {
+    const catalog = getEffectiveCatalog()
+    let priceMin = Infinity
+    let priceMax = -Infinity
+    for (const nft of catalog) {
       categories.set(nft.category, (categories.get(nft.category) ?? 0) + 1)
       networks.set(nft.network, (networks.get(nft.network) ?? 0) + 1)
+      const price = Number(nft.priceEth)
+      if (price < priceMin) priceMin = price
+      if (price > priceMax) priceMax = price
     }
     return HttpResponse.json({
       categories: Array.from(categories, ([category, count]) => ({ category, count })),
       networks: Array.from(networks, ([network, count]) => ({ network, count })),
+      // Faixa de preço real do catálogo (item "Faixa de preço" do design) — calculada a
+      // partir dos dados, não hardcoded, para não divergir se a fixture mudar.
+      priceBounds: { min: Number(priceMin.toFixed(2)), max: Number(priceMax.toFixed(2)) },
     })
   }),
 

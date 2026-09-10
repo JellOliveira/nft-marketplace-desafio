@@ -6,14 +6,21 @@ import { expect, test } from '@playwright/test'
 test.describe('Catálogo — busca, filtros e paginação', () => {
   test('busca filtra a listagem e atualiza a URL', async ({ page }) => {
     await page.goto('/')
+    // A busca vive só no cabeçalho, atrás do ícone de lupa (design-refs/Products.svg: não há
+    // caixa de busca ao lado de "Ordenar por").
+    await page.getByRole('button', { name: 'Buscar NFTs' }).click()
     const searchBox = page.getByPlaceholder('Buscar NFTs, artistas, coleções…')
     await searchBox.fill('Emerald')
+    await searchBox.press('Enter')
 
     await expect(page).toHaveURL(/q=Emerald/)
     // Toda linha visível do grid precisa conter o termo buscado — sem isso, a busca não
-    // estaria filtrando de verdade, só decorando a URL.
+    // estaria filtrando de verdade, só decorando a URL. Espera a rede assentar antes de
+    // contar os cards: como a URL já mudou, o grid pode estar mostrando por um instante o
+    // resultado anterior (keepPreviousData) antes do refetch filtrado chegar.
+    await page.waitForLoadState('networkidle')
     const cardTitles = page.locator('[data-testid="nft-grid"] h3')
-    await expect(cardTitles.first()).toBeVisible()
+    await expect(cardTitles.first()).toContainText('Emerald', { ignoreCase: true })
     const count = await cardTitles.count()
     for (let i = 0; i < count; i++) {
       await expect(cardTitles.nth(i)).toContainText('Emerald', { ignoreCase: true })

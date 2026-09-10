@@ -38,11 +38,16 @@ test.describe('Acessibilidade', () => {
     await expect(page.getByRole('alert').filter({ hasText: 'inválidos' })).toBeVisible()
   })
 
-  test('filtros do catálogo são operáveis só com teclado', async ({ page }) => {
+  test('busca do cabeçalho é operável só com teclado', async ({ page }) => {
     await page.goto('/')
+    // A busca vive atrás do ícone de lupa no cabeçalho (design-refs/Products.svg) — o teste
+    // abre com Enter, igual a um usuário de teclado faria, em vez de focar a caixa direto.
+    await page.getByRole('button', { name: 'Buscar NFTs' }).focus()
+    await page.keyboard.press('Enter')
     const searchBox = page.getByPlaceholder('Buscar NFTs, artistas, coleções…')
-    await searchBox.focus()
+    await expect(searchBox).toBeFocused()
     await page.keyboard.type('Emerald')
+    await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/q=Emerald/)
   })
 })

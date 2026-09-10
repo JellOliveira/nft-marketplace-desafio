@@ -198,6 +198,8 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
               type="button"
               onClick={() => isAuthenticated && toggleFavorite.mutate({ nftId: nft.id, isFavorited })}
               disabled={!isAuthenticated || toggleFavorite.isPending}
+              aria-pressed={isFavorited}
+              aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
               title={isAuthenticated ? undefined : 'Entre para favoritar'}
               className="flex items-center gap-2 text-sm text-brand-text disabled:opacity-50"
             >

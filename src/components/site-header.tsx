@@ -3,8 +3,9 @@
 // essas páginas estão fora do escopo da entrega (item 3 do desafio) e por isso não navegam
 // para lugar nenhum: marcá-las como interativas seria fazer uma ação fora do escopo
 // aparentar sucesso funcional, que é justamente o que o enunciado proíbe.
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { Menu, Search, ShoppingCart, User as UserIcon } from 'lucide-react'
+import { useState, type FormEvent } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -20,9 +21,21 @@ export function SiteHeader() {
   const { user, isAuthenticated } = useSession()
   const logout = useLogout()
   const location = useLocation()
+  const navigate = useNavigate()
   const cartCount = useCartCount()
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const initial = user?.name.charAt(0).toUpperCase() ?? '?'
+
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const value = new FormData(event.currentTarget).get('q')
+    navigate({
+      to: '/',
+      search: { ...DEFAULT_CATALOG_SEARCH, q: typeof value === 'string' ? value : '' },
+    })
+    setSearchOpen(false)
+  }
 
   return (
     <header className="border-b border-brand-border/60">
@@ -52,13 +65,31 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-4 lg:gap-7">
-          <Link
-            to="/" search={DEFAULT_CATALOG_SEARCH}
-            aria-label="Buscar NFTs"
-            className="hidden text-brand-text/80 hover:text-brand-text sm:block"
-          >
-            <Search size={20} />
-          </Link>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setSearchOpen((open) => !open)}
+              aria-label="Buscar NFTs"
+              aria-expanded={searchOpen}
+              className="text-brand-text/80 hover:text-brand-text"
+            >
+              <Search size={20} />
+            </button>
+            {searchOpen && (
+              <form
+                onSubmit={submitSearch}
+                className="absolute top-full right-0 mt-3 w-[min(16rem,calc(100vw-2.5rem))] rounded-lg border border-brand-border bg-brand-card p-2 shadow-lg"
+              >
+                <input
+                  name="q"
+                  type="search"
+                  autoFocus
+                  placeholder="Buscar NFTs, artistas, coleções…"
+                  className="h-9 w-full rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none"
+                />
+              </form>
+            )}
+          </div>
 
           <Link to="/" search={DEFAULT_CATALOG_SEARCH} aria-label="Ver carrinho" className="relative text-brand-text/80 hover:text-brand-text">
             <ShoppingCart size={20} />

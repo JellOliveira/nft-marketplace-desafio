@@ -30,6 +30,15 @@ export const favoriteHandlers = [
     const { user, error } = requireAuth(request)
     if (!user) return error
 
+    // Escotilha só para o teste de rollback otimista (tests/auth-flow.spec.ts): liga uma
+    // falha determinística sem depender de interceptar a requisição pelo Playwright, que não
+    // é confiável aqui — o worker do MSW roda os handlers na mesma janela da página (só a
+    // interceptação em si acontece no service worker), então essa flag em `window`, setada
+    // pelo teste via page.evaluate, é visível pra este handler.
+    if (typeof window !== 'undefined' && (window as { __forceFavoriteFailure?: boolean }).__forceFavoriteFailure) {
+      return HttpResponse.json({ message: 'Falha simulada.' }, { status: 500 })
+    }
+
     const db = readDb()
     const current = db.favorites[user.id] ?? []
     if (!current.includes(String(params.nftId))) {

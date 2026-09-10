@@ -50,26 +50,34 @@ test.describe('Sessão e conta', () => {
   })
 
   test('logout e login com outra conta não vazam favoritos entre usuários', async ({ page }) => {
-    // Favorita um NFT como colecionadora.
+    // Favorita um NFT como colecionadora — favoritar só existe na página de detalhe do NFT,
+    // não no card da grade do catálogo (design-refs/Products.svg: o coração de favoritos
+    // aparece apenas dentro do produto).
     await page.goto('/login')
     await page.getByLabel('E-mail').fill(COLLECTOR.email)
     await page.locator('#login-password').fill(COLLECTOR.password)
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
-    await page.getByRole('button', { name: 'Adicionar aos favoritos' }).first().click()
-    await expect(page.getByRole('button', { name: 'Remover dos favoritos' }).first()).toBeVisible()
+    await page.getByTestId('nft-grid').getByRole('link').first().click()
+    await page.waitForURL(/\/nft\//)
+    await page.getByRole('button', { name: 'Adicionar aos favoritos' }).click()
+    await expect(page.getByRole('button', { name: 'Remover dos favoritos' })).toBeVisible()
+    const nftUrl = page.url()
 
-    // Logout e login como outro usuário.
+    // Logout e login como outro usuário — logout só limpa a sessão, não navega sozinho (o
+    // usuário pode estar em qualquer página quando clica em "Sair"), então o sinal de que
+    // terminou é o cabeçalho voltar a mostrar "Entrar", não uma mudança de URL.
     await page.getByRole('button', { name: 'Sair' }).click()
-    await page.waitForURL((url) => url.pathname === '/')
+    await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible()
     await page.goto('/login')
     await page.getByLabel('E-mail').fill(ARTIST.email)
     await page.locator('#login-password').fill(ARTIST.password)
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
 
-    // O mesmo card, para o novo usuário, não pode aparecer como favoritado.
-    await expect(page.getByRole('button', { name: 'Adicionar aos favoritos' }).first()).toBeVisible()
+    // O mesmo NFT, para o novo usuário, não pode aparecer como favoritado.
+    await page.goto(nftUrl)
+    await expect(page.getByRole('button', { name: 'Adicionar aos favoritos' })).toBeVisible()
   })
 })
 
@@ -82,23 +90,25 @@ test.describe('Favoritos', () => {
     await page.locator('#login-password').fill(COLLECTOR.password)
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
+    await page.getByTestId('nft-grid').getByRole('link').first().click()
+    await page.waitForURL(/\/nft\//)
 
     // Força a próxima chamada de favoritos a falhar — simula uma falha transitória do
-    // servidor sem depender de sorte ou de um cenário aleatório.
-    await page.route('**/api/favorites/**', (route) => {
-      if (route.request().method() === 'POST') {
-        return route.fulfill({ status: 500, json: { message: 'Falha simulada.' } })
-      }
-      return route.continue()
+    // servidor sem depender de sorte ou de um cenário aleatório. page.route não intercepta de
+    // forma confiável requisições que passam pelo service worker do MSW depois de uma
+    // navegação (ver comentário no handler), por isso a falha é ligada por uma flag lida
+    // pelo próprio handler, não por interceptação de rede.
+    await page.evaluate(() => {
+      ;(window as { __forceFavoriteFailure?: boolean }).__forceFavoriteFailure = true
     })
 
-    const favoriteButton = page.getByRole('button', { name: 'Adicionar aos favoritos' }).first()
+    const favoriteButton = page.getByRole('button', { name: 'Adicionar aos favoritos' })
     await favoriteButton.click()
 
     // Otimista: o coração preenche na hora...
-    await expect(page.getByRole('button', { name: 'Remover dos favoritos' }).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Remover dos favoritos' })).toBeVisible()
     // ...mas volta ao estado original assim que a falha chega (rollback).
-    await expect(page.getByRole('button', { name: 'Adicionar aos favoritos' }).first()).toBeVisible({
+    await expect(page.getByRole('button', { name: 'Adicionar aos favoritos' })).toBeVisible({
       timeout: 5_000,
     })
   })

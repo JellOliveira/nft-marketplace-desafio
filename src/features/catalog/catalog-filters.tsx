@@ -41,24 +41,22 @@ export function CatalogFilters({
   onPriceChange,
 }: CatalogFiltersProps) {
   return (
-    <aside className="w-full shrink-0 lg:w-[220px]" aria-label="Filtros do catálogo">
+    <aside
+      className="w-full shrink-0 rounded-xl bg-brand-card p-5 lg:w-[220px]"
+      aria-label="Filtros do catálogo"
+    >
       <section>
         <h2 className="mb-3 text-lg font-bold text-brand-text">Coleções</h2>
         <ul className="flex flex-col gap-2">
-          <li>
-            <FilterRow
-              label="Todas"
-              active={selectedCategory === null}
-              onClick={() => onCategoryChange(null)}
-            />
-          </li>
           {categories.map((facet) => (
             <li key={facet.category}>
               <FilterRow
                 label={facet.category}
                 count={facet.count}
                 active={selectedCategory === facet.category}
-                onClick={() => onCategoryChange(facet.category)}
+                onClick={() =>
+                  onCategoryChange(selectedCategory === facet.category ? null : facet.category)
+                }
               />
             </li>
           ))}
@@ -82,20 +80,15 @@ export function CatalogFilters({
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-bold text-brand-text">Rede</h2>
         <ul className="flex flex-col gap-2">
-          <li>
-            <FilterRow
-              label="Todas"
-              active={selectedNetwork === null}
-              onClick={() => onNetworkChange(null)}
-            />
-          </li>
           {networks.map((facet) => (
             <li key={facet.network}>
               <FilterRow
                 label={NETWORK_LABELS[facet.network]}
                 count={facet.count}
                 active={selectedNetwork === facet.network}
-                onClick={() => onNetworkChange(facet.network)}
+                onClick={() =>
+                  onNetworkChange(selectedNetwork === facet.network ? null : facet.network)
+                }
               />
             </li>
           ))}
@@ -150,13 +143,12 @@ function PriceRangeControl({
         onValueChange={(value) => setRange([value[0], value[1]] as [number, number])}
         aria-label="Faixa de preço em ETH"
       />
-      <p className="text-sm text-brand-muted">
+      <p className="text-sm text-brand-text">
         Preço: {range[0].toFixed(2)} – {range[1].toFixed(2)} ETH
       </p>
       <Button
         type="submit"
-        size="sm"
-        className="w-fit bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+        className="h-9 w-fit rounded-md bg-brand-accent-alt px-4 text-brand-bg hover:bg-brand-accent"
       >
         Aplicar
       </Button>
@@ -182,7 +174,7 @@ function FilterRow({
       aria-pressed={active}
       className={cn(
         'flex w-full items-center justify-between text-left text-sm transition-colors',
-        active ? 'font-bold text-brand-accent-alt' : 'text-brand-text hover:text-brand-accent-alt',
+        active ? 'font-bold text-brand-accent' : 'text-brand-gold hover:text-brand-accent',
       )}
     >
       <span>{label}</span>

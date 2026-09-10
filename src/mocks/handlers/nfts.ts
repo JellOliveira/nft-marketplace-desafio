@@ -7,6 +7,23 @@ import type { Nft, NftNetwork, PaginatedResult } from '@/types/nft'
 import { getEffectiveCatalog, getEffectiveNft } from '../nft-overrides'
 import { simulateNetwork } from '../network'
 
+// Mesma ordem de categorias usada para gerar a fixture (src/mocks/data/nfts.ts) e a mesma
+// ordem de redes do Figma ("Rede": Ethereum > Polygon > Solana) — os facets são computados a
+// partir do catálogo real, mas a ORDEM de exibição é fixa, não a ordem de primeira ocorrência
+// no array (que mudaria a cada shuffle da fixture e não bateria com o design).
+const CATEGORY_ORDER = [
+  'Arte digital',
+  'Fotografia',
+  'Música',
+  'Arte 3D',
+  'Colecionáveis',
+  'Generativa',
+  'Jogos',
+  'Assinaturas',
+  'Utilidade',
+]
+const NETWORK_ORDER: NftNetwork[] = ['ethereum', 'polygon', 'solana']
+
 function matchesSearch(nft: Nft, search: string): boolean {
   if (!search) return true
   const term = search.toLowerCase()
@@ -75,8 +92,14 @@ export const nftHandlers = [
       if (price > priceMax) priceMax = price
     }
     return HttpResponse.json({
-      categories: Array.from(categories, ([category, count]) => ({ category, count })),
-      networks: Array.from(networks, ([network, count]) => ({ network, count })),
+      categories: CATEGORY_ORDER.filter((category) => categories.has(category)).map((category) => ({
+        category,
+        count: categories.get(category)!,
+      })),
+      networks: NETWORK_ORDER.filter((network) => networks.has(network)).map((network) => ({
+        network,
+        count: networks.get(network)!,
+      })),
       // Faixa de preço real do catálogo (item "Faixa de preço" do design) — calculada a
       // partir dos dados, não hardcoded, para não divergir se a fixture mudar.
       priceBounds: { min: Number(priceMin.toFixed(2)), max: Number(priceMax.toFixed(2)) },

@@ -4,7 +4,7 @@
 // para lugar nenhum: marcá-las como interativas seria fazer uma ação fora do escopo
 // aparentar sucesso funcional, que é justamente o que o enunciado proíbe.
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
-import { Menu, Search, ShoppingCart, User as UserIcon } from 'lucide-react'
+import { LogIn, Menu, Search, ShoppingCart } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -39,7 +39,7 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-brand-border/60">
-      <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-5 lg:px-[120px]">
+      <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-5 lg:px-6 xl:px-[120px]">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="text-sm font-bold tracking-[1.4px] text-brand-text">
           KURIO
         </Link>
@@ -127,7 +127,7 @@ export function SiteHeader() {
               className="h-9 rounded-md bg-brand-accent-alt px-3 font-bold text-brand-bg hover:bg-brand-accent"
             >
               <Link to="/login" search={{ redirect: location.pathname }}>
-                <UserIcon className="size-4" />
+                <LogIn className="size-4" />
                 Entrar
               </Link>
             </Button>

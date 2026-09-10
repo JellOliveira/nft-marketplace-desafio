@@ -109,7 +109,7 @@ function HomePage() {
     <main>
       <HeroSection onExplore={() => updateSearch({})} />
 
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:px-[120px]">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:gap-6 lg:px-6 xl:px-[120px]">
         <CatalogFilters
           categories={facets?.categories ?? []}
           networks={facets?.networks ?? []}
@@ -124,8 +124,8 @@ function HomePage() {
         />
 
         <section className="min-w-0 flex-1">
-          <div className="mb-6 flex flex-col flex-wrap gap-x-8 gap-y-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-6" role="tablist" aria-label="Filtro rápido do catálogo">
+          <div className="mb-6 flex flex-col flex-wrap gap-x-4 gap-y-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4" role="tablist" aria-label="Filtro rápido do catálogo">
               <QuickTabButton
                 active={quickTab === 'all'}
                 onClick={() => {
@@ -224,7 +224,7 @@ function HomePage() {
         </section>
       </div>
 
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-5 pb-14 sm:flex-row lg:px-[120px]">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-5 pb-14 sm:flex-row lg:px-6 xl:px-[120px]">
         <PromoBanner
           image={banner1Image}
           title="Lançamentos gênese de edição limitada"
@@ -246,7 +246,7 @@ function HomePage() {
 
 function HeroSection({ onExplore }: { onExplore: () => void }) {
   return (
-    <section className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:items-center lg:px-[120px]">
+    <section className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:items-center lg:px-6 xl:px-[120px]">
       <div className="flex-1">
         <p className="text-sm text-brand-text">Bem-vindo à Kurio</p>
         <h1 className="mt-3 max-w-xl text-[32px] leading-tight font-bold text-brand-text lg:text-[43px] lg:leading-[70px]">
@@ -311,8 +311,8 @@ function QuickTabButton({
       className={cn(
         'border-b-2 pb-1 text-sm whitespace-nowrap transition-colors',
         active
-          ? 'border-brand-accent font-bold text-brand-accent'
-          : 'border-transparent text-brand-text hover:text-brand-accent',
+          ? 'border-brand-accent-alt font-bold text-brand-accent-alt'
+          : 'border-transparent text-brand-text hover:text-brand-accent-alt',
       )}
     >
       {children}

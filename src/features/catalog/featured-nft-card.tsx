@@ -16,12 +16,16 @@ export function FeaturedNftCard() {
   if (!nft) return null
 
   return (
-    <Link to="/nft/$nftId" params={{ nftId: nft.id }} className="group flex flex-col">
+    <Link
+      to="/nft/$nftId"
+      params={{ nftId: nft.id }}
+      className="group flex flex-col rounded-2xl border border-brand-border/60 bg-brand-card p-4"
+    >
       <p className="text-xs font-bold tracking-wide text-brand-accent-alt uppercase">
         NFT em destaque
       </p>
       <p className="mt-1 text-sm font-bold text-brand-text-white uppercase">Oferta limitada</p>
-      <div className="relative mt-4 aspect-[310/368] overflow-hidden rounded-2xl">
+      <div className="relative mt-4 aspect-square overflow-hidden rounded-xl">
         <img
           src={nft.imageUrl}
           alt={`Capa do NFT em destaque ${nft.name}`}

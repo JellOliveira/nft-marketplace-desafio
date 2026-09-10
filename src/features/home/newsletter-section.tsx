@@ -36,7 +36,7 @@ export function NewsletterSection() {
 
   return (
     <section className="border-t border-brand-border/60 bg-brand-card">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.6fr] lg:px-[120px]">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.6fr] lg:px-6 xl:px-[120px]">
         {FEATURES.map(({ Icon, title, description }, index) => (
           <div
             key={title}
@@ -54,7 +54,7 @@ export function NewsletterSection() {
           <h3 className="text-base font-bold text-brand-text">
             Antecipe-se ao próximo lançamento
           </h3>
-          <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
+          <form onSubmit={handleSubmit} className="mt-4 flex gap-3">
             <label className="flex-1">
               <span className="sr-only">Seu e-mail</span>
               <input

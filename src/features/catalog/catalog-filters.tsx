@@ -41,7 +41,7 @@ export function CatalogFilters({
   onPriceChange,
 }: CatalogFiltersProps) {
   return (
-    <aside className="w-full shrink-0 lg:w-[220px]" aria-label="Filtros do catálogo">
+    <aside className="w-full shrink-0 lg:w-[240px]" aria-label="Filtros do catálogo">
       <div className="rounded-xl bg-brand-card p-5">
         <section>
           <h2 className="mb-3 text-lg font-bold text-brand-text">Coleções</h2>
@@ -175,7 +175,7 @@ function FilterRow({
       aria-pressed={active}
       className={cn(
         'flex w-full items-center justify-between text-left text-sm transition-colors',
-        active ? 'font-bold text-brand-accent' : 'text-brand-gold hover:text-brand-accent',
+        active ? 'font-bold text-brand-accent-alt' : 'text-brand-gold hover:text-brand-accent-alt',
       )}
     >
       <span>{label}</span>

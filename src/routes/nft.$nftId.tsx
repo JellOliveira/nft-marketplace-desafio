@@ -27,7 +27,7 @@ function NftDetailPage() {
 
   if (isError || !nft) {
     return (
-      <main className="mx-auto max-w-[1200px] px-5 py-20 text-center lg:px-[120px]">
+      <main className="mx-auto max-w-[1200px] px-5 py-20 text-center lg:px-6 xl:px-[120px]">
         <h1 className="text-2xl font-bold text-brand-text">NFT não encontrado</h1>
         <p className="mt-2 text-brand-muted">
           O item que você está procurando não existe ou foi removido do catálogo.
@@ -47,7 +47,7 @@ function NftDetailPage() {
 
 function DetailSkeleton() {
   return (
-    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
+    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-[120px]">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[520px_1fr]">
         <Skeleton className="aspect-square w-full rounded-xl" />
         <div className="space-y-4">
@@ -93,7 +93,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
   }
 
   return (
-    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
+    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-[120px]">
       <nav aria-label="Trilha de navegação" className="mb-6 text-sm text-brand-muted">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início
@@ -132,7 +132,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
         <div className="order-3 min-w-0">
           <h1 className="text-2xl font-bold text-brand-text">{nft.name}</h1>
           <p className="mt-2 flex items-baseline gap-3">
-            <span className="text-xl text-brand-gold">{nft.priceEth} ETH</span>
+            <span className="text-xl text-brand-accent-alt">{nft.priceEth} ETH</span>
             <span className="text-sm text-brand-muted">
               {'★'.repeat(Math.round(nft.rating))} {nft.reviewCount} avaliações de colecionadores
             </span>

@@ -82,7 +82,7 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
   const atMax = line.quantity >= line.availableQuantity
 
   return (
-    <div className="flex items-center gap-4 border-b border-brand-border p-4 last:border-b-0">
+    <div className="flex flex-wrap items-center gap-4 border-b border-brand-border p-4 last:border-b-0">
       <img
         src={line.imageUrl}
         alt=""
@@ -93,6 +93,10 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
       <div className="min-w-0 flex-1">
         <p className="truncate font-bold text-brand-text">{line.name}</p>
         <p className="text-xs text-brand-muted">Edição: {line.edition}</p>
+        {/* Preço unitário: só no desktop, onde já cabe ao lado do total sem apertar o
+            layout — no mobile o total (sempre visível, mais abaixo) já é a informação que
+            importa para decidir a compra. */}
+        <p className="text-xs text-brand-muted sm:hidden">{line.priceEth} ETH cada</p>
       </div>
       <p className="hidden w-20 text-brand-gold sm:block">{line.priceEth} ETH</p>
 
@@ -123,7 +127,9 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
         </button>
       </div>
 
-      <p className="hidden w-20 text-right font-bold text-brand-gold sm:block">{lineTotal} ETH</p>
+      <p data-testid="cart-line-total" className="w-20 text-right font-bold text-brand-gold">
+        {lineTotal} ETH
+      </p>
 
       <button
         type="button"

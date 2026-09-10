@@ -22,16 +22,20 @@ http.interceptors.request.use((config) => {
   return config
 })
 
-// Evento disparado quando o servidor (mock) informa que a sessão não é mais válida (401),
-// em qualquer chamada — não só na checagem explícita de sessão. O hook de autenticação
-// escuta este evento para limpar o cache do usuário anterior imediatamente, em vez de
-// esperar a próxima renderização perceber o 401.
+// Evento disparado quando o servidor (mock) informa que a sessão não é mais válida (401) —
+// mas só para chamadas que PRESSUPÕEM sessão ativa, nunca para a própria checagem de sessão
+// (`GET /auth/session`). Um 401 ali é a forma normal e esperada de descobrir "ninguém está
+// logado" (todo visitante recebe um ao carregar qualquer página); tratar isso como "sessão
+// expirou" limparia o cache de dados públicos (catálogo, carrinho de visitante) que estavam
+// sendo buscados ao mesmo tempo por outros componentes da página — foi exatamente esse bug
+// que quebrava o carregamento do catálogo/detalhe para quem abria a página deslogado.
 export const SESSION_EXPIRED_EVENT = 'nft-marketplace:session-expired'
 
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
+    const isSessionCheck = axios.isAxiosError(error) && error.config?.url === '/auth/session'
+    if (axios.isAxiosError(error) && error.response?.status === 401 && !isSessionCheck) {
       clearSessionToken()
       window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT))
     }

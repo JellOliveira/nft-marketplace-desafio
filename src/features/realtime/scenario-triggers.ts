@@ -21,6 +21,14 @@ function announceNftChange(nftId: string, patch: { priceEth?: string; availableQ
 const AMBIENT_INTERVAL_MS = 25_000
 
 export function startAmbientNftScenario(): () => void {
+  // Ver .env.test: desligado durante os testes E2E, porque todos os testes que rodam em
+  // paralelo compartilham o mesmo servidor de tempo real — um anúncio ambiente de um teste
+  // vazaria, via broadcast real do socket, para o carrinho de outro teste completamente
+  // não relacionado.
+  if (import.meta.env.VITE_DISABLE_AMBIENT_REALTIME === 'true') {
+    return () => {}
+  }
+
   const timer = window.setInterval(() => {
     const target = NFT_CATALOG[Math.floor(Math.random() * NFT_CATALOG.length)]
     const priceDelta = (Math.random() - 0.5) * 0.2 // pequena variação, pra cima ou pra baixo

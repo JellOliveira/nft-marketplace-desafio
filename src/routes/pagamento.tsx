@@ -99,8 +99,22 @@ function PaymentForm({ collectorName, collectorEmail }: { collectorName: string;
 
   // Cotação "aceita" pelo colecionador no momento em que a revisão começou. Se o carrinho
   // mudar de versão depois disso (evento de tempo real, outra aba, etc.), o envio é
-  // bloqueado até o usuário reconhecer explicitamente os novos valores.
-  const [acknowledgedQuoteVersion, setAcknowledgedQuoteVersion] = useState(cart?.quoteVersion)
+  // bloqueado até o usuário reconhecer explicitamente os novos valores. Sincronizado por
+  // efeito, de propósito: o carrinho é um estado que vem de fora do React (a API, via
+  // TanStack Query), e este componente precisa "capturar" o primeiro valor real assim que
+  // ele chegar — exatamente o caso de uso que `useEffect` existe para resolver. Inicializar
+  // direto com `useState(cart?.quoteVersion)` pareceria funcionar na maioria das vezes (o
+  // carrinho às vezes já está em cache), mas falha sempre que esta tela é a primeira a
+  // buscar o carrinho: o valor inicial ficaria congelado em `undefined` para sempre,
+  // travando o botão de confirmar permanentemente.
+  const [acknowledgedQuoteVersion, setAcknowledgedQuoteVersion] = useState<number | undefined>(
+    undefined,
+  )
+  useEffect(() => {
+    if (cart && acknowledgedQuoteVersion === undefined) {
+      setAcknowledgedQuoteVersion(cart.quoteVersion)
+    }
+  }, [cart, acknowledgedQuoteVersion])
   const quoteIsStale = cart != null && cart.quoteVersion !== acknowledgedQuoteVersion
 
   function handleConnect(option: WalletOption) {

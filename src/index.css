@@ -1,111 +1,87 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/* Folha de estilos global. Importa o Tailwind e mapeia os tokens de design extraídos do
+   Figma (ver design-refs/DESIGN_SYSTEM.md) tanto para variáveis de marca (`--color-brand-*`)
+   quanto para as variáveis semânticas que os componentes shadcn/ui esperam (`--background`,
+   `--primary` etc.) — assim os componentes já nascem com a identidade visual do projeto,
+   sem precisar de sobrescrita cor a cor em cada um. O layout do Figma é um único tema escuro
+   (sem alternância claro/escuro), então não há bloco `.dark` nem media query de preferência
+   de cor aqui: os tokens abaixo são a única aparência da aplicação. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@theme {
+  /* Fundo */
+  --color-brand-bg: #140d0a;
+  --color-brand-card: #241612;
+  --color-brand-elevated: #2f1d15;
+  --color-brand-dark: #38220f;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Texto */
+  --color-brand-text: #f5f1eb;
+  --color-brand-text-white: #fbfbfb;
+  --color-brand-muted: #b39463;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* Accent / marca */
+  --color-brand-accent: #e89b55;
+  --color-brand-accent-alt: #d28a4c;
+  --color-brand-gold: #cfb28c;
+  --color-brand-gold-muted: #b39463;
+
+  /* Bordas */
+  --color-brand-border: #3f2319;
+  --color-brand-border-focus: #d28a4c;
+  --color-brand-border-subtle: #55321f;
+
+  /* Estados */
+  --color-brand-success: #59c36a;
+  --color-brand-success-2: #00a66c;
+  --color-brand-warning: #ffda2d;
+  --color-brand-error: #f0805f;
+  --color-brand-info: #4086f4;
+
+  /* Tipografia: única família do design, aplicada globalmente */
+  --font-sans: 'Roboto Mono', 'Courier New', Courier, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/* Variáveis semânticas consumidas pelos componentes shadcn/ui (Button, Dialog, Input...).
+   Mapeadas diretamente para os tokens de marca acima, para que qualquer componente novo
+   adicionado via CLI já saia com as cores certas por padrão. */
+@theme inline {
+  --color-background: var(--color-brand-bg);
+  --color-foreground: var(--color-brand-text);
+  --color-card: var(--color-brand-card);
+  --color-card-foreground: var(--color-brand-text);
+  --color-popover: var(--color-brand-card);
+  --color-popover-foreground: var(--color-brand-text);
+  --color-primary: var(--color-brand-accent-alt);
+  --color-primary-foreground: var(--color-brand-card);
+  --color-secondary: var(--color-brand-elevated);
+  --color-secondary-foreground: var(--color-brand-text);
+  --color-muted: var(--color-brand-elevated);
+  --color-muted-foreground: var(--color-brand-muted);
+  --color-accent: var(--color-brand-accent);
+  --color-accent-foreground: var(--color-brand-card);
+  --color-destructive: var(--color-brand-error);
+  --color-border: var(--color-brand-border);
+  --color-input: var(--color-brand-border);
+  --color-ring: var(--color-brand-border-focus);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 }
 
 body {
   margin: 0;
+  background: var(--color-brand-bg);
+  color: var(--color-brand-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }

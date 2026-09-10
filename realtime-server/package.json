@@ -1,0 +1,15 @@
+{
+  "name": "nft-marketplace-realtime",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Servidor Socket.IO real para os eventos de tempo real do desafio (nft.updated, order.updated). Ver ARCHITECTURE.md na raiz do projeto para o porquê deste servidor existir separado do app.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.8.3"
+  }
+}

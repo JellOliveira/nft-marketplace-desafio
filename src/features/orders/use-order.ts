@@ -3,7 +3,7 @@
 // cliente eventualmente descobre o resultado real da simulação. Nenhum dos dois hooks decide
 // sozinho que um pedido foi confirmado: ambos só repetem o que o servidor mock disse.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useSession } from '@/features/auth/use-session'
 import type { CreateOrderPayload } from '@/types/order'
 import { createOrder, fetchOrder } from './api'
@@ -18,11 +18,11 @@ function orderKey(orderId: string) {
  *  timeout seguido de nova tentativa) — nunca gerada de novo a cada clique. Isso é o que
  *  torna "impedir pedidos duplicados" uma garantia real, e não só um botão desabilitado. */
 export function useIdempotencyKey(): string {
-  const ref = useRef<string>(undefined)
-  if (!ref.current) {
-    ref.current = crypto.randomUUID()
-  }
-  return ref.current
+  // Inicializador preguiçoso do useState: roda uma única vez, no primeiro render, e nunca
+  // mais — o jeito recomendado pelo React de gerar um valor estável sem tocar em ref durante
+  // a renderização.
+  const [key] = useState(() => crypto.randomUUID())
+  return key
 }
 
 export function useCreateOrder() {

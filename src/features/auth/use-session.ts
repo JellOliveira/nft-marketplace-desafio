@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetchSession, login, logout, register } from './api'
 import { authKeys } from './query-keys'
 import { clearSessionToken, setSessionToken } from '@/lib/session-token'
+import { socket } from '@/lib/socket'
 import type { LoginPayload, RegisterPayload, User } from '@/types/auth'
 
 export function useSession() {
@@ -60,6 +61,11 @@ export function useLogout() {
       // do desafio: "Logout e troca de usuário devem limpar dados privados em cache".
       clearSessionToken()
       queryClient.clear()
+      // Reconecta o socket do zero: qualquer "order:watch" agendado no servidor de tempo
+      // real para a sessão anterior deixa de encontrar um listener válido (item 3 do
+      // desafio: "limpar... subscriptions da sessão anterior").
+      socket.disconnect()
+      socket.connect()
     },
   })
 }

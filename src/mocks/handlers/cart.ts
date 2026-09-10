@@ -5,10 +5,10 @@
 // reflete automaticamente no resumo do carrinho sem precisar de nenhuma sincronização extra.
 import { HttpResponse, http } from 'msw'
 import type { CartSummary } from '@/types/cart'
-import { NFT_CATALOG } from '../data/nfts'
 import { findCoupon } from '../data/coupons'
 import { readDb, type StoredCart, writeDb } from '../db'
 import { simulateNetwork } from '../network'
+import { getEffectiveNft } from '../nft-overrides'
 import { resolveAuthenticatedUser } from './auth'
 
 const NETWORK_FEE_ETH = 0.001
@@ -32,7 +32,7 @@ function getOrCreateCart(db: ReturnType<typeof readDb>, ownerKey: string): Store
 function buildSummary(cart: StoredCart): CartSummary {
   const lines = cart.lines
     .map((line) => {
-      const nft = NFT_CATALOG.find((candidate) => candidate.id === line.nftId)
+      const nft = getEffectiveNft(line.nftId)
       if (!nft) return null
       return {
         nftId: nft.id,
@@ -54,6 +54,17 @@ function buildSummary(cart: StoredCart): CartSummary {
   const networkFee = lines.length > 0 ? NETWORK_FEE_ETH : 0
   const total = Math.max(0, subtotal - discount) + networkFee
 
+  // A versão da cotação não pode refletir só as mutações do próprio carrinho
+  // (adicionar/remover/cupom) — também precisa mudar quando um evento de tempo real altera o
+  // preço ou a disponibilidade de um item que já está no carrinho, mesmo sem nenhuma ação do
+  // usuário sobre o carrinho em si. Somar as versões dos NFTs envolvidos garante isso: é
+  // exatamente o sinal que a tela de pagamento usa para exigir nova confirmação (item 3 e
+  // item 7 do desafio).
+  const nftVersionSum = lines.reduce((sum, line) => {
+    const nft = getEffectiveNft(line.nftId)
+    return sum + (nft?.version ?? 0)
+  }, 0)
+
   return {
     lines,
     coupon: discountPercent > 0 ? { code: cart.couponCode!, discountPercent } : null,
@@ -61,7 +72,7 @@ function buildSummary(cart: StoredCart): CartSummary {
     discountEth: discount.toFixed(4),
     networkFeeEth: networkFee.toFixed(4),
     totalEth: total.toFixed(4),
-    quoteVersion: cart.quoteVersion,
+    quoteVersion: cart.quoteVersion * 100_000 + nftVersionSum,
   }
 }
 
@@ -76,7 +87,7 @@ export const cartHandlers = [
   http.post('/api/cart/items', async ({ request }) => {
     await simulateNetwork()
     const payload = (await request.json()) as { nftId: string; edition: string; quantity: number }
-    const nft = NFT_CATALOG.find((candidate) => candidate.id === payload.nftId)
+    const nft = getEffectiveNft(payload.nftId)
     if (!nft) {
       return HttpResponse.json({ message: 'NFT não encontrado.' }, { status: 404 })
     }
@@ -108,7 +119,7 @@ export const cartHandlers = [
   http.patch('/api/cart/items/:nftId', async ({ request, params }) => {
     await simulateNetwork()
     const payload = (await request.json()) as { edition: string; quantity: number }
-    const nft = NFT_CATALOG.find((candidate) => candidate.id === params.nftId)
+    const nft = getEffectiveNft(params.nftId as string)
     if (!nft) {
       return HttpResponse.json({ message: 'NFT não encontrado.' }, { status: 404 })
     }

@@ -4,7 +4,7 @@
 // vazio e identificador inexistente.
 import { HttpResponse, http } from 'msw'
 import type { Nft, NftNetwork, PaginatedResult } from '@/types/nft'
-import { NFT_CATALOG } from '../data/nfts'
+import { getEffectiveCatalog, getEffectiveNft } from '../nft-overrides'
 import { simulateNetwork } from '../network'
 
 function matchesSearch(nft: Nft, search: string): boolean {
@@ -30,7 +30,7 @@ export const nftHandlers = [
     const page = Number(url.searchParams.get('page') ?? '1')
     const pageSize = Number(url.searchParams.get('pageSize') ?? '9')
 
-    let filtered = NFT_CATALOG.filter((nft) => matchesSearch(nft, search))
+    let filtered = getEffectiveCatalog().filter((nft) => matchesSearch(nft, search))
     if (category) filtered = filtered.filter((nft) => nft.category === category)
     if (network) filtered = filtered.filter((nft) => nft.network === network)
     if (priceMin) filtered = filtered.filter((nft) => Number(nft.priceEth) >= Number(priceMin))
@@ -64,7 +64,7 @@ export const nftHandlers = [
     await simulateNetwork()
     const categories = new Map<string, number>()
     const networks = new Map<NftNetwork, number>()
-    for (const nft of NFT_CATALOG) {
+    for (const nft of getEffectiveCatalog()) {
       categories.set(nft.category, (categories.get(nft.category) ?? 0) + 1)
       networks.set(nft.network, (networks.get(nft.network) ?? 0) + 1)
     }
@@ -76,13 +76,13 @@ export const nftHandlers = [
 
   http.get('/api/nfts/featured', async () => {
     await simulateNetwork()
-    const featured = NFT_CATALOG.filter((nft) => nft.isFeatured).slice(0, 1)
+    const featured = getEffectiveCatalog().filter((nft) => nft.isFeatured).slice(0, 1)
     return HttpResponse.json(featured[0] ?? null)
   }),
 
   http.get('/api/nfts/:id', async ({ params }) => {
     await simulateNetwork()
-    const nft = NFT_CATALOG.find((candidate) => candidate.id === params.id)
+    const nft = getEffectiveNft(params.id as string)
     if (!nft) {
       return HttpResponse.json({ message: 'NFT não encontrado.' }, { status: 404 })
     }

@@ -14,7 +14,7 @@
 //    nunca na criação (que ainda está pendente) nem numa recusa.
 import { HttpResponse, http } from 'msw'
 import { findCoupon } from '../data/coupons'
-import { NFT_CATALOG } from '../data/nfts'
+import { getEffectiveNft } from '../nft-overrides'
 import { generateId, readDb, type StoredOrder, writeDb } from '../db'
 import { simulateNetwork } from '../network'
 import { resolveAuthenticatedUser } from './auth'
@@ -155,7 +155,7 @@ export const orderHandlers = [
     // pedido).
     const lines: StoredOrder['lines'] = []
     for (const cartLine of cart.lines) {
-      const nft = NFT_CATALOG.find((candidate) => candidate.id === cartLine.nftId)
+      const nft = getEffectiveNft(cartLine.nftId)
       if (!nft) continue
       if (cartLine.quantity > nft.availableQuantity) {
         return HttpResponse.json(
@@ -209,6 +209,21 @@ export const orderHandlers = [
     db.orders[order.id] = order
     db.idempotency[idempotencyRecordKey] = { orderId: order.id, requestHash }
     writeDb(db)
+
+    // Pede ao servidor de tempo real para ecoar de volta, mais tarde, o resultado que este
+    // handler já sabe que vai acontecer — é assim que `order.updated` chega por um
+    // socket.io-client de verdade (fase 6), em vez de a UI só confiar no polling REST. Se o
+    // socket não estiver conectado (ex.: servidor de tempo real fora do ar), a chamada é
+    // ignorada silenciosamente — o polling em useOrder continua funcionando como caminho
+    // principal de qualquer forma.
+    void import('@/lib/socket').then(({ socket }) => {
+      socket.emit('order:watch', {
+        orderId: order.id,
+        status: order.simulateRefusal ? 'refused' : 'confirmed',
+        version: order.version + 1,
+        delayMs: order.simulateRefusal ? REFUSE_AFTER_MS : CONFIRM_AFTER_MS,
+      })
+    })
 
     return HttpResponse.json(toPublicOrder(order), { status: 201 })
   }),

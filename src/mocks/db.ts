@@ -1,0 +1,92 @@
+// "Banco de dados" da camada de mocks: um estado único, persistido em localStorage, que os
+// handlers do MSW leem e escrevem. Centralizar aqui (em vez de cada handler guardar estado
+// próprio em memória) é o que garante o que o item 6 do desafio pede: catálogo, favoritos,
+// carrinho, perfil, carteiras e pedidos permanecem consistentes entre si, e a persistência
+// local sustenta um refresh de página sem perder o cenário simulado.
+import type { User } from '@/types/auth'
+
+/** Registro de usuário como fica persistido no mock — inclui o hash da senha, nunca a senha
+ *  em claro (ver src/lib/crypto.ts). */
+export interface StoredUser extends User {
+  passwordHash: string
+}
+
+/** Formato completo do estado simulado. Cada fase do projeto adiciona suas próprias
+ *  coleções aqui (nfts, favoritos, carrinho, pedidos, carteiras) — mantendo tudo num único
+ *  objeto serializável, o reset de cenário (item 6) vira uma única substituição atômica. */
+export interface MockDatabase {
+  users: StoredUser[]
+  /** token de sessão -> id do usuário autenticado por ele */
+  sessions: Record<string, string>
+}
+
+const STORAGE_KEY = 'nft-marketplace:mock-db'
+
+/** Estado inicial determinístico. Dois usuários fixos — exigido pelo item 6 do desafio para
+ *  exercitar isolamento de dados entre contas diferentes. Os hashes abaixo correspondem às
+ *  senhas de exemplo documentadas no README (credenciais fictícias, nunca reais). */
+function createSeed(): MockDatabase {
+  return {
+    users: [
+      {
+        id: 'user_colecionador',
+        name: 'Ana Colecionadora',
+        email: 'colecionadora@kurio.app',
+        avatarUrl: null,
+        // senha de exemplo: "colecionador123" (ver README.md, seção de credenciais fictícias)
+        passwordHash:
+          '34e0ef976b88df454092580bea9112bd07aa98e128a3e57978743d101c578c53',
+      },
+      {
+        id: 'user_artista',
+        name: 'Theo Artista',
+        email: 'artista@kurio.app',
+        avatarUrl: null,
+        // senha de exemplo: "artista456" (ver README.md, seção de credenciais fictícias)
+        passwordHash:
+          'd22aba7160f246fae4078c7b8ac02f4ca8f444565517820bd89e2d0abb1da0ce',
+      },
+    ],
+    sessions: {},
+  }
+}
+
+let cache: MockDatabase | null = null
+
+/** Lê o estado atual, carregando do localStorage na primeira chamada e mantendo em memória
+ *  depois disso (evita serializar/desserializar a cada requisição mockada). */
+export function readDb(): MockDatabase {
+  if (cache) return cache
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    cache = raw ? (JSON.parse(raw) as MockDatabase) : createSeed()
+  } catch {
+    // localStorage indisponível (ex.: modo privado) ou JSON corrompido — recomeça do zero
+    // em memória, sem quebrar a aplicação.
+    cache = createSeed()
+  }
+  return cache
+}
+
+/** Persiste o estado inteiro. Chamado ao final de toda mutação feita por um handler. */
+export function writeDb(db: MockDatabase): void {
+  cache = db
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db))
+  } catch {
+    // Sem storage disponível: a sessão continua funcionando em memória para a aba atual,
+    // só não sobrevive a um refresh — degradação aceitável, não uma falha da aplicação.
+  }
+}
+
+/** Restaura o cenário conhecido (usado pelo seletor de cenários de mock, fase de rede). */
+export function resetDb(): MockDatabase {
+  const seed = createSeed()
+  writeDb(seed)
+  return seed
+}
+
+/** Gera um identificador simples e legível para novos registros do mock. */
+export function generateId(prefix: string): string {
+  return `${prefix}_${Math.random().toString(36).slice(2, 10)}`
+}

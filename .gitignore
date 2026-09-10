@@ -1,0 +1,40 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Materiais internos do desafio — não fazem parte da entrega
+.claude/
+CLAUDE.md
+README-DO-DESAFIO.md
+design-refs/
+
+# Segredos locais
+.env
+.env.local
+.env.*.local
+
+# Playwright — resultados brutos de execução (o relatório final entregue fica em outro local)
+/test-results/
+/blob-report/
+/playwright/.cache/

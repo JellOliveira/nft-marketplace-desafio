@@ -29,6 +29,40 @@ export interface StoredCart {
   quoteVersion: number
 }
 
+/** Um pedido como fica persistido. `status` só muda dentro do próprio mock (ver
+ *  src/mocks/handlers/orders.ts) — nunca é escrito pelo cliente, exatamente como uma
+ *  simulação de backend real se comportaria. */
+export interface StoredOrder {
+  id: string
+  ownerKey: string
+  status: 'pending' | 'confirmed' | 'refused'
+  createdAt: number
+  version: number
+  lines: {
+    nftId: string
+    name: string
+    imageUrl: string
+    edition: string
+    quantity: number
+    priceEth: string
+  }[]
+  subtotalEth: string
+  discountEth: string
+  networkFeeEth: string
+  totalEth: string
+  couponCode: string | null
+  walletAddress: string
+  walletType: string
+  network: string
+  transactionHash: string
+  /** Cenário determinístico: força o pedido a terminar como "refused" em vez de
+   *  "confirmed" — escolhido pelo usuário na tela de pagamento, não sorteado. */
+  simulateRefusal: boolean
+  /** Evita remover os itens do carrinho mais de uma vez quando o pedido é consultado
+   *  repetidamente após confirmado. */
+  cartCleared: boolean
+}
+
 export interface MockDatabase {
   users: StoredUser[]
   /** token de sessão -> id do usuário autenticado por ele */
@@ -37,6 +71,12 @@ export interface MockDatabase {
   favorites: Record<string, string[]>
   /** chave = id do usuário autenticado OU id de visitante (ver src/lib/guest-id.ts). */
   carts: Record<string, StoredCart>
+  /** id do pedido -> pedido. */
+  orders: Record<string, StoredOrder>
+  /** chave = "{ownerKey}:{Idempotency-Key}" -> id do pedido + hash do corpo da requisição
+   *  original. Garante que reenviar a mesma tentativa devolve o mesmo pedido, e que reusar
+   *  a chave com conteúdo diferente gera conflito (item 5 do desafio). */
+  idempotency: Record<string, { orderId: string; requestHash: string }>
 }
 
 const STORAGE_KEY = 'nft-marketplace:mock-db'
@@ -69,6 +109,8 @@ function createSeed(): MockDatabase {
     sessions: {},
     favorites: {},
     carts: {},
+    orders: {},
+    idempotency: {},
   }
 }
 

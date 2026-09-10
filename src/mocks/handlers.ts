@@ -5,5 +5,12 @@ import { authHandlers } from './handlers/auth'
 import { cartHandlers } from './handlers/cart'
 import { favoriteHandlers } from './handlers/favorites'
 import { nftHandlers } from './handlers/nfts'
+import { orderHandlers } from './handlers/orders'
 
-export const handlers = [...authHandlers, ...nftHandlers, ...favoriteHandlers, ...cartHandlers]
+export const handlers = [
+  ...authHandlers,
+  ...nftHandlers,
+  ...favoriteHandlers,
+  ...cartHandlers,
+  ...orderHandlers,
+]

@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
 import { SessionExpiryListener } from '@/features/auth/session-expiry-listener'
 import { RealtimeProvider } from '@/features/realtime/realtime-provider'
 import { queryClient } from '@/lib/query-client'
@@ -18,6 +18,13 @@ export const Route = createRootRoute({
 })
 
 function RootLayout() {
+  const location = useLocation()
+  // A barra inferior mobile só existe na Home (design-refs/Mobile/Tab Bar.svg aparece só no
+  // Início.png — Detalhes do NFT.png, Carrinho de NFTs.png e Pagamento.png não têm nenhuma
+  // barra de navegação, só a seta "voltar" própria de cada tela). Um app nativo não mantém
+  // tab bar visível dentro de um fluxo de checkout; aqui é o mesmo raciocínio.
+  const showTabBar = location.pathname === '/'
+
   return (
     <QueryClientProvider client={queryClient}>
       <SessionExpiryListener />
@@ -30,13 +37,13 @@ function RootLayout() {
         <SiteFooter />
         {/* Reserva espaço, depois do rodapé, pra barra inferior mobile (mobile-tab-bar.tsx)
          *  não cobrir o fim real da página quando ela é curta o bastante pro rodapé encostar
-         *  no limite da viewport — só existe abaixo de lg, onde a barra aparece. 120px, não
-         *  88px: o botão flutuante central sobe ~32px acima da própria barra (size-16
-         *  centrado no topo do recorte), então o espaço "visual" ocupado é maior que a caixa
-         *  de 88px da barra. */}
-        <div className="h-[140px] lg:hidden" aria-hidden="true" />
+         *  no limite da viewport — só existe abaixo de lg, onde a barra aparece, e só na Home,
+         *  onde a barra em si existe. 140px: o botão flutuante central sobe ~32px acima da
+         *  própria barra (size-16 centrado no topo do recorte), então o espaço "visual"
+         *  ocupado é maior que a caixa de 88px da barra. */}
+        {showTabBar && <div className="h-[140px] lg:hidden" aria-hidden="true" />}
       </div>
-      <MobileTabBar />
+      {showTabBar && <MobileTabBar />}
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   )

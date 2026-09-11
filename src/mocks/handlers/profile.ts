@@ -36,14 +36,16 @@ function requireAuth(request: Request) {
 
 export const profileHandlers = [
   http.get('/api/profile', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
     return HttpResponse.json(toProfile(user))
   }),
 
   http.patch('/api/profile', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -112,7 +114,8 @@ export const profileHandlers = [
   }),
 
   http.put('/api/profile/avatar', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -125,7 +128,8 @@ export const profileHandlers = [
   }),
 
   http.delete('/api/profile/avatar', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -137,7 +141,8 @@ export const profileHandlers = [
   }),
 
   http.post('/api/profile/password', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -171,7 +176,8 @@ export const profileHandlers = [
   }),
 
   http.get('/api/wallets', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -180,7 +186,8 @@ export const profileHandlers = [
   }),
 
   http.put('/api/wallets/:role', async ({ request, params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -228,7 +235,8 @@ export const profileHandlers = [
   }),
 
   http.delete('/api/wallets/:role', async ({ request, params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 

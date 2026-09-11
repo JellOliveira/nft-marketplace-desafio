@@ -25,6 +25,10 @@ async function enableMocking() {
   if (!mocksEnabled) return
 
   const { worker } = await import('./mocks/browser')
+  const { exposeNetworkScenarioControls } = await import('./mocks/network-scenario')
+  // Expõe o seletor de cenário de rede (item 6.1: lentidão, latência variável, timeout,
+  // offline, erros HTTP configuráveis) no console/testes — window.__setNetworkScenario(...).
+  exposeNetworkScenarioControls()
   return worker.start({ onUnhandledRequest: 'bypass' })
 }
 

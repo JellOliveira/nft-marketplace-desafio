@@ -64,7 +64,8 @@ export function resolveAuthenticatedUser(request: Request): StoredUser | null {
 
 export const authHandlers = [
   http.post('/api/auth/register', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const payload = (await request.json()) as Partial<RegisterPayload>
 
     const fieldErrors: Record<string, string> = {}
@@ -116,7 +117,8 @@ export const authHandlers = [
   }),
 
   http.post('/api/auth/login', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const payload = (await request.json()) as Partial<LoginPayload>
 
     if (!payload.email || !payload.password) {
@@ -153,7 +155,8 @@ export const authHandlers = [
   }),
 
   http.post('/api/auth/logout', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace(/^Bearer\s+/i, '')
     if (token) {

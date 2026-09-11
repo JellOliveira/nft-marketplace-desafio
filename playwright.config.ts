@@ -21,6 +21,15 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
+  // Regressão visual (item 9 do desafio, tests/visual-regression.spec.ts). `animations:
+  // 'disabled'` neutraliza transform/opacity residuais no instante do screenshot;
+  // `maxDiffPixelRatio` tolera até 2% de pixels divergentes — as baselines versionadas neste
+  // repositório foram geradas no Windows 11 + Chromium, e a rasterização de fonte varia entre
+  // sistemas operacionais mesmo sem nenhuma mudança real de layout (ver comentário no topo do
+  // spec).
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02, animations: 'disabled' },
+  },
   projects: [
     {
       name: 'desktop-chromium',

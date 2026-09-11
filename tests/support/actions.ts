@@ -5,7 +5,10 @@ import { COLLECTOR } from './credentials'
 
 export async function login(page: Page, credentials = COLLECTOR) {
   await page.goto('/login')
-  await page.getByLabel('E-mail').fill(credentials.email)
+  // Usa o id, não getByLabel('E-mail'): o rodapé (presente atrás do modal em toda rota, ver
+  // __root.tsx) tem um campo de newsletter cujo rótulo acessível "Seu e-mail" também bate por
+  // substring em getByLabel('E-mail'), causando ambiguidade (strict mode violation).
+  await page.locator('#login-email').fill(credentials.email)
   await page.locator('#login-password').fill(credentials.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
   await page.waitForURL((url) => url.pathname === '/')

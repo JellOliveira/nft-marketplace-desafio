@@ -79,14 +79,16 @@ function buildSummary(cart: StoredCart): CartSummary {
 
 export const cartHandlers = [
   http.get('/api/cart', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const db = readDb()
     const cart = getOrCreateCart(db, resolveCartOwnerKey(request))
     return HttpResponse.json(buildSummary(cart))
   }),
 
   http.post('/api/cart/items', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const payload = (await request.json()) as { nftId: string; edition: string; quantity: number }
     const nft = getEffectiveNft(payload.nftId)
     if (!nft) {
@@ -118,7 +120,8 @@ export const cartHandlers = [
   }),
 
   http.patch('/api/cart/items/:nftId', async ({ request, params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const payload = (await request.json()) as { edition: string; quantity: number }
     const nft = getEffectiveNft(params.nftId as string)
     if (!nft) {
@@ -149,7 +152,8 @@ export const cartHandlers = [
   }),
 
   http.delete('/api/cart/items/:nftId', async ({ request, params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const url = new URL(request.url)
     const edition = url.searchParams.get('edition')
 
@@ -164,7 +168,8 @@ export const cartHandlers = [
   }),
 
   http.post('/api/cart/coupon', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const payload = (await request.json()) as { code: string }
     const coupon = findCoupon(payload.code)
 
@@ -184,7 +189,8 @@ export const cartHandlers = [
   }),
 
   http.delete('/api/cart/coupon', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const db = readDb()
     const cart = getOrCreateCart(db, resolveCartOwnerKey(request))
     cart.couponCode = null

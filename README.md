@@ -88,6 +88,24 @@ resetado.
 | `BEMVINDO15` | 15% de desconto |
 | `EXPIRADO5` | Cupom expirado — reproduz o cenário de erro |
 
+## Cenários de rede (item 6.1 do desafio)
+
+Todo handler REST passa por um único ponto (`src/mocks/network.ts`) antes de responder, que
+aplica o cenário de rede ativo — configurável e reproduzível (PRNG com semente fixa, não
+`Math.random()`), reaproveitado em dev, na demonstração e nos testes Playwright:
+
+```js
+// no console do navegador, com o app aberto
+window.__setNetworkScenario({ scenario: 'slow' })      // latência fixa de 4s em toda chamada
+window.__setNetworkScenario({ scenario: 'variable' })  // latência aleatória 200–3500ms (reprodutível)
+window.__setNetworkScenario({ scenario: 'timeout' })   // nunca responde — estoura o timeout do Axios (15s)
+window.__setNetworkScenario({ scenario: 'offline' })   // erro de rede (ERR_NETWORK), sem status HTTP
+window.__setNetworkScenario({ scenario: 'error', errorRate: 50, errorStatus: 503 }) // 50% das chamadas falham com 503
+window.__resetNetworkScenario()                        // volta ao normal (latência fixa 250ms)
+```
+
+O cenário fica persistido em `localStorage` (sobrevive a refresh) até ser resetado.
+
 ## Reproduzindo os fluxos de falha
 
 | Cenário | Como reproduzir |

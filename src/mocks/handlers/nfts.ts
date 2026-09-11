@@ -36,7 +36,8 @@ function matchesSearch(nft: Nft, search: string): boolean {
 
 export const nftHandlers = [
   http.get('/api/nfts', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const url = new URL(request.url)
     const search = url.searchParams.get('search') ?? ''
     const category = url.searchParams.get('category')
@@ -78,7 +79,8 @@ export const nftHandlers = [
   }),
 
   http.get('/api/nfts/facets', async () => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const categories = new Map<string, number>()
     const networks = new Map<NftNetwork, number>()
     const catalog = getEffectiveCatalog()
@@ -107,13 +109,15 @@ export const nftHandlers = [
   }),
 
   http.get('/api/nfts/featured', async () => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const featured = getEffectiveCatalog().filter((nft) => nft.isFeatured).slice(0, 1)
     return HttpResponse.json(featured[0] ?? null)
   }),
 
   http.get('/api/nfts/:id', async ({ params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const nft = getEffectiveNft(params.id as string)
     if (!nft) {
       return HttpResponse.json({ message: 'NFT não encontrado.' }, { status: 404 })

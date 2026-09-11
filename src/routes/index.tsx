@@ -179,7 +179,7 @@ function HomePage() {
             type="search"
             defaultValue={search.q}
             placeholder="Explorar coleções"
-            className="min-w-0 flex-1 bg-transparent text-sm font-bold text-brand-text placeholder:font-bold placeholder:text-brand-text focus-visible:outline-none"
+            className="min-w-0 flex-1 bg-transparent text-sm font-bold text-brand-text placeholder:font-bold placeholder:text-brand-muted focus-visible:outline-none"
           />
         </form>
 

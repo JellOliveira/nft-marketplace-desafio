@@ -17,7 +17,8 @@ function requireAuth(request: Request) {
 
 export const favoriteHandlers = [
   http.get('/api/favorites', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -26,7 +27,8 @@ export const favoriteHandlers = [
   }),
 
   http.post('/api/favorites/:nftId', async ({ request, params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 
@@ -49,7 +51,8 @@ export const favoriteHandlers = [
   }),
 
   http.delete('/api/favorites/:nftId', async ({ request, params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const { user, error } = requireAuth(request)
     if (!user) return error
 

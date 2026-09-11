@@ -106,7 +106,8 @@ function resolveOrderStatus(db: ReturnType<typeof readDb>, order: StoredOrder): 
 
 export const orderHandlers = [
   http.post('/api/orders', async ({ request }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
 
     const ownerKey = resolveOwnerKey(request)
     if (!ownerKey) {
@@ -235,7 +236,8 @@ export const orderHandlers = [
   }),
 
   http.get('/api/orders/:id', async ({ request, params }) => {
-    await simulateNetwork()
+    const netOutcome = await simulateNetwork()
+    if (netOutcome.kind === 'error') return netOutcome.response
     const ownerKey = resolveOwnerKey(request)
     if (!ownerKey) {
       return HttpResponse.json({ message: 'Sessão inválida ou expirada.' }, { status: 401 })

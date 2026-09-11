@@ -167,6 +167,11 @@ equivalentes (`mergeGuestCartIntoUser` em `src/mocks/handlers/auth.ts`).
 - **Coração de favoritar**: no Figma, os ícones de ação do card (carrinho, coração, busca)
   só aparecem no hover. Implementado sempre visível — um controle interativo que só aparece
   no hover é inoperável por teclado, o que violaria o requisito de navegação por teclado.
+- **Acesso aos favoritos no cabeçalho desktop**: o Figma só desenha um destino "Favoritos" na
+  barra de navegação inferior do mobile — não existe equivalente no cabeçalho desktop.
+  Adicionado um link (coração) ali, ao lado do carrinho: sem ele, quem favoritasse um NFT no
+  desktop não tinha nenhum jeito de encontrar a própria lista de favoritos depois, só editando
+  a URL manualmente.
 - **Preço no carrinho (mobile)**: o preço unitário por item some em telas estreitas (para não
   apertar o layout), mas o total da linha ficou sempre visível — no desenho original ambos
   ficavam ocultos no mobile, o que deixaria o carrinho sem nenhuma indicação de valor numa

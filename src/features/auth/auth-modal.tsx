@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useLogin, useRegister } from './use-session'
+import { cn } from '@/lib/utils'
 import type { ApiErrorBody } from '@/types/auth'
 
 interface AuthModalProps {
@@ -31,6 +32,11 @@ interface AuthModalProps {
   /** Quando informado junto de `onClose`, as abas "Entrar | Criar conta" trocam de modo sem
    *  navegar (mesma razão do `onClose`). Sem ele, seguem como links de rota normais. */
   onModeChange?: (mode: 'login' | 'register') => void
+  /** Usado só pela sobreposição do pagamento (design-refs/Mobile/Pagamento.png): no mobile,
+   *  quem não tem sessão só vê o formulário de login ali — sem abas "Entrar | Criar conta" e
+   *  sem "Ou continue com", que só existem no fluxo completo de /login e /cadastro. O
+   *  desktop não muda (mesmas abas de sempre), então isto só esconde abaixo de `lg`. */
+  compactMobileLogin?: boolean
 }
 
 /** Extrai a mensagem e os erros de campo de uma resposta de erro do MSW, com um texto
@@ -42,7 +48,13 @@ function parseApiError(error: unknown): ApiErrorBody {
   return { message: 'Não foi possível concluir agora. Tente novamente.' }
 }
 
-export function AuthModal({ mode, redirectTo, onClose, onModeChange }: AuthModalProps) {
+export function AuthModal({
+  mode,
+  redirectTo,
+  onClose,
+  onModeChange,
+  compactMobileLogin = false,
+}: AuthModalProps) {
   const navigate = useNavigate()
 
   function closeAndReturn() {
@@ -66,7 +78,7 @@ export function AuthModal({ mode, redirectTo, onClose, onModeChange }: AuthModal
           KURIO
         </DialogTitle>
 
-        <div className="flex justify-center gap-2 text-lg">
+        <div className={cn('flex justify-center gap-2 text-lg', compactMobileLogin && 'hidden lg:flex')}>
           {onModeChange ? (
             <button
               type="button"
@@ -117,7 +129,7 @@ export function AuthModal({ mode, redirectTo, onClose, onModeChange }: AuthModal
             <RegisterForm onSuccess={closeAndReturn} />
           )}
 
-          <div className="mt-5 border-t border-brand-border pt-5">
+          <div className={cn('mt-5 border-t border-brand-border pt-5', compactMobileLogin && 'hidden lg:block')}>
             <p className="pb-4 text-center text-sm text-brand-text">Ou continue com</p>
             <div className="flex flex-col gap-3">
               <SocialButton label="Continuar com Google" icon={<GoogleLogo className="size-5" />} />

@@ -4,7 +4,8 @@
 // disfarçando uma confirmação já assumida); se a simulação recusar, mostra a recusa. É essa
 // disciplina que evita o eliminatório "compra confirmada sem resposta da simulação".
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
+import { Loader2, XCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useOrder } from '@/features/orders/use-order'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DEFAULT_CATALOG_SEARCH } from '@/types/nft'
@@ -72,7 +73,7 @@ function ConfirmedReceipt({ order }: { order: NonNullable<ReturnType<typeof useO
   return (
     <div className="w-full overflow-hidden rounded-2xl bg-brand-card">
       <div className="border-b border-brand-border p-8 text-center">
-        <CheckCircle2 className="mx-auto mb-4 size-10 text-brand-success" />
+        <ThankYouIcon className="mx-auto mb-4 size-16 text-brand-accent-alt" />
         <h1 className="text-lg font-bold text-brand-text">Seus NFTs agora estão na sua carteira</h1>
       </div>
 
@@ -97,15 +98,25 @@ function ConfirmedReceipt({ order }: { order: NonNullable<ReturnType<typeof useO
 
       <div className="p-6">
         <h2 className="mb-4 font-bold text-brand-text">Detalhes da transação</h2>
+
+        {/* Cabeçalho das colunas (design-refs/Confirmação de Pedido.png): "Edições" mostra a
+         *  quantidade comprada de cada NFT, igual à coluna de mesmo nome no carrinho — antes
+         *  esse número aparecia sem rótulo nenhum. */}
+        <div className="mb-2 flex items-center gap-4 text-sm font-bold text-brand-text">
+          <span className="w-14 shrink-0" aria-hidden="true" />
+          <span className="min-w-0 flex-1">NFTs</span>
+          <span className="w-16 shrink-0 text-center">Edições</span>
+          <span className="shrink-0 text-right">Subtotal</span>
+        </div>
+        <div className="mb-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
+
         <ul className="flex flex-col gap-4">
           {order.lines.map((line) => (
             <li key={`${line.nftId}-${line.edition}`} className="flex items-center gap-4">
-              <img src={line.imageUrl} alt="" className="size-14 rounded-lg object-cover" width={56} height={56} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-bold text-brand-text">{line.name}</p>
-                <p className="text-xs text-brand-muted">(x {line.quantity})</p>
-              </div>
-              <span className="text-brand-gold">
+              <img src={line.imageUrl} alt="" className="size-14 shrink-0 rounded-lg object-cover" width={56} height={56} />
+              <p className="min-w-0 flex-1 truncate font-bold text-brand-text">{line.name}</p>
+              <span className="w-16 shrink-0 text-center text-sm text-brand-muted">(x {line.quantity})</span>
+              <span className="shrink-0 text-right text-brand-gold">
                 {(Number(line.priceEth) * line.quantity).toFixed(2)} ETH
               </span>
             </li>
@@ -122,17 +133,90 @@ function ConfirmedReceipt({ order }: { order: NonNullable<ReturnType<typeof useO
         </div>
 
         <p className="mt-6 text-center text-xs text-brand-muted">
-          Transação simulada na {order.network}. Nenhuma blockchain real foi utilizada.
+          Transação confirmada na {order.network}. A propriedade foi transferida para sua
+          carteira conectada e registrada na rede.
         </p>
-        <button
-          type="button"
-          disabled
-          title="Simulado — não aponta para um explorador de blocos real"
-          className="mx-auto mt-4 block cursor-not-allowed rounded-md bg-brand-accent-alt px-4 py-2 text-sm font-medium text-brand-card opacity-60"
-        >
-          Ver no Etherscan (simulado)
-        </button>
+        <EtherscanButton />
       </div>
+
+      {/* Faixa grossa ao pé do recibo (design-refs/Confirmação de Pedido.png) — puramente
+       *  decorativa, fecha o cartão. */}
+      <div className="h-2 bg-brand-accent-alt" aria-hidden="true" />
     </div>
+  )
+}
+
+/** "Ver no Etherscan" não aponta pra lugar nenhum de verdade — é uma simulação (item 1 do
+ *  desafio: sem integração real de blockchain). Em vez de deixar isso escrito no próprio
+ *  rótulo do botão ou depender só do tooltip nativo do navegador (`title`), mostra uma legenda
+ *  flutuante ao clicar, que some sozinha depois de alguns segundos — mais visível e também
+ *  funciona em touch, onde não existe hover. */
+function EtherscanButton() {
+  const [showTip, setShowTip] = useState(false)
+
+  useEffect(() => {
+    if (!showTip) return
+    const timeout = window.setTimeout(() => setShowTip(false), 2800)
+    return () => window.clearTimeout(timeout)
+  }, [showTip])
+
+  return (
+    <div className="relative mx-auto mt-4 w-fit">
+      {showTip && (
+        <p
+          role="status"
+          className="absolute -top-10 left-1/2 w-max max-w-64 -translate-x-1/2 rounded-md bg-brand-elevated px-3 py-1.5 text-center text-xs text-brand-text shadow-lg"
+        >
+          Simulado — não aponta para um explorador de blocos real
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={() => setShowTip(true)}
+        className="block rounded-md bg-brand-accent-alt px-4 py-2 text-sm font-medium text-brand-card hover:bg-brand-accent"
+      >
+        Ver no Etherscan
+      </button>
+    </div>
+  )
+}
+
+/** Ícone do envelope com o cartão "THANK YOU" saindo dele (design-refs/Confirmação de
+ *  Pedido.png) — substitui o ícone genérico de "check" verde. Traço único (currentColor),
+ *  igual ao resto dos ícones de linha do design system. */
+function ThankYouIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className={className} aria-hidden="true">
+      <rect x="17" y="6" width="30" height="24" rx="2" stroke="currentColor" strokeWidth="2" />
+      <text
+        x="32"
+        y="17"
+        textAnchor="middle"
+        fontSize="6.5"
+        fontWeight="700"
+        fill="currentColor"
+        fontFamily="'Roboto Mono', monospace"
+      >
+        THANK
+      </text>
+      <text
+        x="32"
+        y="25.5"
+        textAnchor="middle"
+        fontSize="6.5"
+        fontWeight="700"
+        fill="currentColor"
+        fontFamily="'Roboto Mono', monospace"
+      >
+        YOU
+      </text>
+      <path
+        d="M8 26 L32 41 L56 26 L56 55 A2 2 0 0 1 54 57 L10 57 A2 2 0 0 1 8 55 Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path d="M8 26 L32 41 L56 26" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
   )
 }

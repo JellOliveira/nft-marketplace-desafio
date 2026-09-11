@@ -80,7 +80,6 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
   // Índice, não a URL da imagem: a galeria repete a mesma foto do produto nas 4 miniaturas
   // (design-refs/Detalhes do NFT.png), então comparar por valor marcaria todas como ativas.
   const [activeIndex, setActiveIndex] = useState(0)
-  const activeImage = nft.gallery[activeIndex] ?? nft.imageUrl
   const [edition, setEdition] = useState(nft.editions[nft.editions.length - 1])
   const [quantity, setQuantity] = useState(1)
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -142,10 +141,10 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[104px_520px_1fr]">
-        {/* flex-wrap no mobile: 4 miniaturas de 96px numa linha só (384px+gaps) estouram a
-         *  largura da tela em telas pequenas (390px) — aqui elas quebram em 2 linhas em vez
-         *  de vazar a página. Em lg vira coluna única, então o wrap não se aplica. */}
-        <div className="order-2 flex flex-wrap gap-3 lg:order-1 lg:flex-nowrap lg:flex-col">
+        {/* Coluna de miniaturas: só no desktop (design-refs/Desktop/Detalhes do NFT.png). No
+         *  mobile a galeria vira a própria foto principal arrastável (ver ImageGallery abaixo)
+         *  — design-refs/Mobile/Detalhes do NFT.png não mostra miniaturas separadas. */}
+        <div className="order-2 hidden gap-3 lg:order-1 lg:flex lg:flex-col">
           {nft.gallery.map((image, index) => (
             <button
               key={index}
@@ -163,124 +162,134 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
           ))}
         </div>
 
-        <div className="order-1 aspect-square overflow-hidden rounded-xl lg:order-2">
-          <img
-            src={activeImage}
-            alt={`Imagem principal do NFT ${nft.name}`}
-            className="size-full object-cover"
-            width={520}
-            height={520}
+        <div className="order-1 lg:order-2">
+          <ImageGallery
+            gallery={nft.gallery}
+            activeIndex={activeIndex}
+            onChange={setActiveIndex}
+            nftName={nft.name}
           />
         </div>
 
         <div className="order-3 min-w-0">
-          <h1 className="text-2xl font-bold text-brand-text">{nft.name}</h1>
-          {/* Preço à esquerda, avaliação à direita (design-refs/Detalhes do NFT.png) — só
-           *  gruda tudo à esquerda em telas estreitas o bastante pra não caber lado a lado. */}
-          <p className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-            <span className="text-xl text-brand-accent-alt">{nft.priceEth} ETH</span>
-            <span className="flex items-center gap-1.5 text-sm whitespace-nowrap text-brand-muted">
-              <RatingStars rating={nft.rating} />
-              {nft.reviewCount} avaliações de colecionadores
-            </span>
-          </p>
-
-          <div className="mt-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
-
-          <h2 className="mt-4 text-sm font-bold text-brand-text">Sobre este NFT:</h2>
-          <p className="mt-1 text-sm text-brand-muted">{nft.description}</p>
-
-          <h2 className="mt-4 text-sm font-bold text-brand-text">Edição:</h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {nft.editions.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => setEdition(option)}
-                aria-pressed={edition === option}
-                className={cn(
-                  'rounded-full border px-3 py-1.5 text-sm uppercase',
-                  edition === option
-                    ? 'border-brand-accent-alt text-brand-accent-alt'
-                    : 'border-brand-border text-brand-text',
-                )}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Diminuir quantidade"
-                disabled={quantity <= 1}
-                onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                className="flex size-8 items-center justify-center rounded-full bg-brand-accent-alt text-brand-card disabled:opacity-50"
-              >
-                <Minus size={16} />
-              </button>
-              <span className="w-6 text-center text-brand-text">{quantity}</span>
-              <button
-                type="button"
-                aria-label="Aumentar quantidade"
-                disabled={quantity >= maxQuantity}
-                title={quantity >= maxQuantity ? 'Limite de unidades disponíveis atingido' : undefined}
-                onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
-                className="flex size-8 items-center justify-center rounded-full bg-brand-accent-alt text-brand-card disabled:opacity-50"
-              >
-                <Plus size={16} />
-              </button>
-            </div>
-
-            {/* Comprar + Favoritar lado a lado, mesmo tamanho (design-refs: "w-32 h-10" nos
-             *  dois) — Favoritar é vazado (só borda), Comprar é sólido. */}
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                onClick={handleBuy}
-                disabled={!nft.available || addCartItem.isPending}
-                className="h-10 w-32 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
-              >
-                {nft.available ? 'Comprar' : 'Esgotado'}
-              </Button>
-
-              <button
-                type="button"
-                onClick={() => isAuthenticated && toggleFavorite.mutate({ nftId: nft.id, isFavorited })}
-                disabled={!isAuthenticated || toggleFavorite.isPending}
-                aria-pressed={isFavorited}
-                aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                title={isAuthenticated ? undefined : 'Entre para favoritar'}
-                className="flex h-10 w-32 items-center justify-center gap-2 rounded-md border border-brand-accent-alt text-sm font-medium text-brand-accent-alt disabled:cursor-not-allowed"
-              >
-                <Heart size={16} className={cn(isFavorited && 'fill-brand-accent-alt')} />
-                Favoritar
-              </button>
-            </div>
-          </div>
-
-          {feedback && (
-            <p role="alert" className="mt-3 text-sm text-brand-error">
-              {feedback}
+          {/* "Sheet" escura envolvendo as informações (design-refs/Mobile/Details Sheet.svg +
+           *  Detalhes do NFT.png) — só no mobile; no desktop o texto fica solto no fundo da
+           *  página, como já era antes. */}
+          <div className="rounded-2xl bg-brand-card p-5 lg:rounded-none lg:bg-transparent lg:p-0">
+            <h1 className="text-2xl font-bold text-brand-text">{nft.name}</h1>
+            {/* Preço à esquerda, avaliação à direita — 5 estrelas no desktop (design-refs/
+             *  Desktop/Detalhes do NFT.png), selo único "★ 4.8 (19)" no mobile (design-refs/
+             *  Mobile/Detalhes do NFT.png e Details Sheet.svg). */}
+            <p className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <span className="text-xl text-brand-accent-alt">{nft.priceEth} ETH</span>
+              <span className="hidden items-center gap-1.5 text-sm whitespace-nowrap text-brand-muted lg:flex">
+                <RatingStars rating={nft.rating} />
+                {nft.reviewCount} avaliações de colecionadores
+              </span>
+              <MobileRatingBadge rating={nft.rating} reviewCount={nft.reviewCount} />
             </p>
-          )}
 
-          <dl className="mt-4 space-y-1 text-sm text-brand-muted">
-            <div>
-              <dt className="inline">ID do token: </dt>
-              <dd className="inline">{nft.tokenId}</dd>
+            <div className="mt-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
+
+            <h2 className="mt-4 text-sm font-bold text-brand-text">Sobre este NFT:</h2>
+            <p className="mt-1 text-sm text-brand-muted">{nft.description}</p>
+
+            <h2 className="mt-4 text-sm font-bold text-brand-text">Edição:</h2>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {nft.editions.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setEdition(option)}
+                  aria-pressed={edition === option}
+                  className={cn(
+                    'rounded-full border px-3 py-1.5 text-sm uppercase',
+                    edition === option
+                      ? 'border-brand-accent-alt text-brand-accent-alt'
+                      : 'border-brand-border text-brand-text',
+                  )}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
-            <div>
-              <dt className="inline">Coleção: </dt>
-              <dd className="inline">{nft.collection}</dd>
+
+            {/* Ordem da referência mobile: token/coleção/atributos vêm antes da linha de
+             *  quantidade e do botão de compra (design-refs/Mobile/Detalhes do NFT.png). */}
+            <dl className="mt-4 space-y-1 text-sm text-brand-muted">
+              <div>
+                <dt className="inline">ID do token: </dt>
+                <dd className="inline">{nft.tokenId}</dd>
+              </div>
+              <div>
+                <dt className="inline">Coleção: </dt>
+                <dd className="inline">{nft.collection}</dd>
+              </div>
+              <div>
+                <dt className="inline">Atributos: </dt>
+                <dd className="inline">{nft.attributes.join(', ')}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-brand-border/40 pt-4 lg:border-t-0 lg:pt-0">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Diminuir quantidade"
+                  disabled={quantity <= 1}
+                  onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                  className="flex size-8 items-center justify-center rounded-full bg-brand-accent-alt text-brand-card disabled:opacity-50"
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="w-6 text-center text-brand-text">{quantity}</span>
+                <button
+                  type="button"
+                  aria-label="Aumentar quantidade"
+                  disabled={quantity >= maxQuantity}
+                  title={quantity >= maxQuantity ? 'Limite de unidades disponíveis atingido' : undefined}
+                  onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
+                  className="flex size-8 items-center justify-center rounded-full bg-brand-accent-alt text-brand-card disabled:opacity-50"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+
+              {/* Comprar + Favoritar lado a lado no desktop (design-refs: "w-32 h-10" nos
+               *  dois) — Favoritar é vazado (só borda), Comprar é sólido. No mobile o
+               *  favoritar já está no topo da tela (coração ao lado da seta "voltar"), então
+               *  o botão some daqui pra não duplicar a ação. */}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={handleBuy}
+                  disabled={!nft.available || addCartItem.isPending}
+                  className="h-10 w-32 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+                >
+                  {nft.available ? 'Comprar' : 'Esgotado'}
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={() => isAuthenticated && toggleFavorite.mutate({ nftId: nft.id, isFavorited })}
+                  disabled={!isAuthenticated || toggleFavorite.isPending}
+                  aria-pressed={isFavorited}
+                  aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                  title={isAuthenticated ? undefined : 'Entre para favoritar'}
+                  className="hidden h-10 w-32 items-center justify-center gap-2 rounded-md border border-brand-accent-alt text-sm font-medium text-brand-accent-alt disabled:cursor-not-allowed lg:flex"
+                >
+                  <Heart size={16} className={cn(isFavorited && 'fill-brand-accent-alt')} />
+                  Favoritar
+                </button>
+              </div>
             </div>
-            <div>
-              <dt className="inline">Atributos: </dt>
-              <dd className="inline">{nft.attributes.join(', ')}</dd>
-            </div>
-          </dl>
+
+            {feedback && (
+              <p role="alert" className="mt-3 text-sm text-brand-error">
+                {feedback}
+              </p>
+            )}
+          </div>
 
           <ShareRow nft={nft} />
         </div>
@@ -307,6 +316,99 @@ function RatingStars({ rating }: { rating: number }) {
         />
       ))}
     </span>
+  )
+}
+
+/** Selo compacto de avaliação do mobile (design-refs/Mobile/Details Sheet.svg e Detalhes do
+ *  NFT.png: "★ 4.8 (19)" numa pílula) — substitui as 5 estrelas do desktop, que não aparecem
+ *  em nenhuma referência mobile. */
+function MobileRatingBadge({ rating, reviewCount }: { rating: number; reviewCount: number }) {
+  return (
+    <span className="flex items-center gap-1 rounded-full border border-brand-accent-alt px-2.5 py-1 text-xs font-bold text-brand-text lg:hidden">
+      <Star size={12} className="fill-brand-accent-alt text-brand-accent-alt" aria-hidden="true" />
+      {rating.toFixed(1)}
+      <span className="font-normal text-brand-muted">({reviewCount})</span>
+    </span>
+  )
+}
+
+/** Galeria da imagem principal (design-refs/Mobile/Detalhes do NFT.png): no mobile não existe
+ *  fileira de miniaturas — a própria foto arrasta pro lado entre as imagens da galeria, com
+ *  setas discretas (mesma identidade visual das setas de "Mais desta coleção" logo abaixo
+ *  nesta tela). No desktop, a troca continua vindo só da coluna de miniaturas (ver acima) —
+ *  por isso as setas e o arraste somem em lg. */
+function ImageGallery({
+  gallery,
+  activeIndex,
+  onChange,
+  nftName,
+}: {
+  gallery: string[]
+  activeIndex: number
+  onChange: (index: number) => void
+  nftName: string
+}) {
+  const dragRef = useRef<{ startX: number; deltaX: number } | null>(null)
+
+  function handlePointerDown(event: React.PointerEvent) {
+    if (event.pointerType !== 'touch') return
+    dragRef.current = { startX: event.clientX, deltaX: 0 }
+  }
+  function handlePointerMove(event: React.PointerEvent) {
+    if (!dragRef.current) return
+    dragRef.current.deltaX = event.clientX - dragRef.current.startX
+  }
+  function handlePointerUp() {
+    const drag = dragRef.current
+    dragRef.current = null
+    if (!drag) return
+    const THRESHOLD = 40
+    if (drag.deltaX <= -THRESHOLD) onChange(Math.min(activeIndex + 1, gallery.length - 1))
+    else if (drag.deltaX >= THRESHOLD) onChange(Math.max(activeIndex - 1, 0))
+  }
+
+  return (
+    <div
+      className="relative aspect-square touch-pan-y overflow-hidden rounded-xl"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
+      <img
+        src={gallery[activeIndex] ?? ''}
+        alt={`Imagem ${activeIndex + 1} de ${gallery.length} do NFT ${nftName}`}
+        className="size-full object-cover"
+        width={520}
+        height={520}
+        draggable={false}
+      />
+
+      {gallery.length > 1 && (
+        <>
+          {activeIndex > 0 && (
+            <button
+              type="button"
+              onClick={() => onChange(activeIndex - 1)}
+              aria-label="Ver imagem anterior"
+              className="absolute top-1/2 left-3 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-brand-bg/50 text-brand-text/60 backdrop-blur-sm transition-colors hover:bg-brand-bg/90 hover:text-brand-accent-alt lg:hidden"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          )}
+          {activeIndex < gallery.length - 1 && (
+            <button
+              type="button"
+              onClick={() => onChange(activeIndex + 1)}
+              aria-label="Ver próxima imagem"
+              className="absolute top-1/2 right-3 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-brand-bg/50 text-brand-text/60 backdrop-blur-sm transition-colors hover:bg-brand-bg/90 hover:text-brand-accent-alt lg:hidden"
+            >
+              <ChevronRight size={18} />
+            </button>
+          )}
+        </>
+      )}
+    </div>
   )
 }
 

@@ -4,7 +4,7 @@
 // reproduz exatamente a mesma consulta. Mudar qualquer filtro reinicia a página para 1.
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChevronRight, Search, SlidersHorizontal } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { OPEN_CATALOG_FILTERS_EVENT } from '@/components/mobile-tab-bar'
 import { CatalogFilters } from '@/features/catalog/catalog-filters'
 import { NftCard } from '@/features/catalog/nft-card'
@@ -92,9 +92,10 @@ function HomePage() {
     ? filterAndPaginate(rawData, favoriteIds ?? [], search.page, PAGE_SIZE)
     : rawData
 
-  // Slides do herói (design-refs/Mobile/Hero Banner.png): os 3 NFTs mais bem avaliados do
-  // catálogo real, independente dos filtros aplicados na grade abaixo — não é uma vitrine
-  // decorativa fixa, cada slide leva ao detalhe real daquele NFT.
+  // Slides do herói (design-refs/Mobile/Hero Banner.svg + Desktop/Top.svg): o 1º é sempre a
+  // arte de marca fixa (ver HeroSection), os 2 seguintes são os NFTs mais bem avaliados do
+  // catálogo real, independente dos filtros aplicados na grade abaixo — cada um leva ao
+  // detalhe real daquele NFT, não é uma vitrine decorativa fixa.
   const { data: heroData } = useNftList({
     search: '',
     category: null,
@@ -103,7 +104,7 @@ function HomePage() {
     priceMax: null,
     sort: 'rating',
     page: 1,
-    pageSize: 3,
+    pageSize: 2,
   })
 
   const { data: facets } = useNftFacets()
@@ -342,7 +343,11 @@ function HeroSection({ nfts, onExplore }: { nfts: Nft[]; onExplore: () => void }
   const [active, setActive] = useState(0)
   const dragRef = useRef<{ startX: number; deltaX: number } | null>(null)
 
-  const slideCount = nfts.length > 0 ? nfts.length : 1
+  // 1º slide é sempre a arte de marca fixa (design-refs/Mobile/Hero Banner.svg e Desktop/
+  // Top.svg: o macaco de óculos verde) — `null` aciona o fallback estático em
+  // HeroSlideContent. Os demais slides são os NFTs reais mais bem avaliados do catálogo.
+  const slides: Array<Nft | null> = [null, ...nfts]
+  const slideCount = slides.length
   const clampedActive = Math.min(active, slideCount - 1)
 
   function handlePointerDown(event: React.PointerEvent) {
@@ -378,35 +383,36 @@ function HeroSection({ nfts, onExplore }: { nfts: Nft[]; onExplore: () => void }
         className="flex touch-pan-y transition-transform duration-300 ease-out"
         style={{ width: `${slideCount * 100}%`, transform: `translateX(-${clampedActive * (100 / slideCount)}%)` }}
       >
-        {(nfts.length > 0 ? nfts : [null]).map((nft, index) => (
+        {slides.map((nft, index) => (
           <HeroSlideContent
             key={nft?.id ?? 'placeholder'}
             nft={nft}
-            nextNft={nfts[index + 1] ?? nfts[0]}
+            nextNft={slides[index + 1] ?? undefined}
             onExplore={onExplore}
             widthPercent={100 / slideCount}
+            dots={
+              slideCount > 1 ? (
+                <div className="flex shrink-0 gap-2 self-center lg:self-end" role="tablist" aria-label="Slides do herói">
+                  {slides.map((_, dotIndex) => (
+                    <button
+                      key={dotIndex}
+                      type="button"
+                      role="tab"
+                      aria-selected={dotIndex === clampedActive}
+                      aria-label={`Ver destaque ${dotIndex + 1}`}
+                      onClick={() => setActive(dotIndex)}
+                      className={cn(
+                        'size-2 rounded-full transition-colors',
+                        dotIndex === clampedActive ? 'bg-brand-accent-alt' : 'bg-brand-accent-alt/30',
+                      )}
+                    />
+                  ))}
+                </div>
+              ) : null
+            }
           />
         ))}
       </div>
-
-      {slideCount > 1 && (
-        <div className="flex justify-center gap-2 pb-6 lg:justify-start lg:px-[120px]" role="tablist" aria-label="Slides do herói">
-          {nfts.map((nft, index) => (
-            <button
-              key={nft.id}
-              type="button"
-              role="tab"
-              aria-selected={index === clampedActive}
-              aria-label={`Ver destaque ${nft.name}`}
-              onClick={() => setActive(index)}
-              className={cn(
-                'size-2 rounded-full transition-colors',
-                index === clampedActive ? 'bg-brand-accent-alt' : 'bg-brand-accent-alt/30',
-              )}
-            />
-          ))}
-        </div>
-      )}
     </section>
   )
 }
@@ -416,11 +422,13 @@ function HeroSlideContent({
   nextNft,
   onExplore,
   widthPercent,
+  dots,
 }: {
   nft: Nft | null
-  nextNft?: Nft
+  nextNft?: Nft | null
   onExplore: () => void
   widthPercent: number
+  dots: ReactNode
 }) {
   return (
     <div
@@ -429,8 +437,12 @@ function HeroSlideContent({
     >
       <div className="flex-1">
         <p className="text-sm text-brand-text">Bem-vindo à Kurio</p>
+        {/* Título muda por breakpoint, não por slide: cada referência (design-refs/Desktop/
+         *  Top.svg vs. Mobile/Hero Banner.svg) traz uma redação diferente pra mesma linha de
+         *  marca. */}
         <h1 className="mt-3 max-w-xl text-[32px] leading-tight font-bold text-brand-text lg:text-[43px] lg:leading-[70px]">
-          SEJA DONO DA CULTURA DIGITAL
+          <span className="lg:hidden">SEJA DONO DA CULTURA DIGITAL</span>
+          <span className="hidden lg:inline">SEJA DONO DO FUTURO DA ARTE DIGITAL</span>
         </h1>
         <p className="mt-3 max-w-md text-sm text-brand-muted">
           {nft
@@ -455,6 +467,9 @@ function HeroSlideContent({
         )}
       </div>
 
+      {/* Bolinhas entre o texto e a foto (design-refs/Desktop/Top.svg) — não abaixo de tudo. */}
+      {dots}
+
       <div className="relative flex flex-1 items-center justify-center lg:justify-end">
         <img
           src={nft?.imageUrl ?? heroImage}
@@ -463,13 +478,15 @@ function HeroSlideContent({
           loading="eager"
           draggable={false}
         />
+        {/* Prévia do próximo item: só no mobile (design-refs/Mobile/Hero Banner.svg) — o
+         *  desktop (design-refs/Desktop/Top.svg) mostra só a foto principal, sem sobreposição. */}
         {nextNft && (
           <img
             src={nextNft.imageUrl}
             alt=""
             aria-hidden
             draggable={false}
-            className="absolute bottom-0 left-1/2 size-20 -translate-x-[calc(50%+7rem)] rounded-xl border-4 border-brand-bg object-cover shadow-lg sm:size-24"
+            className="absolute bottom-0 left-1/2 size-20 -translate-x-[calc(50%+7rem)] rounded-xl border-4 border-brand-bg object-cover shadow-lg sm:size-24 lg:hidden"
           />
         )}
       </div>

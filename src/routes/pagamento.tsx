@@ -316,8 +316,9 @@ function PaymentForm({
                 className={cn(inputClass, 'text-brand-muted disabled:opacity-70')}
               />
             </Field>
-            <Field label="Código de indicação">
+            <Field label="Código de indicação" required>
               <input
+                required
                 value={referralCode}
                 onChange={(event) => setReferralCode(event.target.value)}
                 className={inputClass}
@@ -337,13 +338,13 @@ function PaymentForm({
              *  dropdown, não um campo de digitação): escolhe entre os nomes ENS que já
              *  existem — o do perfil e o que foi digitado em "ENS ou carteira secundária" ao
              *  lado — em vez de deixar digitar um nome novo aqui. */}
-            <Field label="Nome ENS">
+            <Field label="Nome ENS" required>
               <Select value={ensName || 'none'} onValueChange={(value) => setEnsName(value === 'none' ? '' : value)}>
                 <SelectTrigger className={selectTriggerClass}>
-                  <SelectValue placeholder="Selecione (opcional)" />
+                  <SelectValue placeholder=".eth" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem>
+                  <SelectItem value="none">.eth</SelectItem>
                   {profile?.ensName && <SelectItem value={profile.ensName}>{profile.ensName}.eth</SelectItem>}
                   {ensOrSecondary && ensOrSecondary !== profile?.ensName && (
                     <SelectItem value={ensOrSecondary}>{ensOrSecondary}.eth</SelectItem>
@@ -517,6 +518,7 @@ function PaymentForm({
           redirectTo="/pagamento"
           onClose={() => setAuthOverlay(null)}
           onModeChange={setAuthOverlay}
+          compactMobileLogin
         />
       )}
     </main>

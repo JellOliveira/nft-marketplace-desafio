@@ -214,18 +214,22 @@ function CartSummaryPanel({
 }) {
   return (
     <aside className="w-full shrink-0 lg:w-[340px]">
-      <h2 className="text-lg font-bold text-brand-text">Resumo da carteira</h2>
-      <div className="mt-3 mb-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
+      <h2 className="hidden text-lg font-bold text-brand-text lg:block">Resumo da carteira</h2>
+      <div className="mt-3 mb-4 hidden h-px bg-brand-accent-alt/30 lg:block" aria-hidden="true" />
 
-      {/* Caixa + botão juntos, um só elemento visual (design-refs/Código do Carrinho do NFT.html)
-       *  — não input e botão separados. */}
-      <CouponBox couponCode={couponCode} variant="inline" />
+      {/* Cupom + totais + botão dentro de uma "sheet" escura no mobile (design-refs/Mobile/
+       *  Payment Summary.svg) — no desktop continuam soltos no fundo da página, como já era. */}
+      <div className="rounded-2xl bg-brand-card p-4 lg:rounded-none lg:bg-transparent lg:p-0">
+        {/* Caixa + botão juntos, um só elemento visual (design-refs/Código do Carrinho do NFT.html)
+         *  — não input e botão separados. */}
+        <CouponBox couponCode={couponCode} variant="inline" />
 
-      <CartTotals subtotal={subtotal} discount={discount} networkFee={networkFee} total={total} />
+        <CartTotals subtotal={subtotal} discount={discount} networkFee={networkFee} total={total} />
 
-      <Button asChild className="mt-6 w-full rounded-sm bg-brand-accent text-brand-bg hover:bg-brand-accent-alt">
-        <Link to="/pagamento">Conectar e finalizar</Link>
-      </Button>
+        <Button asChild className="mt-6 w-full rounded-sm bg-brand-accent text-brand-bg hover:bg-brand-accent-alt">
+          <Link to="/pagamento">Conectar e finalizar</Link>
+        </Button>
+      </div>
       <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="mt-3 block text-center text-sm text-brand-accent">
         Continuar explorando
       </Link>
@@ -270,8 +274,9 @@ function RecommendedSection({ excludeIds }: { excludeIds: string[] }) {
 
   const hasMultiplePages = pages.length > 1
 
+  // Não existe no mobile (design-refs/Mobile/Carrinho de NFTs.png não traz esta seção).
   return (
-    <section className="mt-16 border-t border-brand-border/60 pt-8">
+    <section className="mt-16 hidden border-t border-brand-border/60 pt-8 lg:block">
       <h2 className="text-base font-bold text-brand-accent">Colecionadores também viram</h2>
 
       <div className="relative mt-6">

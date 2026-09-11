@@ -6,6 +6,7 @@
 // padrão do header para links fora do escopo: não-interativo, com indicação explícita.
 import { Link } from '@tanstack/react-router'
 import type { ReactNode, SVGProps } from 'react'
+import { NewsletterSection } from '@/features/home/newsletter-section'
 import { DEFAULT_CATALOG_SEARCH } from '@/types/nft'
 
 // lucide-react removeu os ícones de marca (Facebook/Instagram/Linkedin/Twitter/Youtube) por
@@ -77,7 +78,11 @@ const SOCIAL_LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-brand-border/60 bg-brand-bg text-brand-text">
+    <footer className="bg-brand-bg text-brand-text">
+      {/* Faixa de destaques + newsletter (design-refs/Código do Carrinho do NFT.html e Código
+       *  do Detalhes do NFT.html, ambos com esse bloco dentro do próprio rodapé) — presente em
+       *  toda tela, não só na home. Já vem com border-t própria, então o <footer> não repete. */}
+      <NewsletterSection />
       <ContactStrip />
 
       <div className="bg-brand-card">

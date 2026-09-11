@@ -174,8 +174,11 @@ categoria abaixo da meta.
 🎬 Vídeo (fluxo completo, catálogo → compra → recibo, na URL publicada):
 `<colar o link do YouTube/Loom aqui>`
 
-📸 Print da suíte Playwright (`playwright-report/`, todos os testes verdes):
-`docs/evidencias/playwright-report.png`
+📸 Prints da suíte Playwright (`playwright-report/`):
+- Visão geral (47 passed, 0 failed, 3 skipped): `docs/evidencias/playwright-report.png`
+- Fluxo de compra completo, passo a passo: `docs/evidencias/playwright-fluxo-compra.png`
+- Os 3 testes pulados, com o motivo (busca/filtro só existem no desktop hoje — ver
+  `ARCHITECTURE.md`, "Limitações conhecidas"): `docs/evidencias/playwright-skipped.png`
 
 ## Deploy
 

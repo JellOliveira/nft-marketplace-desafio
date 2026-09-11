@@ -68,13 +68,13 @@ function CartPage() {
           <section className="min-w-0 flex-1">
             {/* Cabeçalho das colunas (design-refs/Código do Carrinho do NFT.html) — some no
              *  mobile, onde cada linha já rotula os próprios valores. */}
-            <div className="mb-3 hidden items-center gap-4 px-4 text-sm font-bold text-brand-text sm:flex">
-              <span className="w-16" aria-hidden="true" />
-              <span className="min-w-0 flex-1">NFTs</span>
-              <span className="w-20 text-center font-medium">Preço</span>
-              <span className="w-24 text-center">Edições</span>
-              <span className="w-20 text-right font-medium">Total</span>
-              <span className="w-6" aria-hidden="true" />
+            <div className="mb-3 hidden items-center gap-4 px-4 text-sm font-bold text-brand-text sm:grid sm:grid-cols-[4rem_1fr_5rem_6rem_5rem_1.5rem]">
+              <span aria-hidden="true" />
+              <span>NFTs</span>
+              <span className="text-center font-medium">Preço</span>
+              <span className="text-center">Edições</span>
+              <span className="text-right font-medium">Total</span>
+              <span aria-hidden="true" />
             </div>
             <div className="mb-3 h-px bg-brand-accent-alt/30" aria-hidden="true" />
 
@@ -122,8 +122,11 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
   const atMax = line.quantity >= line.availableQuantity
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg bg-brand-card p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col gap-3 rounded-lg bg-brand-card p-4 sm:grid sm:grid-cols-[4rem_1fr_5rem_6rem_5rem_1.5rem] sm:items-center sm:gap-4">
+      {/* No mobile este bloco fica em uma linha própria (imagem + nome + lixeira); no
+       *  desktop "sm:contents" solta os 3 filhos direto na grid da linha, cada um na sua
+       *  coluna — em vez de um <div> só que não teria como se alinhar com o cabeçalho. */}
+      <div className="flex items-center gap-4 sm:contents">
         <img
           src={line.imageUrl}
           alt=""
@@ -151,9 +154,9 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
       </div>
 
       <div className="flex items-center justify-between gap-4 sm:contents">
-        <p className="hidden w-20 text-center font-bold text-brand-accent sm:block">{line.priceEth} ETH</p>
+        <p className="hidden text-center font-bold text-brand-accent sm:block">{line.priceEth} ETH</p>
 
-        <div className="flex w-24 items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <button
             type="button"
             aria-label="Diminuir quantidade"
@@ -181,7 +184,7 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
           </button>
         </div>
 
-        <p data-testid="cart-line-total" className="w-20 text-right font-bold text-brand-accent">
+        <p data-testid="cart-line-total" className="text-right font-bold text-brand-accent">
           {lineTotal} ETH
         </p>
 

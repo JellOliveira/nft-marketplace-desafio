@@ -36,7 +36,7 @@ export function NewsletterSection() {
 
   return (
     <section className="border-t border-brand-border/60 bg-brand-card">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.6fr] lg:px-[120px]">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-5 py-14 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1fr_1fr_1fr_1.6fr]">
         {FEATURES.map(({ Icon, title, description }, index) => (
           <div
             key={title}

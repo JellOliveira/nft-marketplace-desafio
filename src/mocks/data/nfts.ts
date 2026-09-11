@@ -15,7 +15,6 @@
 // O conjunto (8 artes únicas) é insuficiente para 64 NFTs distintos, então cicla
 // deterministicamente por índice — mesma seed, mesmo resultado, sem repetir a mesma arte em
 // cards vizinhos na grade (offset de 3 entre index e index usado na galeria).
-import { placeholderImage } from '@/lib/placeholder-image'
 import type { Nft, NftNetwork } from '@/types/nft'
 import celebrantAvatar from '@/assets/nft-art/emerald-ape.webp'
 import sageNomadArt from '@/assets/nft-art/sage-nomad.webp'
@@ -35,6 +34,21 @@ export const NFT_ART_POOL = [
   ivoryBaronArt,
   featuredArt,
   goldenBeatArt,
+]
+
+/** Atributos "base" de cada arte — o que o macaco está de fato usando na imagem (óculos,
+ *  chapéu, fone etc.), não um valor fixo igual para todo o catálogo. Paralelo a
+ *  NFT_ART_POOL por índice. "Raro"/"Comum" não entram aqui: são decididos por item (ver
+ *  generateCatalog) e só "Raro" é anexado quando true — sem preencher com "Comum". */
+const ART_BASE_ATTRIBUTES: string[][] = [
+  ['Óculos', 'Esmeralda'], // celebrantAvatar (emerald-ape)
+  ['Chapéu', 'Moletom'], // sageNomadArt
+  ['Brinco', 'Terno'], // neonVesselArt
+  ['Chapéu', 'Moletom'], // cosmicBloomArt
+  ['Chapéu', 'Moletom'], // violetNomadArt
+  ['Brinco', 'Terno'], // ivoryBaronArt
+  ['Chapéu', 'Moletom'], // featuredArt
+  ['Headfone', 'Jaqueta'], // goldenBeatArt
 ]
 
 function mulberry32(seed: number) {
@@ -132,7 +146,6 @@ function generateCatalog(count: number): Nft[] {
     const editions = EDITION_SETS[Math.floor(random() * EDITION_SETS.length)]
     const artist = ARTISTS[Math.floor(random() * ARTISTS.length)]
     const id = `nft_${i + 1}`
-    const seedImage = `${name}-${i}`
     const artIndex = i % NFT_ART_POOL.length
 
     items.push({
@@ -149,17 +162,17 @@ function generateCatalog(count: number): Nft[] {
       priceEth,
       compareAtPriceEth,
       imageUrl: NFT_ART_POOL[artIndex],
-      gallery: [
-        NFT_ART_POOL[artIndex],
-        NFT_ART_POOL[(artIndex + 3) % NFT_ART_POOL.length],
-        NFT_ART_POOL[(artIndex + 5) % NFT_ART_POOL.length],
-        placeholderImage(`${seedImage}-4`, name),
-      ],
+      // As 4 miniaturas da galeria são a mesma foto do produto (design-refs/Detalhes do
+      // NFT.png) — não um avatar de iniciais do artista. Não há fotos adicionais exportadas
+      // do Figma por NFT, então repetir a arte real é mais fiel que inventar um placeholder.
+      gallery: [NFT_ART_POOL[artIndex], NFT_ART_POOL[artIndex], NFT_ART_POOL[artIndex], NFT_ART_POOL[artIndex]],
       category,
       network,
       rating: Number((random() * 1.5 + 3.5).toFixed(1)),
       reviewCount: Math.floor(random() * 40) + 1,
-      attributes: ['Óculos', 'Esmeralda', isRare ? 'Raro' : 'Comum'],
+      attributes: isRare
+        ? [...ART_BASE_ATTRIBUTES[artIndex], 'Raro']
+        : ART_BASE_ATTRIBUTES[artIndex],
       editions,
       available: availableQuantity > 0,
       availableQuantity,

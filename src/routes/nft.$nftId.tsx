@@ -4,8 +4,8 @@
 // quebrar (item 3 do desafio).
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import axios from 'axios'
-import { Heart, Mail, Minus, Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Heart, Mail, Minus, Plus, Search, Star } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAddCartItem } from '@/features/cart/use-cart'
@@ -77,7 +77,10 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
   const toggleFavorite = useToggleFavorite()
   const addCartItem = useAddCartItem()
 
-  const [activeImage, setActiveImage] = useState(nft.imageUrl)
+  // Índice, não a URL da imagem: a galeria repete a mesma foto do produto nas 4 miniaturas
+  // (design-refs/Detalhes do NFT.png), então comparar por valor marcaria todas como ativas.
+  const [activeIndex, setActiveIndex] = useState(0)
+  const activeImage = nft.gallery[activeIndex] ?? nft.imageUrl
   const [edition, setEdition] = useState(nft.editions[nft.editions.length - 1])
   const [quantity, setQuantity] = useState(1)
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -113,24 +116,26 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
         <span>Mercado</span>
       </nav>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[100px_520px_1fr]">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[104px_520px_1fr]">
         <div className="order-2 flex gap-3 lg:order-1 lg:flex-col">
           {nft.gallery.map((image, index) => (
             <button
               key={index}
               type="button"
-              onClick={() => setActiveImage(image)}
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Ver imagem ${index + 1} de ${nft.name}`}
+              aria-pressed={activeIndex === index}
               className={cn(
-                'size-20 shrink-0 overflow-hidden rounded-lg border-2 transition-colors',
-                activeImage === image ? 'border-brand-accent-alt' : 'border-transparent',
+                'size-24 shrink-0 overflow-hidden rounded-lg border-2 transition-colors',
+                activeIndex === index ? 'border-brand-accent-alt' : 'border-transparent',
               )}
             >
-              <img src={image} alt="" className="size-full object-cover" width={80} height={80} />
+              <img src={image} alt="" className="size-full object-cover" width={96} height={96} />
             </button>
           ))}
         </div>
 
-        <div className="order-1 aspect-square overflow-hidden rounded-xl lg:order-2">
+        <div className="relative order-1 aspect-square overflow-hidden rounded-xl lg:order-2">
           <img
             src={activeImage}
             alt={`Imagem principal do NFT ${nft.name}`}
@@ -138,21 +143,30 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
             width={520}
             height={520}
           />
+          {/* Puramente decorativo (design-refs/Detalhes do NFT.png) — não abre um lightbox
+           *  real nesta entrega, por isso não é um <button> nem tem foco/aria de controle. */}
+          <span
+            aria-hidden="true"
+            className="absolute top-3 right-3 flex size-9 items-center justify-center rounded-full border border-brand-border bg-brand-card/90 text-brand-text"
+          >
+            <Search size={16} />
+          </span>
         </div>
 
         <div className="order-3 min-w-0">
           <h1 className="text-2xl font-bold text-brand-text">{nft.name}</h1>
-          <p className="mt-2 flex items-baseline gap-3">
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="text-xl text-brand-accent-alt">{nft.priceEth} ETH</span>
-            <span className="text-sm text-brand-muted">
-              {'★'.repeat(Math.round(nft.rating))} {nft.reviewCount} avaliações de colecionadores
+            <span className="flex items-center gap-1.5 text-sm whitespace-nowrap text-brand-muted">
+              <RatingStars rating={nft.rating} />
+              {nft.reviewCount} avaliações de colecionadores
             </span>
           </p>
 
-          <h2 className="mt-6 text-sm font-bold text-brand-text">Sobre este NFT:</h2>
+          <h2 className="mt-4 text-sm font-bold text-brand-text">Sobre este NFT:</h2>
           <p className="mt-1 text-sm text-brand-muted">{nft.description}</p>
 
-          <h2 className="mt-6 text-sm font-bold text-brand-text">Edição:</h2>
+          <h2 className="mt-4 text-sm font-bold text-brand-text">Edição:</h2>
           <div className="mt-2 flex flex-wrap gap-2">
             {nft.editions.map((option) => (
               <button
@@ -161,7 +175,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
                 onClick={() => setEdition(option)}
                 aria-pressed={edition === option}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-sm',
+                  'rounded-full border px-3 py-1.5 text-sm uppercase',
                   edition === option
                     ? 'border-brand-accent-alt text-brand-accent-alt'
                     : 'border-brand-border text-brand-text',
@@ -172,7 +186,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
             ))}
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-4">
+          <div className="mt-4 flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -215,7 +229,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
                 aria-pressed={isFavorited}
                 aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                 title={isAuthenticated ? undefined : 'Entre para favoritar'}
-                className="flex h-10 w-32 items-center justify-center gap-2 rounded-md border border-brand-accent-alt text-sm font-medium text-brand-accent-alt disabled:opacity-50"
+                className="flex h-10 w-32 items-center justify-center gap-2 rounded-md border border-brand-accent-alt text-sm font-medium text-brand-accent-alt disabled:cursor-not-allowed"
               >
                 <Heart size={16} className={cn(isFavorited && 'fill-brand-accent-alt')} />
                 Favoritar
@@ -229,7 +243,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
             </p>
           )}
 
-          <dl className="mt-6 space-y-1 text-sm text-brand-muted">
+          <dl className="mt-4 space-y-1 text-sm text-brand-muted">
             <div>
               <dt className="inline">ID do token: </dt>
               <dd className="inline">{nft.tokenId}</dd>
@@ -251,6 +265,24 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
       <DetailsSection nft={nft} />
       <RelatedCollectionSection nft={nft} />
     </main>
+  )
+}
+
+/** Estrelas de avaliação (design-refs/Detalhes do NFT.png): 5 ícones fixos, preenchidos em
+ *  laranja até o valor arredondado de `rating`, o restante em cinza — em vez de um texto
+ *  "★★★★" que varia de fonte pra fonte e não mostra as vazias. */
+function RatingStars({ rating }: { rating: number }) {
+  const filled = Math.round(rating)
+  return (
+    <span className="flex items-center gap-0.5" aria-hidden="true">
+      {Array.from({ length: 5 }, (_, index) => (
+        <Star
+          key={index}
+          size={14}
+          className={index < filled ? 'fill-brand-accent-alt text-brand-accent-alt' : 'text-brand-muted'}
+        />
+      ))}
+    </span>
   )
 }
 
@@ -328,39 +360,53 @@ function DetailsSection({ nft }: { nft: Nft }) {
         </span>
       </div>
 
+      {/* Texto fixo (design-refs/Detalhes do NFT.png) — só o nome do produto muda de um NFT
+       *  para outro, o resto da redação é igual em todos, incluindo os rótulos "Rede:" /
+       *  "Contrato:" / "Direitos autorais:" (o conteúdo de cada um é o do próprio Figma,
+       *  mesmo quando o rótulo não bate topicamente com o texto abaixo dele). */}
       <p className="mt-6 max-w-3xl text-sm leading-6 text-brand-muted">
-        {nft.description}
+        {nft.name} é uma obra digital 1/50 finalizada à mão da coleção Kurio Editions. Cada
+        atributo fica armazenado nos metadados do token e verificado na Ethereum. A obra
+        explora identidade, movimento e luz em um mundo digital sem fronteiras.
         <br />
         <br />
-        Cada peça desta coleção é cunhada com metadados verificáveis on-chain, garantindo
-        proveniência e raridade auditáveis por qualquer colecionador.
+        A propriedade inclui a arte em alta resolução, lançamentos exclusivos para
+        colecionadores e um registro permanente de procedência registrada na rede. Nova Sato
+        recebe 5% de direitos autorais nas vendas secundárias, apoiando novos trabalhos e
+        lançamentos da comunidade.
       </p>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="mt-6 flex flex-col gap-4">
         <div>
           <h3 className="text-sm font-bold text-brand-text">Rede:</h3>
-          <p className="mt-1 text-sm text-brand-muted capitalize">{nft.network}</p>
+          <p className="mt-1 max-w-3xl text-sm text-brand-muted">
+            Cunhado na Ethereum com procedência imutável e metadados armazenados no IPFS.
+          </p>
         </div>
         <div>
           <h3 className="text-sm font-bold text-brand-text">Contrato:</h3>
-          <p className="mt-1 text-sm text-brand-muted">ERC-721</p>
+          <p className="mt-1 max-w-3xl text-sm text-brand-muted">
+            Direitos autorais do criador: 5% nas vendas secundárias, pagos automaticamente
+            pelos mercados compatíveis.
+          </p>
         </div>
         <div>
           <h3 className="text-sm font-bold text-brand-text">Direitos autorais:</h3>
-          <p className="mt-1 text-sm text-brand-muted">10% para o criador em cada revenda</p>
+          <p className="mt-1 max-w-3xl text-sm text-brand-muted">
+            0x7A42...19E8 • Contrato inteligente ERC-721 verificado.
+          </p>
         </div>
       </div>
-
-      <p className="mt-4 text-xs text-brand-muted">
-        0x7A42…19E8 • Contrato inteligente ERC-721 verificado.
-      </p>
     </section>
   )
 }
 
-/** "Mais desta coleção" (design-refs/Código do Detalhes do NFT.html): outros NFTs da mesma
- *  coleção. Sem endpoint dedicado — reaproveita a listagem real do catálogo e filtra no
- *  cliente, em vez de inventar uma API que não existe. */
+/** "Mais desta coleção" (design-refs/Detalhes do NFT.png): outros NFTs da mesma coleção,
+ *  paginados de 5 em 5 com 3 bolinhas embaixo — igual ao carrossel do Figma. Sem endpoint
+ *  dedicado — reaproveita a listagem real do catálogo e filtra no cliente, em vez de
+ *  inventar uma API que não existe. A rolagem lateral é de verdade (overflow-x com
+ *  scroll-snap, arrastável por toque/trackpad); as bolinhas navegam para a página
+ *  correspondente e refletem a posição real do scroll, não são decorativas. */
 function RelatedCollectionSection({ nft }: { nft: Nft }) {
   const { data } = useNftList({
     search: '',
@@ -370,21 +416,74 @@ function RelatedCollectionSection({ nft }: { nft: Nft }) {
     priceMax: null,
     sort: 'recent',
     page: 1,
-    pageSize: 24,
+    pageSize: 20,
   })
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [activePage, setActivePage] = useState(0)
 
-  const related = (data?.items ?? []).filter((item) => item.collection === nft.collection && item.id !== nft.id).slice(0, 5)
+  const related = (data?.items ?? [])
+    .filter((item) => item.collection === nft.collection && item.id !== nft.id)
+    .slice(0, 15)
+  const pages = chunk(related, 5)
+
+  function scrollToPage(index: number) {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollTo({ left: index * el.clientWidth, behavior: 'smooth' })
+  }
+
+  function handleScroll() {
+    const el = scrollRef.current
+    if (!el || el.clientWidth === 0) return
+    setActivePage(Math.round(el.scrollLeft / el.clientWidth))
+  }
 
   if (related.length === 0) return null
 
   return (
     <section className="mt-16 border-t border-brand-border/60 pt-8">
       <h2 className="text-lg font-bold text-brand-text">Mais desta coleção</h2>
-      <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
-        {related.map((item) => (
-          <NftCard key={item.id} nft={item} />
+
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="mt-6 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-2"
+      >
+        {pages.map((page, pageIndex) => (
+          <div
+            key={pageIndex}
+            className="grid w-full shrink-0 snap-start grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5"
+          >
+            {page.map((item) => (
+              <NftCard key={item.id} nft={item} />
+            ))}
+          </div>
         ))}
       </div>
+
+      {pages.length > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {pages.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => scrollToPage(index)}
+              aria-label={`Ver página ${index + 1} de mais desta coleção`}
+              aria-current={activePage === index}
+              className={cn(
+                'size-3 rounded-full border border-brand-accent-alt transition-colors',
+                activePage === index ? 'bg-brand-accent-alt' : 'bg-transparent',
+              )}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
+}
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const pages: T[][] = []
+  for (let i = 0; i < items.length; i += size) pages.push(items.slice(i, i + size))
+  return pages
 }

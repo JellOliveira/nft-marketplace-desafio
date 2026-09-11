@@ -81,8 +81,8 @@ export function SiteFooter() {
       <ContactStrip />
 
       <div className="bg-brand-card">
-        <div className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
-          <div className="flex flex-col gap-8 sm:flex-row sm:flex-wrap sm:gap-10 lg:flex-nowrap lg:gap-16">
+        <div className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8">
+          <div className="flex flex-col gap-8 sm:flex-row sm:flex-wrap sm:gap-10 lg:flex-nowrap lg:gap-32">
             <FooterColumn title="Meu perfil" className="sm:flex-1">
               <ul className="flex flex-col gap-2">
                 {PROFILE_LINKS.map((item) =>
@@ -135,23 +135,31 @@ export function SiteFooter() {
   )
 }
 
-/** Faixa de contato entre o rodapé e a faixa de destaques/newsletter (Footer.svg): logo
- *  "KURIO" + descrição curta + e-mail e telefone (mailto:/tel:, reais e funcionais — não é
- *  um link "fora do escopo" fingindo uma central de contato). */
+/** Faixa de contato entre o rodapé e a faixa de destaques/newsletter (design-refs/Footer.png
+ *  + Código do Detalhes do NFT.html): logo "KURIO" + descrição curta + e-mail e telefone
+ *  (mailto:/tel:, reais e funcionais — não é um link "fora do escopo" fingindo uma central
+ *  de contato). Faixa cheia (sem cantos arredondados, sem margem lateral), fundo
+ *  bg-brand-dark — conferido por amostragem de pixel no Footer.png de referência. */
 function ContactStrip() {
   return (
-    <div className="mx-auto max-w-[1200px] px-5 pt-8 lg:px-[120px]">
-      <div className="flex flex-col flex-wrap items-center gap-4 rounded-2xl bg-brand-border-subtle px-6 py-5 text-center sm:flex-row sm:justify-between sm:text-left">
-        <span className="text-sm font-bold tracking-[1.4px] text-brand-text">KURIO</span>
-        <p className="text-sm text-brand-text">
+    <div className="bg-brand-dark">
+      <div className="mx-auto flex max-w-[1200px] flex-col flex-wrap items-center gap-4 px-5 py-6 text-center sm:flex-row sm:gap-8 sm:px-8 sm:text-left lg:gap-24">
+        <span className="text-sm font-bold tracking-[1.4px] text-brand-text sm:flex-1">KURIO</span>
+        <p className="text-sm text-brand-text sm:flex-1">
           Feito para colecionadores,
           <br />
           criadores e cultura
         </p>
-        <a href="mailto:contato@email.com" className="text-sm text-brand-text hover:text-brand-accent-alt">
+        <a
+          href="mailto:contato@email.com"
+          className="text-sm text-brand-text hover:text-brand-accent-alt sm:flex-1"
+        >
           contato@email.com
         </a>
-        <a href="tel:+551140028922" className="text-sm text-brand-text hover:text-brand-accent-alt">
+        <a
+          href="tel:+551140028922"
+          className="text-sm text-brand-text hover:text-brand-accent-alt sm:w-56"
+        >
           +55 11 4002 8922
         </a>
       </div>

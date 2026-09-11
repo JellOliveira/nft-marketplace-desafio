@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-11T18:01:57.724Z",
+  "generatedAt": "2026-09-11T18:41:43.357Z",
   "baseUrl": "http://localhost:4173",
   "lighthouseVersion": "13.4.1",
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
@@ -17,45 +17,45 @@
       "profile": "mobile",
       "url": "http://localhost:4173/",
       "medians": {
-        "performance": 41,
+        "performance": 60,
         "accessibility": 100,
         "bestPractices": 77,
         "seo": 92,
-        "lcpMs": 6030.328375,
+        "lcpMs": 5260.842699999999,
         "clsUnitless": 0.01885051429955014,
-        "tbtMs": 988.9794499999998
+        "tbtMs": 312.21817499999906
       },
       "runs": [
         {
-          "performance": 41,
+          "performance": 66,
           "accessibility": 100,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 6058.66285,
+          "lcp": 5178.177900000001,
           "cls": 0.01885051429955014,
-          "tbt": 988.9794499999998,
+          "tbt": 156.5,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 40,
+          "performance": 60,
           "accessibility": 100,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 6030.328375,
+          "lcp": 5396.892924999998,
           "cls": 0.01885051429955014,
-          "tbt": 1056.7126250000001,
+          "tbt": 312.21817499999906,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 56.99999999999999,
+          "performance": 60,
           "accessibility": 100,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 5490.643999999999,
+          "lcp": 5260.842699999999,
           "cls": 0.01885051429955014,
-          "tbt": 391.24800000000005,
+          "tbt": 349.3937500000002,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         }
@@ -66,45 +66,45 @@
       "profile": "desktop",
       "url": "http://localhost:4173/",
       "medians": {
-        "performance": 81,
+        "performance": 89,
         "accessibility": 100,
         "bestPractices": 77,
         "seo": 92,
-        "lcpMs": 1542.3780000000002,
-        "clsUnitless": 0.16394323943027225,
-        "tbtMs": 49
+        "lcpMs": 1126.629425,
+        "clsUnitless": 0.14003183833977553,
+        "tbtMs": 23.5
       },
       "runs": [
         {
-          "performance": 81,
+          "performance": 88,
           "accessibility": 100,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 1542.3780000000002,
+          "lcp": 1113.404975,
           "cls": 0.16394323943027225,
-          "tbt": 49,
+          "tbt": 22.5,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 81,
+          "performance": 94,
           "accessibility": 100,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 1660.7390000000003,
-          "cls": 0.16394323943027225,
-          "tbt": 51.5,
+          "lcp": 1126.629425,
+          "cls": 0.0404717057449405,
+          "tbt": 23.5,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 86,
+          "performance": 89,
           "accessibility": 100,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 1322.570125,
+          "lcp": 1157.018075,
           "cls": 0.14003183833977553,
-          "tbt": 44.5,
+          "tbt": 26.000000000000114,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         }
@@ -115,45 +115,45 @@
       "profile": "mobile",
       "url": "http://localhost:4173/nft/nft_1",
       "medians": {
-        "performance": 56.00000000000001,
+        "performance": 54,
         "accessibility": 96,
         "bestPractices": 77,
         "seo": 92,
-        "lcpMs": 5013.874399999999,
+        "lcpMs": 5204.829000000001,
         "clsUnitless": 0.1300121506682868,
-        "tbtMs": 350.5117500000006
+        "tbtMs": 384.0773750000003
       },
       "runs": [
         {
-          "performance": 56.00000000000001,
+          "performance": 40,
           "accessibility": 96,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 5006.044499999999,
+          "lcp": 5511.981749999999,
           "cls": 0.1300121506682868,
-          "tbt": 350.5117500000006,
+          "tbt": 952.3597500000001,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 50,
+          "performance": 59,
           "accessibility": 96,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 5243.8784000000005,
+          "lcp": 5024.76175,
           "cls": 0.1300121506682868,
-          "tbt": 478.0385500000002,
+          "tbt": 265,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 56.99999999999999,
+          "performance": 54,
           "accessibility": 96,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 5013.874399999999,
+          "lcp": 5204.829000000001,
           "cls": 0.1300121506682868,
-          "tbt": 313,
+          "tbt": 384.0773750000003,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         }
@@ -164,45 +164,45 @@
       "profile": "desktop",
       "url": "http://localhost:4173/nft/nft_1",
       "medians": {
-        "performance": 90,
+        "performance": 85,
         "accessibility": 97,
         "bestPractices": 77,
         "seo": 92,
-        "lcpMs": 1210.4751,
+        "lcpMs": 1551.0102,
         "clsUnitless": 0.1214893617021277,
-        "tbtMs": 10
+        "tbtMs": 61.5
       },
       "runs": [
         {
-          "performance": 91,
+          "performance": 80,
           "accessibility": 97,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 1179.076,
+          "lcp": 1679.9170000000001,
           "cls": 0.1214893617021277,
-          "tbt": 4,
+          "tbt": 111,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 89,
+          "performance": 85,
           "accessibility": 97,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 1229.36765,
+          "lcp": 1551.0102,
           "cls": 0.1214893617021277,
-          "tbt": 11,
+          "tbt": 61.5,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         },
         {
-          "performance": 90,
+          "performance": 87,
           "accessibility": 97,
           "bestPractices": 77,
           "seo": 92,
-          "lcp": 1210.4751,
+          "lcp": 1312.584,
           "cls": 0.1214893617021277,
-          "tbt": 10,
+          "tbt": 44.49999999999977,
           "lighthouseVersion": "13.4.1",
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36"
         }

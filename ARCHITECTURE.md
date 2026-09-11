@@ -250,12 +250,21 @@ rodada.
 
 | Página | Perfil | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Início | mobile | 58 | 100 | 77 | 92 | 5,7s | 0,019 | 319ms |
-| Início | desktop | 86 | 100 | 77 | 92 | 1,2s | 0,173 | 10ms |
-| Detalhe | mobile | 52 | 96 | 77 | 92 | 5,7s | 0,130 | 325ms |
-| Detalhe | desktop | 83 | 97 | 77 | 92 | 1,6s | 0,121 | 13ms |
+| Início | mobile | 60 | 100 | 77 | 92 | 5,3s | 0,019 | 312ms |
+| Início | desktop | 89 | 100 | 77 | 92 | 1,1s | 0,140 | 24ms |
+| Detalhe | mobile | 54 | 96 | 77 | 92 | 5,2s | 0,130 | 384ms |
+| Detalhe | desktop | 85 | 97 | 77 | 92 | 1,6s | 0,121 | 62ms |
 
 Metas: Performance ≥90, Accessibility ≥95, Best Practices ≥95, SEO ≥90.
+
+> **Nota sobre variância de medição**: o Performance local variou entre rodadas ao longo do
+> desenvolvimento (52–68 no mobile, 81–93 no desktop) dependendo de quantos outros processos
+> estavam ativos na máquina no momento da auditoria — chegamos a medir 41 numa rodada com 3
+> servidores Vite dev e 2 processos de devtools duplicados rodando em paralelo por acidente.
+> Depois de encerrar os processos redundantes, o número voltou consistentemente para a faixa
+> acima. Os valores da tabela são de uma rodada limpa (sem processos concorrentes); Performance
+> é a categoria mais sensível a isso — Accessibility, Best Practices e SEO não variaram entre
+> nenhuma das rodadas.
 
 ### Por que Best Practices trava em 77 no build local (e como isso se resolve)
 
@@ -277,8 +286,9 @@ Duas causas, sempre as mesmas nas 12 rodadas — nenhuma delas é falta de otimi
 
 ### Por que Performance mobile fica abaixo da meta
 
-Início/Detalhe mobile ficam em 52–58 (meta: 90), desktop em 83–86 (perto da meta, mas ainda
-abaixo). LCP mobile em ~5,7s é a causa dominante — decomposto via os relatórios individuais:
+Início/Detalhe mobile ficam em 54–60 (meta: 90), desktop em 85–89 (bem perto da meta, mas
+ainda abaixo). LCP mobile em ~5,2s é a causa dominante — decomposto via os relatórios
+individuais:
 
 - **CPU 4x mais lenta simulada pelo perfil mobile do Lighthouse**: o bundle inicial carrega o
   worker do MSW (`browser-*.js`, ~264KB) inteiro antes de qualquer requisição de API poder

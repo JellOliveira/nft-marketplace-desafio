@@ -245,7 +245,13 @@ function PaymentForm({
         <span>Pagamento</span>
       </nav>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_380px]">
+      {/* noValidate (mesmo padrão de /perfil e /carteiras): o "*" ao lado do rótulo é fiel ao
+       *  Figma, mas quem decide se dá pra confirmar a compra é `canSubmit` — carteira
+       *  conectada e cotação em dia. Sem isso, o validador nativo do navegador bloquearia
+       *  "Confirmar compra" em qualquer um desses campos de texto livre (ex.: "Nome do
+       *  perfil"), quebrando o fluxo de checkout já testado só por causa de um rótulo
+       *  informativo, não de uma regra de negócio real. */}
+      <form onSubmit={handleSubmit} noValidate className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_380px]">
         <section>
           <h1 className="mb-4 text-lg font-bold text-brand-text">Perfil do colecionador</h1>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

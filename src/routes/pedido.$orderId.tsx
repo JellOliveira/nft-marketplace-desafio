@@ -80,20 +80,24 @@ function ConfirmedReceipt({ order }: { order: NonNullable<ReturnType<typeof useO
       {/* Rótulo em branco/negrito e valor em tom mais apagado embaixo, com um traço vertical
        *  separando cada bloco (design-refs/Desktop/Confirmação de Pedido.png) — não o inverso
        *  (rótulo apagado, valor branco) que estava aqui antes. */}
+      {/* Um único conjunto de padding entre vizinhos (pr-3 + pl-3 = 24px), não dois (o px-6 dos
+       *  itens do meio somava com o vizinho e dobrava o espaçamento real entre colunas) — era
+       *  isso que estourava a largura do card e jogava "Carteira" para uma segunda linha em
+       *  vez de ficar ao lado de "Total", como no design-refs/Desktop/Confirmação de Pedido.png. */}
       <dl className="flex flex-wrap divide-x divide-brand-border border-b border-brand-border p-6 text-sm">
-        <div className="pr-6">
+        <div className="pr-3">
           <dt className="font-bold text-brand-text">ID da transação</dt>
           <dd className="text-brand-muted">{shortTxHash}</dd>
         </div>
-        <div className="px-6">
+        <div className="px-3">
           <dt className="font-bold text-brand-text">Data</dt>
           <dd className="text-brand-muted">{new Date(order.createdAt).toLocaleDateString('pt-BR')}</dd>
         </div>
-        <div className="px-6">
+        <div className="px-3">
           <dt className="font-bold text-brand-text">Total</dt>
           <dd className="text-brand-muted">{order.totalEth} ETH</dd>
         </div>
-        <div className="pl-6">
+        <div className="pl-3">
           <dt className="font-bold text-brand-text">Carteira</dt>
           <dd className="text-brand-muted">{order.walletType}</dd>
         </div>

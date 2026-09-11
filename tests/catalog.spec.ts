@@ -2,8 +2,34 @@
 // restauração pelo histórico — tudo isso vive no estado da URL (ver src/routes/index.tsx),
 // então os testes verificam a própria URL, não só o que apareceu na tela.
 import { expect, test } from '@playwright/test'
+import { login } from './support/actions'
 
 test.describe('Catálogo — busca, filtros e paginação', () => {
+  test('link "Ver favoritos" no cabeçalho desktop leva à lista de favoritos', async ({
+    page,
+  }, testInfo) => {
+    // A barra inferior do mobile (mobile-tab-bar.tsx) já tem um destino "Favoritos" —
+    // faltava o equivalente no cabeçalho desktop (site-header.tsx), que some abaixo de lg
+    // (essa mesma barra reaparece), então quem favoritasse um NFT no desktop não tinha
+    // nenhum jeito de encontrar a própria lista de favoritos depois.
+    test.skip(testInfo.project.name === 'mobile-chromium', 'cabeçalho desktop só existe em lg+')
+
+    await login(page)
+    await page.goto('/')
+    const firstCard = page.getByTestId('nft-grid').getByRole('link').first()
+    const nftName = (await firstCard.locator('h3').innerText()).trim()
+    await firstCard.click()
+    await page.waitForURL(/\/nft\//)
+
+    await page.getByRole('button', { name: 'Adicionar aos favoritos' }).first().click()
+    await expect(page.getByRole('button', { name: 'Remover dos favoritos' }).first()).toBeVisible()
+
+    await page.getByRole('link', { name: 'Ver favoritos' }).click()
+    await page.waitForURL(/favorites=true/)
+    await expect(page.locator('[data-testid="nft-grid"] h3').filter({ hasText: nftName })).toBeVisible()
+  })
+
+
   test('busca filtra a listagem e atualiza a URL', async ({ page }, testInfo) => {
     // A Home usa um cabeçalho compacto próprio abaixo de lg (site-header.tsx:
     // hasOwnMobileHeader) sem o botão de busca por texto do cabeçalho padrão — no mobile, o

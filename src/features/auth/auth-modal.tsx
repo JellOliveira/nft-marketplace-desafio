@@ -75,11 +75,18 @@ export function AuthModal({
         showCloseButton
         className="inset-0 top-0 left-0 h-dvh max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-y-auto rounded-none border-0 bg-brand-bg p-0 pt-16 text-brand-text sm:inset-auto sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-full sm:max-w-[500px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:border-brand-border sm:bg-brand-card sm:pt-12"
       >
-        <DialogTitle className="mb-10 text-center text-2xl font-bold tracking-[2px] text-brand-text sm:sr-only">
+        <DialogTitle className="mb-6 text-center text-2xl font-bold tracking-[2px] text-brand-text sm:mb-10 sm:sr-only">
           KURIO
         </DialogTitle>
 
-        <div className={cn('flex justify-center gap-2 text-lg', compactMobileLogin && 'hidden lg:flex')}>
+        {/* Abaixo de sm o cartão nunca mostra as duas abas lado a lado (design-refs/Mobile/Login.png
+         *  e Cadastro.png): um único título com o modo atual, e a troca de modo vira o link "Novo na
+         *  Kurio?" / "Já tem uma conta?" perto do rodapé. Acima de sm, layout do desktop inalterado. */}
+        <p className="mb-6 text-center text-lg font-bold text-brand-text sm:hidden">
+          {mode === 'login' ? 'Entrar' : 'Criar perfil de colecionador'}
+        </p>
+
+        <div className={cn('hidden justify-center gap-2 text-lg', compactMobileLogin ? 'lg:flex' : 'sm:flex')}>
           {onModeChange ? (
             <button
               type="button"
@@ -117,7 +124,7 @@ export function AuthModal({
           )}
         </div>
 
-        <DialogDescription className="px-10 pt-3 text-center text-sm text-brand-text">
+        <DialogDescription className="hidden px-10 pt-3 text-center text-sm text-brand-text sm:block">
           {mode === 'login'
             ? 'Entre para gerenciar sua carteira, coleção e perfil de criador.'
             : 'Crie seu perfil de colecionador e conecte uma carteira quando quiser.'}
@@ -137,6 +144,44 @@ export function AuthModal({
               <SocialButton label="Continuar com Facebook" icon={<FacebookLogo className="size-5" />} />
             </div>
           </div>
+
+          <p className={cn('mt-6 text-center text-sm text-brand-text', compactMobileLogin ? 'hidden' : 'sm:hidden')}>
+            {mode === 'login' ? (
+              <>
+                Novo na Kurio?{' '}
+                {onModeChange ? (
+                  <button
+                    type="button"
+                    onClick={() => onModeChange('register')}
+                    className="font-bold text-brand-accent-alt"
+                  >
+                    Crie uma conta
+                  </button>
+                ) : (
+                  <Link to="/cadastro" search={{ redirect: redirectTo }} className="font-bold text-brand-accent-alt">
+                    Crie uma conta
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                Já tem uma conta?{' '}
+                {onModeChange ? (
+                  <button
+                    type="button"
+                    onClick={() => onModeChange('login')}
+                    className="font-bold text-brand-accent-alt"
+                  >
+                    Entre
+                  </button>
+                ) : (
+                  <Link to="/login" search={{ redirect: redirectTo }} className="font-bold text-brand-accent-alt">
+                    Entre
+                  </Link>
+                )}
+              </>
+            )}
+          </p>
         </div>
       </DialogContent>
     </Dialog>

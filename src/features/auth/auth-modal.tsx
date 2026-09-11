@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PasswordInput } from '@/components/ui/password-input'
 import { useLogin, useRegister } from './use-session'
 import { cn } from '@/lib/utils'
 import type { ApiErrorBody } from '@/types/auth'
@@ -255,9 +256,8 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
         <Label htmlFor="login-password" className="sr-only">
           Senha
         </Label>
-        <Input
+        <PasswordInput
           id="login-password"
-          type="password"
           autoComplete="current-password"
           placeholder="••••••••••••"
           value={password}
@@ -368,9 +368,8 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         <Label htmlFor="register-password" className="sr-only">
           Senha
         </Label>
-        <Input
+        <PasswordInput
           id="register-password"
-          type="password"
           autoComplete="new-password"
           placeholder="Senha"
           value={password}
@@ -386,9 +385,8 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         <Label htmlFor="register-confirm-password" className="sr-only">
           Confirmar senha
         </Label>
-        <Input
+        <PasswordInput
           id="register-confirm-password"
-          type="password"
           autoComplete="new-password"
           placeholder="Confirmar senha"
           value={confirmPassword}

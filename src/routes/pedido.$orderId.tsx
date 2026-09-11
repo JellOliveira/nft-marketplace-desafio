@@ -74,31 +74,30 @@ function ConfirmedReceipt({ order }: { order: NonNullable<ReturnType<typeof useO
     <div className="w-full overflow-hidden rounded-2xl bg-brand-card">
       <div className="border-b border-brand-border p-8 text-center">
         <ThankYouIcon className="mx-auto mb-4 size-16 text-brand-accent-alt" />
-        <h1 className="text-lg font-bold text-brand-text">Seus NFTs agora estão na sua carteira</h1>
+        <h1 className="text-lg font-bold text-brand-muted">Seus NFTs agora estão na sua carteira</h1>
       </div>
 
-      {/* Rótulo em branco/negrito e valor em tom mais apagado embaixo, com um traço vertical
-       *  separando cada bloco (design-refs/Desktop/Confirmação de Pedido.png) — não o inverso
-       *  (rótulo apagado, valor branco) que estava aqui antes. */}
+      {/* Rótulo e valor no mesmo tom (text-brand-muted), linha centralizada — pedido explícito
+       *  do usuário, substituindo o rótulo em branco/negrito que estava aqui antes. */}
       {/* Um único conjunto de padding entre vizinhos (pr-3 + pl-3 = 24px), não dois (o px-6 dos
        *  itens do meio somava com o vizinho e dobrava o espaçamento real entre colunas) — era
        *  isso que estourava a largura do card e jogava "Carteira" para uma segunda linha em
        *  vez de ficar ao lado de "Total", como no design-refs/Desktop/Confirmação de Pedido.png. */}
-      <dl className="flex flex-wrap divide-x divide-brand-border border-b border-brand-border p-6 text-sm">
+      <dl className="flex flex-wrap justify-center divide-x divide-brand-border border-b border-brand-border p-6 text-center text-sm">
         <div className="pr-3">
-          <dt className="font-bold text-brand-text">ID da transação</dt>
+          <dt className="font-bold text-brand-muted">ID da transação</dt>
           <dd className="text-brand-muted">{shortTxHash}</dd>
         </div>
         <div className="px-3">
-          <dt className="font-bold text-brand-text">Data</dt>
+          <dt className="font-bold text-brand-muted">Data</dt>
           <dd className="text-brand-muted">{new Date(order.createdAt).toLocaleDateString('pt-BR')}</dd>
         </div>
         <div className="px-3">
-          <dt className="font-bold text-brand-text">Total</dt>
+          <dt className="font-bold text-brand-muted">Total</dt>
           <dd className="text-brand-muted">{order.totalEth} ETH</dd>
         </div>
         <div className="pl-3">
-          <dt className="font-bold text-brand-text">Carteira</dt>
+          <dt className="font-bold text-brand-muted">Carteira</dt>
           <dd className="text-brand-muted">{order.walletType}</dd>
         </div>
       </dl>

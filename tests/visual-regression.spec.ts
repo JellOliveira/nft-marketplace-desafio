@@ -40,7 +40,7 @@ test.describe('Regressão visual', () => {
 
   test('Detalhe do NFT', async ({ page }) => {
     await page.goto('/')
-    const firstNftLink = page.locator('a[href^="/nft/"]').first()
+    const firstNftLink = page.getByTestId('nft-grid').getByRole('link').first()
     const href = await firstNftLink.getAttribute('href')
     await page.goto(href!)
     await page.waitForLoadState('networkidle')

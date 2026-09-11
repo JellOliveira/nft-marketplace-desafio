@@ -40,13 +40,26 @@ export default defineConfig({
       use: { ...devices['Pixel 7'] },
     },
   ],
-  webServer: {
-    // `--mode test` faz o Vite carregar .env.test durante o build (desliga o cenário
-    // ambiente de tempo real — ver o comentário nesse arquivo). O preview só serve os
-    // arquivos já buildados, então ele não precisa do mesmo modo.
-    command: 'npm run build -- --mode test && npm run preview -- --port 4173',
-    url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  // Dois servidores: o app (build + preview) e o relay Socket.IO real (realtime-server/), que
+  // tests/realtime.spec.ts exige de verdade — sem ele, o evento nunca chega e o teste falha.
+  // Listar os dois aqui (em vez de exigir `npm run dev:realtime` numa aba separada) é o que
+  // garante que `npm run test:e2e` funcione sozinho a partir de um checkout limpo (item 12 do
+  // desafio: "sem depender de serviços privados").
+  webServer: [
+    {
+      // `--mode test` faz o Vite carregar .env.test durante o build (desliga o cenário
+      // ambiente de tempo real — ver o comentário nesse arquivo). O preview só serve os
+      // arquivos já buildados, então ele não precisa do mesmo modo.
+      command: 'npm run build -- --mode test && npm run preview -- --port 4173',
+      url: 'http://localhost:4173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      command: 'node realtime-server/server.js',
+      url: 'http://localhost:4001',
+      reuseExistingServer: !process.env.CI,
+      timeout: 30_000,
+    },
+  ],
 })

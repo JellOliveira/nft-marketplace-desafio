@@ -5,7 +5,7 @@
 // lugar depois que a versão de /pagamento passou a precisar do mesmo cupom e dos mesmos
 // totais que já existiam em /carrinho — evita duas implementações divergindo com o tempo.
 import axios from 'axios'
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { useApplyCoupon, useRemoveCoupon } from './use-cart'
 import { cn } from '@/lib/utils'
 import type { ApiErrorBody } from '@/types/auth'
@@ -23,6 +23,11 @@ export function CouponBox({
 }) {
   const applyCoupon = useApplyCoupon()
   const removeCoupon = useRemoveCoupon()
+  // Este componente é montado duas vezes na mesma página em /carrinho e /pagamento (layout
+  // desktop e mobile, um oculto por CSS conforme a largura) — um id fixo ("coupon-code")
+  // duplicaria no DOM, HTML inválido que quebra a associação label[for] no par que não é o
+  // primeiro. useId() garante um id único por instância.
+  const couponInputId = useId()
   const [expanded, setExpanded] = useState(variant === 'inline')
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -71,13 +76,14 @@ export function CouponBox({
   return (
     <form onSubmit={handleApply} className="mb-4">
       {variant === 'inline' && (
-        <label htmlFor="coupon-code" className="mb-2 block text-sm font-bold text-brand-text">
+        <label htmlFor={couponInputId} className="mb-2 block text-sm font-bold text-brand-text">
           Código promocional
         </label>
       )}
       <div className="flex h-10 items-center overflow-hidden rounded-full border border-brand-accent">
         <input
-          id="coupon-code"
+          id={couponInputId}
+          data-testid="coupon-input"
           value={code}
           onChange={(event) => setCode(event.target.value)}
           placeholder="Digite o código promocional…"

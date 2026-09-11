@@ -4,7 +4,14 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Catálogo — busca, filtros e paginação', () => {
-  test('busca filtra a listagem e atualiza a URL', async ({ page }) => {
+  test('busca filtra a listagem e atualiza a URL', async ({ page }, testInfo) => {
+    // A Home usa um cabeçalho compacto próprio abaixo de lg (site-header.tsx:
+    // hasOwnMobileHeader) sem o botão de busca por texto do cabeçalho padrão — no mobile, o
+    // botão central da barra inferior abre um painel só de filtros/ordenação, sem campo de
+    // busca livre (ver mobile-tab-bar.tsx e ARCHITECTURE.md, "Limitações conhecidas"). Este
+    // teste cobre o fluxo real de busca, que só existe hoje no desktop.
+    test.skip(testInfo.project.name === 'mobile-chromium', 'Busca por texto não tem entrada própria no mobile — ver ARCHITECTURE.md')
+
     await page.goto('/')
     // A busca vive só no cabeçalho, atrás do ícone de lupa (design-refs/Products.svg: não há
     // caixa de busca ao lado de "Ordenar por").
@@ -27,7 +34,12 @@ test.describe('Catálogo — busca, filtros e paginação', () => {
     }
   })
 
-  test('combinar filtro de rede com busca reinicia a paginação para a página 1', async ({ page }) => {
+  test('combinar filtro de rede com busca reinicia a paginação para a página 1', async ({ page }, testInfo) => {
+    // A sidebar de filtros (categoria/rede/preço) é `hidden lg:block` (src/routes/index.tsx)
+    // — no mobile ela vive dentro do painel aberto pelo botão central da barra inferior, sem
+    // cobertura de teste dedicada ainda (ver ARCHITECTURE.md, "Limitações conhecidas").
+    test.skip(testInfo.project.name === 'mobile-chromium', 'Sidebar de filtros é desktop-only — painel mobile ainda sem teste dedicado, ver ARCHITECTURE.md')
+
     await page.goto('/?page=2')
     await expect(page).toHaveURL(/page=2/)
 

@@ -616,6 +616,41 @@ function PaymentForm({
             ))}
           </div>
 
+          {/* Mesmo alerta de cotação desatualizada do <aside> desktop (linha ~459) — o <aside>
+           *  inteiro é `hidden lg:block`, então sem isto aqui um usuário mobile que esbarrasse
+           *  numa mudança de preço em tempo real ficaria com "Confirmar compra" travado
+           *  (canSubmit exige !quoteIsStale) sem nenhum jeito de reconhecer a mudança e
+           *  continuar — item 7 do desafio ("o checkout impede a confirmação com uma cotação
+           *  desatualizada") precisa ter uma saída, não virar um beco sem saída. */}
+          {quoteIsStale && (
+            <div role="alert" className="mt-4 rounded-md border border-brand-warning bg-brand-elevated p-3 text-sm">
+              <p className="text-brand-text">
+                Os valores do carrinho mudaram desde que você abriu esta tela.
+              </p>
+              <button
+                type="button"
+                onClick={() => setAcknowledgedQuoteVersion(cart?.quoteVersion)}
+                className="mt-2 font-bold text-brand-accent-alt"
+              >
+                Revisar e continuar
+              </button>
+            </div>
+          )}
+
+          {/* Mesmo controle de teste determinístico da versão desktop (linha ~404) — sem ele,
+           *  o cenário de pagamento recusado (item 9 do desafio) não seria reproduzível no
+           *  mobile, já que essa seção substitui inteiramente o formulário desktop abaixo de
+           *  lg, não só reorganiza o mesmo conteúdo. */}
+          <label className="mt-6 flex items-start gap-2 text-sm text-brand-muted">
+            <input
+              type="checkbox"
+              checked={simulateRefusal}
+              onChange={(event) => setSimulateRefusal(event.target.checked)}
+              className="mt-0.5"
+            />
+            Simular pagamento recusado (cenário de teste determinístico)
+          </label>
+
           {/* Reserva espaço pra barra fixa abaixo (fica sobre o fim da lista de carteiras). */}
           <div className="h-40" aria-hidden="true" />
         </div>

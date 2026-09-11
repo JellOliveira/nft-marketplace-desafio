@@ -34,11 +34,16 @@ test.describe('Tempo real — Socket.IO', () => {
     // Mais uma mudança agora que a cotação já foi "vista" na tela de pagamento.
     await page.evaluate((id) => window.__triggerNftUpdate?.(id, { priceEth: '55.55' }), nftId)
 
-    await expect(page.getByText('Os valores do carrinho mudaram')).toBeVisible({ timeout: 5_000 })
-    await expect(page.getByRole('button', { name: 'Confirmar compra' })).toBeDisabled()
+    // .filter({ visible: true }): o alerta de cotação desatualizada e o botão "Revisar e
+    // continuar" existem em duas cópias no DOM (desktop/mobile, ver pagamento.tsx) — mesmo
+    // padrão do connectWallet.
+    await expect(
+      page.getByText('Os valores do carrinho mudaram').filter({ visible: true }),
+    ).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByRole('button', { name: 'Confirmar compra' }).filter({ visible: true })).toBeDisabled()
 
-    await page.getByRole('button', { name: 'Revisar e continuar' }).click()
-    await expect(page.getByRole('button', { name: 'Confirmar compra' })).toBeEnabled()
+    await page.getByRole('button', { name: 'Revisar e continuar' }).filter({ visible: true }).click()
+    await expect(page.getByRole('button', { name: 'Confirmar compra' }).filter({ visible: true })).toBeEnabled()
   })
 })
 

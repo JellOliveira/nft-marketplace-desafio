@@ -9,21 +9,26 @@ test.describe('Sessão e conta', () => {
     const uniqueEmail = `teste.${Date.now()}@example.com`
     await page.goto('/cadastro')
     await page.getByPlaceholder('Nome de usuário').fill('Colecionador de Teste')
-    await page.getByPlaceholder('Digite seu e-mail').fill(uniqueEmail)
+    // Usa o id, não getByPlaceholder: o placeholder da newsletter do rodapé ("digite seu
+    // e-mail…") também bate por substring case-insensitive em "Digite seu e-mail".
+    await page.locator('#register-email').fill(uniqueEmail)
     await page.getByPlaceholder('Senha', { exact: true }).fill('senha123')
     await page.getByPlaceholder('Confirmar senha').fill('senha123')
     await page.getByRole('button', { name: 'Criar conta' }).click()
 
     await page.waitForURL((url) => url.pathname === '/')
-    // O nome só aparece ao lado do avatar em telas largas — no mobile, o avatar sozinho já
-    // é a evidência de que a sessão ficou autenticada.
-    await expect(page.getByRole('link', { name: 'Ver perfil' })).toBeVisible()
+    // Home tem cabeçalho próprio abaixo de lg (site-header.tsx: hasOwnMobileHeader) — o link
+    // "Ver perfil" do cabeçalho padrão fica oculto ali; o equivalente mobile é o ícone
+    // "Perfil" da barra inferior. A regex cobre os dois rótulos com a mesma asserção.
+    await expect(page.getByRole('link', { name: /^(Ver perfil|Perfil)$/ })).toBeVisible()
   })
 
   test('cadastro com e-mail já usado mostra erro de conflito', async ({ page }) => {
     await page.goto('/cadastro')
     await page.getByPlaceholder('Nome de usuário').fill('Outra Pessoa')
-    await page.getByPlaceholder('Digite seu e-mail').fill(COLLECTOR.email)
+    // Usa o id, não getByPlaceholder: o placeholder da newsletter do rodapé ("digite seu
+    // e-mail…") também bate por substring case-insensitive em "Digite seu e-mail".
+    await page.locator('#register-email').fill(COLLECTOR.email)
     await page.getByPlaceholder('Senha', { exact: true }).fill('senha123')
     await page.getByPlaceholder('Confirmar senha').fill('senha123')
     await page.getByRole('button', { name: 'Criar conta' }).click()
@@ -35,7 +40,10 @@ test.describe('Sessão e conta', () => {
     page,
   }) => {
     await page.goto('/login')
-    await page.getByLabel('E-mail').fill(COLLECTOR.email)
+    // Usa o id, não getByLabel('E-mail'): o campo de newsletter do rodapé (presente atrás do
+    // modal em toda rota) tem rótulo acessível "Seu e-mail", que bate por substring em
+    // getByLabel('E-mail') e causa ambiguidade (strict mode violation).
+    await page.locator('#login-email').fill(COLLECTOR.email)
     await page.locator('#login-password').fill(COLLECTOR.password)
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
@@ -54,7 +62,10 @@ test.describe('Sessão e conta', () => {
     // não no card da grade do catálogo (design-refs/Products.svg: o coração de favoritos
     // aparece apenas dentro do produto).
     await page.goto('/login')
-    await page.getByLabel('E-mail').fill(COLLECTOR.email)
+    // Usa o id, não getByLabel('E-mail'): o campo de newsletter do rodapé (presente atrás do
+    // modal em toda rota) tem rótulo acessível "Seu e-mail", que bate por substring em
+    // getByLabel('E-mail') e causa ambiguidade (strict mode violation).
+    await page.locator('#login-email').fill(COLLECTOR.email)
     await page.locator('#login-password').fill(COLLECTOR.password)
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
@@ -67,10 +78,19 @@ test.describe('Sessão e conta', () => {
     // Logout e login como outro usuário — logout só limpa a sessão, não navega sozinho (o
     // usuário pode estar em qualquer página quando clica em "Sair"), então o sinal de que
     // terminou é o cabeçalho voltar a mostrar "Entrar", não uma mudança de URL.
-    await page.getByRole('button', { name: 'Sair' }).click()
+    // Vai para /perfil antes: é uma das poucas rotas sem cabeçalho mobile próprio (ver
+    // site-header.tsx: hasOwnMobileHeader), então "Sair" fica garantidamente visível ali,
+    // em qualquer viewport — na Home ele fica oculto abaixo de lg.
+    await page.goto('/perfil')
+    // O perfil também tem um "Sair" na navegação lateral da conta, além do cabeçalho — escopa
+    // ao cabeçalho (role banner) pra não colidir com o outro.
+    await page.getByRole('banner').getByRole('button', { name: 'Sair' }).click()
     await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible()
     await page.goto('/login')
-    await page.getByLabel('E-mail').fill(ARTIST.email)
+    // Usa o id, não getByLabel('E-mail'): o campo de newsletter do rodapé (presente atrás do
+    // modal em toda rota) tem rótulo acessível "Seu e-mail", que bate por substring em
+    // getByLabel('E-mail') e causa ambiguidade (strict mode violation).
+    await page.locator('#login-email').fill(ARTIST.email)
     await page.locator('#login-password').fill(ARTIST.password)
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')
@@ -86,7 +106,10 @@ test.describe('Favoritos', () => {
     page,
   }) => {
     await page.goto('/login')
-    await page.getByLabel('E-mail').fill(COLLECTOR.email)
+    // Usa o id, não getByLabel('E-mail'): o campo de newsletter do rodapé (presente atrás do
+    // modal em toda rota) tem rótulo acessível "Seu e-mail", que bate por substring em
+    // getByLabel('E-mail') e causa ambiguidade (strict mode violation).
+    await page.locator('#login-email').fill(COLLECTOR.email)
     await page.locator('#login-password').fill(COLLECTOR.password)
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.waitForURL((url) => url.pathname === '/')

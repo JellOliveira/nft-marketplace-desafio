@@ -174,6 +174,54 @@ equivalentes (`mergeGuestCartIntoUser` em `src/mocks/handlers/auth.ts`).
 - **Login/Cadastro**: implementados como rota real (`/login`, `/cadastro`) que renderiza um
   modal sobre o cabeçalho — em vez de um modal client-side sem rota própria — para que
   acesso direto e refresh nessas telas funcionem (exigido pelo item 3 do desafio).
+- **Espaçamento e proporção de texto**: a composição geral segue o Figma, mas o espaçamento
+  entre blocos de texto não reproduz o valor exato do arquivo em todas as telas — pequenas
+  variações de `line-height`/`gap` foram ajustadas visualmente durante a implementação em vez
+  de copiadas pixel a pixel do token original.
+- **Rodapé — ícones em vez de iniciais**: os três blocos de destaque do rodapé ("Segurança da
+  carteira", "Criadores em destaque", "Alertas de lançamentos") usam ícones temáticos no lugar
+  das iniciais "W", "C", "D" do Figma — mais claros para identificar o assunto de cada bloco
+  sem depender de decorar o que cada letra abrevia.
+- **Seletor de edição do NFT**: o elemento visual ao redor das opções de edição (no detalhe do
+  NFT) foi refeito para ficar mais próximo do Figma do que a primeira versão implementada —
+  ajuste feito durante o desenvolvimento, não um desvio deliberado final.
+- **Carrossel de "mais coleções" / detalhe**: uma seta com opacidade reduzida nas bordas indica
+  que há mais itens para arrastar lateralmente — affordance que o Figma não representa
+  explicitamente nesses carrosséis.
+- **Indicador de carteira conectada (pagamento)**: foi adicionado um texto com indicador verde
+  mostrando claramente que a carteira está conectada, com opção de desconectar — não está
+  desenhado assim no Figma; ajuda a visualizar o estado durante o teste do fluxo de
+  conexão/recusa/desconexão exigido pelo item 3.
+- **Atalho de login no pagamento (desktop)**: abaixo do botão "Confirmar compra", foi
+  adicionada a opção "já tem conta? Entrar" na lateral, para quem chega ao checkout sem sessão
+  não precisar abrir o fluxo de cadastro completo.
+- **Botões**: alguns botões têm pequenas diferenças de padding/raio em relação ao Figma —
+  ajustados para manter consistência com os componentes shadcn/ui adaptados, mantendo a
+  identidade visual, não uma cópia exata de cada instância do arquivo.
+- **Ícone de zoom/lupa**: usa um ícone diferente do desenhado no Figma para a mesma ação.
+- **Mobile — botão central da barra inferior**: o Figma não identifica para onde esse botão
+  leva; foi implementado como atalho de acesso rápido ao menu.
+- **Mobile — adaptação geral de conteúdo**: o Figma disponibiliza bem menos frames mobile do
+  que desktop, e as telas desktop concentram mais informação do que cabe confortavelmente numa
+  tela pequena. Sem um prazo de entrega explícito encontrado no repositório do desafio, a
+  prioridade foi adaptar o máximo de telas possível dentro do tempo disponível, mantendo a
+  fidelidade onde havia referência direta e seguindo o mesmo padrão visual (item 1 do
+  enunciado: "Estados não desenhados devem seguir o mesmo padrão visual") onde não havia. Como
+  consequência, o preenchimento e a densidade de informação no mobile podem não reproduzir
+  exatamente o Figma em todas as telas.
+
+## Limitações conhecidas
+
+- **Busca e filtros por texto no mobile**: abaixo do breakpoint `lg`, a Home usa um cabeçalho
+  compacto próprio (`site-header.tsx`, `hasOwnMobileHeader`) e a sidebar de filtros
+  (categoria/rede/preço) fica oculta (`hidden lg:block`, `src/routes/index.tsx`) — no mobile,
+  filtros e ordenação vivem no painel aberto pelo botão central da barra inferior
+  (`mobile-tab-bar.tsx`), mas esse painel não tem um campo de busca por texto livre
+  equivalente ao do cabeçalho desktop. Os testes de busca/filtro por rede
+  (`tests/catalog.spec.ts`, `tests/accessibility.spec.ts`) cobrem o fluxo no desktop; no
+  mobile-chromium eles são pulados (`test.skip`) com o motivo registrado no próprio teste, em
+  vez de falhar silenciosamente ou fingir cobertura que não existe. Fechar essa lacuna (campo
+  de busca dentro do painel mobile, com teste E2E dedicado) é o próximo item se sobrar tempo.
 
 ## Testes
 

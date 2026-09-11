@@ -40,11 +40,21 @@ test.describe('Fluxo de compra', () => {
 
     await page.goto('/pagamento')
     await connectWallet(page, 'MetaMask')
-    await page.getByLabel('Simular pagamento recusado (cenário de teste determinístico)').check()
+    // .filter({ visible: true }): o formulário de pagamento tem uma versão desktop e uma
+    // mobile no DOM ao mesmo tempo (uma oculta por CSS conforme a largura), cada uma com o
+    // próprio checkbox de recusa determinística — mesmo padrão do connectWallet.
+    await page
+      .getByLabel('Simular pagamento recusado (cenário de teste determinístico)')
+      .filter({ visible: true })
+      .check()
     await page.getByRole('button', { name: 'Confirmar compra' }).click()
 
     await page.waitForURL(/\/pedido\//)
-    await expect(page.getByText('Pagamento recusado')).toBeVisible({ timeout: 8_000 })
+    // getByRole('heading', ...), não getByText: o texto "Pagamento recusado" é substring do
+    // rótulo do checkbox de simulação ("Simular pagamento recusado (...)"), que existe em
+    // duas cópias no DOM (desktop/mobile) — o heading da própria página de confirmação é
+    // inequívoco.
+    await expect(page.getByRole('heading', { name: 'Pagamento recusado' })).toBeVisible({ timeout: 8_000 })
     await expect(page.getByText('Seus NFTs agora estão na sua carteira')).not.toBeVisible()
 
     await page.goto('/carrinho')

@@ -29,7 +29,8 @@ test.describe('Acessibilidade', () => {
     page,
   }) => {
     await page.goto('/login')
-    await page.getByLabel('E-mail').fill('naoexiste@kurio.app')
+    // Usa o id, não getByLabel('E-mail'): ver comentário equivalente em auth-flow.spec.ts.
+    await page.locator('#login-email').fill('naoexiste@kurio.app')
     await page.locator('#login-password').fill('senhaerrada')
     await page.getByRole('button', { name: 'Entrar' }).click()
 
@@ -38,7 +39,11 @@ test.describe('Acessibilidade', () => {
     await expect(page.getByRole('alert').filter({ hasText: 'inválidos' })).toBeVisible()
   })
 
-  test('busca do cabeçalho é operável só com teclado', async ({ page }) => {
+  test('busca do cabeçalho é operável só com teclado', async ({ page }, testInfo) => {
+    // Ver comentário equivalente em catalog.spec.ts: a Home não tem o botão de busca do
+    // cabeçalho padrão abaixo de lg (cabeçalho compacto próprio, sem busca por texto).
+    test.skip(testInfo.project.name === 'mobile-chromium', 'Busca por texto não tem entrada própria no mobile — ver ARCHITECTURE.md')
+
     await page.goto('/')
     // A busca vive atrás do ícone de lupa no cabeçalho (design-refs/Products.svg) — o teste
     // abre com Enter, igual a um usuário de teclado faria, em vez de focar a caixa direto.

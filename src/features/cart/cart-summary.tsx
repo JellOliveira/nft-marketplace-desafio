@@ -116,6 +116,10 @@ export function CartTotals({
    *  design de referência. */
   totalDivider = false,
   estimatedFeeAlign = 'left',
+  /** No mobile de /carrinho o Total sai daqui e vira a barra fixa no rodapé (MobileCartBar,
+   *  design-refs/Mobile/Buy Bar.svg) — o resto da lista (subtotal/desconto/taxa) continua
+   *  rolando normalmente acima dela. */
+  hideTotal = false,
 }: {
   subtotal?: string
   discount?: string
@@ -123,6 +127,7 @@ export function CartTotals({
   total?: string
   totalDivider?: boolean
   estimatedFeeAlign?: 'left' | 'center' | 'right'
+  hideTotal?: boolean
 }) {
   return (
     <>
@@ -135,8 +140,8 @@ export function CartTotals({
         <SummaryRow label="Taxa de rede" value={networkFee ? `${networkFee} ETH` : undefined} />
       </dl>
       {/* "Taxa estimada" (design-refs/Mobile/Payment Summary.svg): pequena legenda logo abaixo
-       *  do valor da taxa de rede, à direita — o /pagamento (Código do Pagamento.html) usa
-       *  centralizada em vez disso, cada tela replica sua própria referência. */}
+       *  do valor da taxa de rede, à direita — tanto /carrinho quanto /pagamento alinham à
+       *  direita, sob a coluna de valores. */}
       <p
         className={cn(
           'mt-1 text-xs text-brand-accent',
@@ -146,12 +151,14 @@ export function CartTotals({
       >
         Taxa estimada
       </p>
-      <div className={cn('mt-3', totalDivider && 'border-t border-brand-border pt-4')}>
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-brand-text">Total</span>
-          <span className="text-lg font-bold text-brand-accent">{total ? `${total} ETH` : '—'}</span>
+      {!hideTotal && (
+        <div className={cn('mt-3', totalDivider && 'border-t border-brand-border pt-4')}>
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-brand-text">Total</span>
+            <span className="text-lg font-bold text-brand-accent">{total ? `${total} ETH` : '—'}</span>
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

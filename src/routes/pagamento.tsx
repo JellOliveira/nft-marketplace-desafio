@@ -132,6 +132,17 @@ function PaymentForm({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [authOverlay, setAuthOverlay] = useState<'login' | 'register' | null>(null)
 
+  // Sem sessão, o pagamento não é uma conta de colecionador nova sendo criada aqui — é o login
+  // que já existe (com o próprio cadastro embutido, via onModeChange) que abre por cima desta
+  // tela assim que ela carrega, em vez de esperar a pessoa clicar em "Entre na sua conta".
+  // Continua sem navegar para /login (ver comentário no topo do arquivo sobre o loop de
+  // redirecionamento) — só depende de `isAuthenticated`, então fechar o cartão manualmente não
+  // reabre sozinho, mas autenticar com sucesso também não reabre (a dependência não muda de
+  // novo depois disso).
+  useEffect(() => {
+    if (!isAuthenticated) setAuthOverlay('login')
+  }, [isAuthenticated])
+
   // Prefill dos campos de identidade a partir do perfil salvo assim que ele chega — o usuário
   // ainda pode sobrescrever qualquer um deles só para este pedido.
   useEffect(() => {
@@ -249,7 +260,7 @@ function PaymentForm({
         <h1 className="text-lg font-bold text-brand-text">Pagamento com carteira</h1>
       </div>
 
-      <nav aria-label="Trilha de navegação" className="mb-6 hidden text-sm text-brand-muted lg:block">
+      <nav aria-label="Trilha de navegação" className="mb-6 hidden text-sm text-brand-text lg:block">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início
         </Link>
@@ -320,10 +331,11 @@ function PaymentForm({
                 className={cn(inputClass, 'text-brand-muted disabled:opacity-70')}
               />
             </Field>
-            <Field label="ENS ou carteira secundária (opcional)">
+            <Field label="ENS ou carteira secundária (opcional)" hideLabel>
               <input
                 value={ensOrSecondary}
                 onChange={(event) => setEnsOrSecondary(event.target.value)}
+                placeholder="ENS ou carteira secundária (opcional)"
                 className={inputClass}
               />
             </Field>
@@ -465,7 +477,7 @@ function PaymentForm({
             networkFee={cart?.networkFeeEth}
             total={cart?.totalEth}
             totalDivider
-            estimatedFeeAlign="center"
+            estimatedFeeAlign="right"
           />
 
           <h2 className="mt-6 mb-3 text-center text-base font-bold text-brand-text">Carteira e rede</h2>
@@ -604,7 +616,16 @@ function PaymentForm({
             ))}
           </div>
 
-          <div className="mt-6 flex items-center justify-between">
+          {/* Reserva espaço pra barra fixa abaixo (fica sobre o fim da lista de carteiras). */}
+          <div className="h-40" aria-hidden="true" />
+        </div>
+
+        {/* Barra fixa no rodapé do mobile (design-refs/Mobile/Buy Bar.svg): Total + "Confirmar
+         *  compra" sempre visíveis, sem precisar rolar até o fim do formulário — mesma ideia
+         *  do /nft/$id e do /carrinho. Continua dentro do <form>, então o submit funciona
+         *  normalmente mesmo fixada fora do fluxo visual. */}
+        <div className="fixed inset-x-0 bottom-0 z-40 rounded-t-2xl bg-brand-card p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.35)] lg:hidden">
+          <div className="flex items-center justify-between">
             <span className="font-bold text-brand-text">Total:</span>
             <span className="text-lg font-bold text-brand-accent">
               {cart?.totalEth ? `${cart.totalEth} ETH` : '—'}
@@ -612,7 +633,7 @@ function PaymentForm({
           </div>
 
           {submitError && (
-            <p role="alert" className="mt-4 text-sm text-brand-error">
+            <p role="alert" className="mt-2 text-sm text-brand-error">
               {submitError}
             </p>
           )}
@@ -620,7 +641,7 @@ function PaymentForm({
           <Button
             type="submit"
             disabled={!canSubmit}
-            className="mt-6 w-full rounded-full bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+            className="mt-3 w-full rounded-full bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
           >
             {createOrder.isPending ? 'Enviando pedido…' : 'Confirmar compra'}
           </Button>
@@ -648,13 +669,16 @@ function PaymentForm({
        *  fora ou sucesso) só esconde o cartão e mantém o carrinho e os campos já preenchidos
        *  aqui — é o que corrige o travamento relatado, em que fechar o /login navegava de
        *  volta pra /pagamento e disparava o redirecionamento de novo, num loop. */}
+      {/* Sem `compactMobileLogin` aqui: quem chega em /pagamento sem sessão precisa conseguir
+       *  criar conta ("Criar conta") direto nesta mesma sobreposição, não só entrar numa que
+       *  já existe — a troca de aba tem que continuar visível no mobile, e não só no
+       *  desktop. */}
       {authOverlay && (
         <AuthModal
           mode={authOverlay}
           redirectTo="/pagamento"
           onClose={() => setAuthOverlay(null)}
           onModeChange={setAuthOverlay}
-          compactMobileLogin
         />
       )}
     </main>
@@ -670,18 +694,29 @@ const selectTriggerClass =
 function Field({
   label,
   required,
+  hideLabel,
   children,
 }: {
   label: string
   required?: boolean
+  /** O texto do label vira só o placeholder do campo (ex.: "ENS ou carteira secundária
+   *  (opcional)", longo demais pra caber numa linha). O label continua existindo pra quem usa
+   *  leitor de tela (sr-only) — só não aparece na tela — e no lugar dele fica uma linha em
+   *  branco do mesmo tamanho, pra a caixinha continuar alinhada com a do campo ao lado. */
+  hideLabel?: boolean
   children: ReactNode
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm text-brand-text">
+      <span className={cn('mb-1 block text-sm text-brand-text', hideLabel && 'sr-only')}>
         {label}
         {required && <span className="text-brand-accent-alt"> *</span>}
       </span>
+      {hideLabel && (
+        <span className="mb-1 block text-sm" aria-hidden="true">
+          &nbsp;
+        </span>
+      )}
       {children}
     </label>
   )

@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AccountLayout } from '@/features/profile/account-layout'
@@ -267,8 +268,7 @@ function ProfileForm({
         <h2 className="mb-6 text-lg font-bold text-brand-text">Alterar senha</h2>
         <div className="flex flex-col gap-4">
           <Field label="Senha atual" error={fieldErrors.currentPassword}>
-            <input
-              type="password"
+            <PasswordInput
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
               className={inputClass}
@@ -276,8 +276,7 @@ function ProfileForm({
             />
           </Field>
           <Field label="Nova senha" error={fieldErrors.newPassword}>
-            <input
-              type="password"
+            <PasswordInput
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               className={inputClass}
@@ -285,8 +284,7 @@ function ProfileForm({
             />
           </Field>
           <Field label="Confirmar nova senha" error={fieldErrors.confirmPassword}>
-            <input
-              type="password"
+            <PasswordInput
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               className={inputClass}

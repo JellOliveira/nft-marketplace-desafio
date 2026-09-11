@@ -4,7 +4,7 @@
 // quebrar (item 3 do desafio).
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import axios from 'axios'
-import { ChevronLeft, ChevronRight, Heart, Mail, Minus, Plus, Star } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Mail, Minus, Plus, ShoppingCart, Star } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -132,7 +132,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
       {/* Breadcrumb fixo em "Mercado" (desktop): não há tela de categoria própria nesta
        *  entrega, então ele reflete o link "Mercado" do header (agora funcional), não a
        *  categoria do item. */}
-      <nav aria-label="Trilha de navegação" className="mb-6 hidden text-sm text-brand-muted lg:block">
+      <nav aria-label="Trilha de navegação" className="mb-6 hidden text-sm text-brand-text lg:block">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início
         </Link>
@@ -231,7 +231,9 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
               </div>
             </dl>
 
-            <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-brand-border/40 pt-4 lg:border-t-0 lg:pt-0">
+            {/* Só no desktop: no mobile esta linha vira a barra fixa no rodapé (MobileBuyBar,
+             *  design-refs/Mobile/Buy Bar.svg) em vez de rolar junto com o resto da página. */}
+            <div className="mt-4 hidden items-center gap-4 border-t border-brand-border/40 pt-4 lg:flex lg:border-t-0 lg:pt-0">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -297,7 +299,94 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
 
       <DetailsSection nft={nft} />
       <RelatedCollectionSection nft={nft} />
+
+      {/* Reserva espaço pra MobileBuyBar (fixa, position:fixed) não cobrir o fim da página. */}
+      <div className="h-28 lg:hidden" aria-hidden="true" />
+
+      <MobileBuyBar
+        quantity={quantity}
+        setQuantity={setQuantity}
+        maxQuantity={maxQuantity}
+        priceEth={nft.priceEth}
+        onBuy={handleBuy}
+        disabled={!nft.available || addCartItem.isPending}
+        buyLabel={nft.available ? 'Comprar NFT' : 'Esgotado'}
+      />
     </main>
+  )
+}
+
+/** Barra fixa no rodapé do mobile (design-refs/Mobile/Buy Bar.svg): quantidade + preço numa
+ *  linha, "Comprar NFT" + atalho pro carrinho na linha de baixo. Existe porque a tab bar
+ *  inferior (que tinha o ícone de carrinho) some nesta tela — este atalho substitui aquele
+ *  acesso, em vez de deixar a pessoa sem forma rápida de chegar ao carrinho. */
+function MobileBuyBar({
+  quantity,
+  setQuantity,
+  maxQuantity,
+  priceEth,
+  onBuy,
+  disabled,
+  buyLabel,
+}: {
+  quantity: number
+  setQuantity: (updater: (current: number) => number) => void
+  maxQuantity: number
+  priceEth: string
+  onBuy: () => void
+  disabled: boolean
+  buyLabel: string
+}) {
+  const navigate = useNavigate()
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 rounded-t-2xl bg-brand-card p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.35)] lg:hidden">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-brand-muted">Qtd.</span>
+          <button
+            type="button"
+            aria-label="Diminuir quantidade"
+            disabled={quantity <= 1}
+            onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+            className="flex size-7 items-center justify-center rounded-full bg-brand-accent-alt text-brand-card disabled:opacity-50"
+          >
+            <Minus size={14} />
+          </button>
+          <span className="w-5 text-center text-brand-text">{quantity}</span>
+          <button
+            type="button"
+            aria-label="Aumentar quantidade"
+            disabled={quantity >= maxQuantity}
+            title={quantity >= maxQuantity ? 'Limite de unidades disponíveis atingido' : undefined}
+            onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
+            className="flex size-7 items-center justify-center rounded-full bg-brand-accent-alt text-brand-card disabled:opacity-50"
+          >
+            <Plus size={14} />
+          </button>
+        </div>
+        <span className="text-lg font-bold text-brand-accent-alt">{priceEth} ETH</span>
+      </div>
+
+      <div className="mt-3 flex items-center gap-3">
+        <Button
+          type="button"
+          onClick={onBuy}
+          disabled={disabled}
+          className="h-11 flex-1 rounded-full bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+        >
+          {buyLabel}
+        </Button>
+        <button
+          type="button"
+          onClick={() => navigate({ to: '/carrinho' })}
+          aria-label="Ir para o carrinho"
+          className="flex size-11 shrink-0 items-center justify-center rounded-full border border-brand-border text-brand-accent-alt"
+        >
+          <ShoppingCart size={18} />
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -569,8 +658,9 @@ function RelatedCollectionSection({ nft }: { nft: Nft }) {
   const hasMultiplePages = pages.length > 1
 
   return (
-    <section className="mt-16 border-t border-brand-border/60 pt-8">
-      <h2 className="text-lg font-bold text-brand-text">Mais desta coleção</h2>
+    <section className="mt-16">
+      <h2 className="text-lg font-bold text-brand-accent-alt">Mais desta coleção</h2>
+      <div className="mt-3 border-t border-brand-border/60" aria-hidden="true" />
 
       <div className="relative mt-6">
         <div

@@ -40,7 +40,7 @@ function CartPage() {
       </div>
 
       {/* Início / Mercado / Carrinho (desktop) */}
-      <nav aria-label="Trilha de navegação" className="mb-3 hidden text-sm text-brand-muted lg:block">
+      <nav aria-label="Trilha de navegação" className="mb-3 hidden text-sm text-brand-text lg:block">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início
         </Link>
@@ -131,7 +131,7 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
           width={64}
           height={64}
         />
-        <div className="min-w-0 flex-1 sm:w-40 sm:flex-none">
+        <div className="min-w-0 flex-1">
           <p className="truncate font-bold text-brand-text">{line.name}</p>
           <p className="text-sm text-brand-muted">ID do token: {line.tokenId}</p>
           {/* Preço unitário: só no mobile, ao lado do nome — no desktop já tem sua própria
@@ -214,16 +214,12 @@ function CartSummaryPanel({
 }) {
   return (
     <aside className="w-full shrink-0 lg:w-[340px]">
-      <h2 className="hidden text-lg font-bold text-brand-text lg:block">Resumo da carteira</h2>
-      <div className="mt-3 mb-4 hidden h-px bg-brand-accent-alt/30 lg:block" aria-hidden="true" />
-
-      {/* Cupom + totais + botão dentro de uma "sheet" escura no mobile (design-refs/Mobile/
-       *  Payment Summary.svg) — no desktop continuam soltos no fundo da página, como já era. */}
-      <div className="rounded-2xl bg-brand-card p-4 lg:rounded-none lg:bg-transparent lg:p-0">
-        {/* Caixa + botão juntos, um só elemento visual (design-refs/Código do Carrinho do NFT.html)
-         *  — não input e botão separados. */}
+      {/* Desktop (design-refs/Desktop/Carrinho de NFTs.png): cupom, totais (com o Total já
+       *  dentro) e botão soltos no fundo da página, sem barra fixa. */}
+      <div className="hidden lg:block">
+        <h2 className="text-lg font-bold text-brand-text">Resumo da carteira</h2>
+        <div className="mt-3 mb-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
         <CouponBox couponCode={couponCode} variant="inline" />
-
         <CartTotals
           subtotal={subtotal}
           discount={discount}
@@ -231,15 +227,52 @@ function CartSummaryPanel({
           total={total}
           estimatedFeeAlign="right"
         />
-
         <Button asChild className="mt-6 w-full rounded-full bg-brand-accent text-brand-bg hover:bg-brand-accent-alt">
           <Link to="/pagamento">Conectar e finalizar</Link>
         </Button>
+        <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="mt-3 block text-center text-sm text-brand-accent">
+          Continuar explorando
+        </Link>
       </div>
-      <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="mt-3 block text-center text-sm text-brand-accent">
-        Continuar explorando
-      </Link>
+
+      {/* Mobile: cupom + quebra de valores (sem o Total, que vira a MobileCartBar fixa no
+       *  rodapé — design-refs/Mobile/Buy Bar.svg) dentro da "sheet" escura (design-refs/
+       *  Mobile/Payment Summary.svg), com "Continuar explorando" ainda solto abaixo dela. */}
+      <div className="lg:hidden">
+        <div className="rounded-2xl bg-brand-card p-4">
+          <CouponBox couponCode={couponCode} variant="inline" />
+          <CartTotals subtotal={subtotal} discount={discount} networkFee={networkFee} estimatedFeeAlign="right" hideTotal />
+        </div>
+        <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="mt-3 block text-center text-sm text-brand-accent">
+          Continuar explorando
+        </Link>
+
+        {/* Reserva espaço pra MobileCartBar (fixa, position:fixed) não cobrir o fim da página. */}
+        <div className="h-24" aria-hidden="true" />
+      </div>
+
+      <MobileCartBar total={total} />
     </aside>
+  )
+}
+
+/** Barra fixa no rodapé do mobile (design-refs/Mobile/Buy Bar.svg): Total + "Conectar e
+ *  finalizar" — mesma ideia do MobileBuyBar do detalhe do NFT, aqui sem controle de
+ *  quantidade (isso já é por linha, dentro da lista de itens). */
+function MobileCartBar({ total }: { total: string }) {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 rounded-t-2xl bg-brand-card p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.35)] lg:hidden">
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-brand-text">Total</span>
+        <span className="text-lg font-bold text-brand-accent">{total ? `${total} ETH` : '—'}</span>
+      </div>
+      <Button
+        asChild
+        className="mt-3 w-full rounded-full bg-brand-accent text-brand-bg hover:bg-brand-accent-alt"
+      >
+        <Link to="/pagamento">Conectar e finalizar</Link>
+      </Button>
+    </div>
   )
 }
 

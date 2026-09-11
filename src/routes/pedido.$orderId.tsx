@@ -77,22 +77,25 @@ function ConfirmedReceipt({ order }: { order: NonNullable<ReturnType<typeof useO
         <h1 className="text-lg font-bold text-brand-text">Seus NFTs agora estão na sua carteira</h1>
       </div>
 
-      <dl className="grid grid-cols-2 gap-4 border-b border-brand-border p-6 text-sm sm:grid-cols-4">
-        <div>
-          <dt className="text-brand-muted">ID da transação</dt>
-          <dd className="text-brand-text">{shortTxHash}</dd>
+      {/* Rótulo em branco/negrito e valor em tom mais apagado embaixo, com um traço vertical
+       *  separando cada bloco (design-refs/Desktop/Confirmação de Pedido.png) — não o inverso
+       *  (rótulo apagado, valor branco) que estava aqui antes. */}
+      <dl className="flex flex-wrap divide-x divide-brand-border border-b border-brand-border p-6 text-sm">
+        <div className="pr-6">
+          <dt className="font-bold text-brand-text">ID da transação</dt>
+          <dd className="text-brand-muted">{shortTxHash}</dd>
         </div>
-        <div>
-          <dt className="text-brand-muted">Data</dt>
-          <dd className="text-brand-text">{new Date(order.createdAt).toLocaleDateString('pt-BR')}</dd>
+        <div className="px-6">
+          <dt className="font-bold text-brand-text">Data</dt>
+          <dd className="text-brand-muted">{new Date(order.createdAt).toLocaleDateString('pt-BR')}</dd>
         </div>
-        <div>
-          <dt className="text-brand-muted">Total</dt>
-          <dd className="text-brand-text">{order.totalEth} ETH</dd>
+        <div className="px-6">
+          <dt className="font-bold text-brand-text">Total</dt>
+          <dd className="text-brand-muted">{order.totalEth} ETH</dd>
         </div>
-        <div>
-          <dt className="text-brand-muted">Carteira</dt>
-          <dd className="text-brand-text">{order.walletType}</dd>
+        <div className="pl-6">
+          <dt className="font-bold text-brand-text">Carteira</dt>
+          <dd className="text-brand-muted">{order.walletType}</dd>
         </div>
       </dl>
 

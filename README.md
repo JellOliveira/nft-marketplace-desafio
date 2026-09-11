@@ -169,6 +169,14 @@ em `lighthouse-reports/SUMMARY.md`. Config versionada em `scripts/lighthouse-aud
 `ARCHITECTURE.md` (seção "Lighthouse") para os resultados e a justificativa de qualquer
 categoria abaixo da meta.
 
+## Demonstração
+
+🎬 Vídeo (fluxo completo, catálogo → compra → recibo, na URL publicada):
+`<colar o link do YouTube/Loom aqui>`
+
+📸 Print da suíte Playwright (`playwright-report/`, todos os testes verdes):
+`docs/evidencias/playwright-report.png`
+
 ## Deploy
 
 - **App**: Vercel — `https://nft-marketplace-desafio.vercel.app`

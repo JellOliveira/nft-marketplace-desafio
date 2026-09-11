@@ -44,4 +44,13 @@ export interface CreateOrderPayload {
   /** Aciona deterministicamente o cenário de pagamento recusado — usado para reproduzir o
    *  fluxo de falha em testes e na avaliação, sem depender de acaso (item 6 do desafio). */
   simulateRefusal: boolean
+  /** Metadados opcionais do "Perfil do colecionador" preenchidos em /pagamento
+   *  (design-refs/Código do Pagamento.html) — não fazem parte da identidade da conta (isso é
+   *  /perfil e /carteiras), só acompanham este pedido específico. */
+  username?: string
+  ensName?: string | null
+  profileNickname?: string | null
+  ensOrSecondary?: string | null
+  referralCode?: string | null
+  note?: string | null
 }

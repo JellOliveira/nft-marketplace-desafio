@@ -5,21 +5,14 @@
 // aqui sem divergência (item 3 do desafio).
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react'
-import { useRef, useState, type FormEvent } from 'react'
-import axios from 'axios'
+import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NftCard } from '@/features/catalog/nft-card'
 import { useNftList } from '@/features/catalog/use-catalog'
-import {
-  useApplyCoupon,
-  useCart,
-  useRemoveCartItem,
-  useRemoveCoupon,
-  useUpdateCartItem,
-} from '@/features/cart/use-cart'
+import { CartTotals, CouponBox } from '@/features/cart/cart-summary'
+import { useCart, useRemoveCartItem, useUpdateCartItem } from '@/features/cart/use-cart'
 import { cn } from '@/lib/utils'
-import type { ApiErrorBody } from '@/types/auth'
 import { DEFAULT_CATALOG_SEARCH } from '@/types/nft'
 
 export const Route = createFileRoute('/carrinho')({
@@ -204,85 +197,16 @@ function CartSummaryPanel({
   total: string
   couponCode: string | null
 }) {
-  const applyCoupon = useApplyCoupon()
-  const removeCoupon = useRemoveCoupon()
-  const [code, setCode] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  function handleApply(event: FormEvent) {
-    event.preventDefault()
-    setError(null)
-    applyCoupon.mutate(code, {
-      onSuccess: () => setCode(''),
-      onError: (mutationError) => {
-        const message = axios.isAxiosError(mutationError)
-          ? (mutationError.response?.data as ApiErrorBody | undefined)?.message
-          : null
-        setError(message ?? 'Não foi possível aplicar o cupom.')
-      },
-    })
-  }
-
   return (
     <aside className="w-full shrink-0 lg:w-[340px]">
       <h2 className="text-lg font-bold text-brand-text">Resumo da carteira</h2>
       <div className="mt-3 mb-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
 
-      {couponCode ? (
-        <div className="mb-4 flex items-center justify-between rounded-md border border-brand-border-focus bg-brand-elevated px-3 py-2 text-sm">
-          <span className="text-brand-text">Cupom {couponCode} aplicado</span>
-          <button
-            type="button"
-            onClick={() => removeCoupon.mutate(undefined)}
-            className="text-brand-muted hover:text-brand-error"
-          >
-            Remover
-          </button>
-        </div>
-      ) : (
-        <form onSubmit={handleApply} className="mb-4">
-          <label htmlFor="coupon-code" className="mb-2 block text-sm font-bold text-brand-text">
-            Código promocional
-          </label>
-          {/* Caixa + botão juntos, um só elemento visual (design-refs/Código do Carrinho do
-           *  NFT.html) — não input e botão separados. */}
-          <div className="flex h-10 items-center overflow-hidden rounded-sm border border-brand-accent">
-            <input
-              id="coupon-code"
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-              placeholder="Digite o código promocional…"
-              className="h-full min-w-0 flex-1 bg-transparent pl-2 text-xs text-brand-text placeholder:text-brand-muted focus-visible:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={!code || applyCoupon.isPending}
-              className="h-full shrink-0 bg-brand-accent px-4 text-base font-bold text-brand-bg disabled:opacity-50"
-            >
-              Aplicar
-            </button>
-          </div>
-          {error && (
-            <p role="alert" className="mt-1 text-xs text-brand-error">
-              {error}
-            </p>
-          )}
-        </form>
-      )}
+      {/* Caixa + botão juntos, um só elemento visual (design-refs/Código do Carrinho do NFT.html)
+       *  — não input e botão separados. */}
+      <CouponBox couponCode={couponCode} variant="inline" />
 
-      <dl className="flex flex-col gap-2 text-sm">
-        <SummaryRow label="Subtotal" value={`${subtotal} ETH`} />
-        <SummaryRow label="Desconto do lançamento" value={Number(discount) > 0 ? `(-) ${discount} ETH` : '(-) 00.00'} />
-        <div>
-          <SummaryRow label="Taxa de rede" value={`${networkFee} ETH`} />
-          <p className="mt-1 text-xs text-brand-accent">Taxa estimada</p>
-        </div>
-      </dl>
-
-      <div className="mt-3 flex items-center justify-between">
-        <span className="font-bold text-brand-text">Total</span>
-        <span className="text-lg font-bold text-brand-accent">{total} ETH</span>
-      </div>
+      <CartTotals subtotal={subtotal} discount={discount} networkFee={networkFee} total={total} />
 
       <Button asChild className="mt-6 w-full rounded-sm bg-brand-accent text-brand-bg hover:bg-brand-accent-alt">
         <Link to="/pagamento">Conectar e finalizar</Link>
@@ -291,15 +215,6 @@ function CartSummaryPanel({
         Continuar explorando
       </Link>
     </aside>
-  )
-}
-
-function SummaryRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <dt className="text-brand-text">{label}</dt>
-      <dd className="text-brand-text">{value}</dd>
-    </div>
   )
 }
 

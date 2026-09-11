@@ -6,6 +6,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import axios from 'axios'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AccountLayout } from '@/features/profile/account-layout'
 import { useRemoveWallet, useSaveWallet, useWallets } from '@/features/profile/use-profile'
@@ -156,24 +157,32 @@ function WalletForm({
         </Field>
 
         <Field label="Rede" required error={fieldErrors.network}>
-          <select value={network} onChange={(event) => setNetwork(event.target.value)} className={inputClass}>
-            <option value="">Selecione uma rede</option>
-            {NETWORKS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <Select value={network || undefined} onValueChange={setNetwork}>
+            <SelectTrigger className={selectTriggerClass}>
+              <SelectValue placeholder="Selecione uma rede" />
+            </SelectTrigger>
+            <SelectContent>
+              {NETWORKS.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
         <Field label="Tipo de carteira" required error={fieldErrors.walletType}>
-          <select value={walletType} onChange={(event) => setWalletType(event.target.value)} className={inputClass}>
-            <option value="">Selecione uma carteira</option>
-            {WALLET_TYPES.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <Select value={walletType || undefined} onValueChange={setWalletType}>
+            <SelectTrigger className={selectTriggerClass}>
+              <SelectValue placeholder="Selecione uma carteira" />
+            </SelectTrigger>
+            <SelectContent>
+              {WALLET_TYPES.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
 
         <Field label="Endereço da carteira" required error={fieldErrors.address}>
@@ -213,6 +222,9 @@ function WalletForm({
 
 const inputClass =
   'h-10 w-full rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text focus-visible:border-brand-border-focus focus-visible:outline-none'
+
+const selectTriggerClass =
+  '!h-10 w-full justify-between rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text data-placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:ring-0'
 
 function Field({
   label,

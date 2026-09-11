@@ -125,6 +125,12 @@ export const orderHandlers = [
       collectorName: string
       collectorEmail: string
       simulateRefusal: boolean
+      username?: string
+      ensName?: string | null
+      profileNickname?: string | null
+      ensOrSecondary?: string | null
+      referralCode?: string | null
+      note?: string | null
     }
 
     const db = readDb()

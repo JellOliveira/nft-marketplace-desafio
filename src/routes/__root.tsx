@@ -6,6 +6,7 @@ import { RealtimeProvider } from '@/features/realtime/realtime-provider'
 import { queryClient } from '@/lib/query-client'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { MobileTabBar } from '@/components/mobile-tab-bar'
 
 // Rota raiz: envolve toda a árvore de rotas com o provider do TanStack Query, a conexão
 // Socket.IO (RealtimeProvider) e o cabeçalho fixo (presente em toda tela, inclusive atrás do
@@ -27,7 +28,15 @@ function RootLayout() {
           <Outlet />
         </div>
         <SiteFooter />
+        {/* Reserva espaço, depois do rodapé, pra barra inferior mobile (mobile-tab-bar.tsx)
+         *  não cobrir o fim real da página quando ela é curta o bastante pro rodapé encostar
+         *  no limite da viewport — só existe abaixo de lg, onde a barra aparece. 120px, não
+         *  88px: o botão flutuante central sobe ~32px acima da própria barra (size-16
+         *  centrado no topo do recorte), então o espaço "visual" ocupado é maior que a caixa
+         *  de 88px da barra. */}
+        <div className="h-[140px] lg:hidden" aria-hidden="true" />
       </div>
+      <MobileTabBar />
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   )

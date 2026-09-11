@@ -3,7 +3,7 @@
 // totais exibidos são sempre os que a API retornou — nunca calculados no cliente — para que
 // um evento de tempo real que mude preço/disponibilidade durante a navegação seja refletido
 // aqui sem divergência (item 3 do desafio).
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -21,11 +21,26 @@ export const Route = createFileRoute('/carrinho')({
 
 function CartPage() {
   const { data: cart, isLoading } = useCart()
+  const navigate = useNavigate()
 
   return (
     <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-10">
-      {/* Início / Mercado / Carrinho (design-refs/Carrinho de NFTs.png) */}
-      <nav aria-label="Trilha de navegação" className="mb-3 text-sm text-brand-muted">
+      {/* Barra mobile (design-refs/Mobile/Carrinho de NFTs.png): seta "voltar" + título
+       *  centralizado — o header padrão fica escondido nesta tela abaixo de lg. */}
+      <div className="relative mb-6 flex items-center justify-center lg:hidden">
+        <button
+          type="button"
+          onClick={() => navigate({ to: '/', search: DEFAULT_CATALOG_SEARCH })}
+          aria-label="Voltar ao catálogo"
+          className="absolute left-0 flex size-9 items-center justify-center rounded-full bg-brand-card text-brand-text"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <h1 className="text-lg font-bold text-brand-text">Carrinho de NFTs</h1>
+      </div>
+
+      {/* Início / Mercado / Carrinho (desktop) */}
+      <nav aria-label="Trilha de navegação" className="mb-3 hidden text-sm text-brand-muted lg:block">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início
         </Link>
@@ -35,7 +50,7 @@ function CartPage() {
         <span>Carrinho</span>
       </nav>
 
-      <h1 className="mb-6 text-lg font-bold text-brand-text">NFTs</h1>
+      <h1 className="mb-6 hidden text-lg font-bold text-brand-text lg:block">NFTs</h1>
 
       {isLoading && <CartSkeleton />}
 
@@ -99,7 +114,7 @@ function CartSkeleton() {
 }
 
 /** Cada item tem seu próprio fundo (design-refs: "não tem fundo completo, ele fica em volta
- *  de cada produto adicionado #55321F") — não é uma lista dentro de um card único. */
+ *  de cada produto adicionado #241612") — não é uma lista dentro de um card único. */
 function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['data']>['lines'][number] }) {
   const updateItem = useUpdateCartItem()
   const removeItem = useRemoveCartItem()
@@ -107,7 +122,7 @@ function CartLineRow({ line }: { line: NonNullable<ReturnType<typeof useCart>['d
   const atMax = line.quantity >= line.availableQuantity
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg bg-brand-border-subtle p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+    <div className="flex flex-col gap-3 rounded-lg bg-brand-card p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
       <div className="flex items-center gap-4">
         <img
           src={line.imageUrl}

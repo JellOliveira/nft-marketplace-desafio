@@ -24,6 +24,13 @@ export const Route = createFileRoute('/carteiras')({
 const NETWORKS = ['Ethereum', 'Polygon', 'Solana']
 const WALLET_TYPES = ['MetaMask', 'WalletConnect', 'Coinbase Wallet']
 
+// Único sufixo de ENS oferecido no Figma (ver mesma decisão em src/routes/perfil.tsx).
+const ENS_SUFFIX = '.eth'
+
+function stripEnsSuffix(ensName: string): string {
+  return ensName.endsWith(ENS_SUFFIX) ? ensName.slice(0, -ENS_SUFFIX.length) : ensName
+}
+
 function parseError(error: unknown): ApiErrorBody {
   if (axios.isAxiosError(error) && error.response?.data) {
     return error.response.data as ApiErrorBody
@@ -46,7 +53,12 @@ function WalletsContent() {
   return (
     <div className="space-y-10">
       <WalletSection role="primary" title="Carteira principal" existing={wallets?.primary} />
-      <WalletSection role="secondary" title="Carteira secundária" existing={wallets?.secondary} />
+      <WalletSection
+        role="secondary"
+        title="Carteira secundária"
+        existing={wallets?.secondary}
+        primary={wallets?.primary}
+      />
     </div>
   )
 }
@@ -55,12 +67,17 @@ function WalletSection({
   role,
   title,
   existing,
+  primary,
 }: {
   role: WalletRole
   title: string
   existing?: Wallet
+  /** Só usado pela seção secundária: preenche o formulário quando "Igual à carteira
+   *  principal" é marcado (design-refs/Desktop/Carteiras.png). */
+  primary?: Wallet
 }) {
-  const [editing, setEditing] = useState(!existing)
+  const [editing, setEditing] = useState(role === 'primary' && !existing)
+  const [copyFromPrimary, setCopyFromPrimary] = useState(false)
   const saveWallet = useSaveWallet()
   const removeWallet = useRemoveWallet()
 
@@ -93,6 +110,21 @@ function WalletSection({
     )
   }
 
+  // Carteira secundária sem cadastro ainda: não mostra o formulário direto — só o aviso e a
+  // opção de copiar a carteira principal (design-refs/Desktop/Carteiras.png: "Você ainda não
+  // adicionou uma carteira secundária" + "Igual à carteira principal" + "Adicionar").
+  if (role === 'secondary' && !existing && !editing) {
+    return (
+      <SecondaryWalletEmptyState
+        primary={primary}
+        onAdd={(useSameAsPrimary) => {
+          setCopyFromPrimary(useSameAsPrimary)
+          setEditing(true)
+        }}
+      />
+    )
+  }
+
   return (
     <section>
       <h2 className="mb-1 text-lg font-bold text-brand-text">{title}</h2>
@@ -101,11 +133,57 @@ function WalletSection({
       </p>
       <WalletForm
         role={role}
-        initial={existing}
+        initial={existing ?? (copyFromPrimary ? primary : undefined)}
         onSaved={() => setEditing(false)}
-        onCancel={existing ? () => setEditing(false) : undefined}
+        onCancel={existing || role === 'secondary' ? () => setEditing(false) : undefined}
         saveWallet={saveWallet}
       />
+    </section>
+  )
+}
+
+function SecondaryWalletEmptyState({
+  primary,
+  onAdd,
+}: {
+  primary?: Wallet
+  onAdd: (useSameAsPrimary: boolean) => void
+}) {
+  const [sameAsPrimary, setSameAsPrimary] = useState(false)
+
+  return (
+    <section>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="mb-1 text-lg font-bold text-brand-text">Carteira secundária</h2>
+          <p className="text-sm text-brand-muted">Você ainda não adicionou uma carteira secundária.</p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-brand-text">
+          <button
+            type="button"
+            onClick={() => setSameAsPrimary((value) => !value)}
+            disabled={!primary}
+            className="flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span
+              className={
+                sameAsPrimary
+                  ? 'flex size-4 items-center justify-center rounded-full border border-brand-accent-alt bg-brand-accent-alt'
+                  : 'flex size-4 items-center justify-center rounded-full border border-brand-border'
+              }
+              aria-hidden="true"
+            />
+            Igual à carteira principal
+          </button>
+          <button
+            type="button"
+            onClick={() => onAdd(sameAsPrimary)}
+            className="font-bold text-brand-accent-alt"
+          >
+            Adicionar
+          </button>
+        </div>
+      </div>
     </section>
   )
 }
@@ -126,9 +204,13 @@ function WalletForm({
   const [displayName, setDisplayName] = useState(initial?.displayName ?? '')
   const [nickname, setNickname] = useState(initial?.nickname ?? '')
   const [network, setNetwork] = useState(initial?.network ?? '')
+  const [profileName, setProfileName] = useState(initial?.profileName ?? '')
   const [address, setAddress] = useState(initial?.address ?? '')
   const [ensOrSecondary, setEnsOrSecondary] = useState(initial?.ensOrSecondary ?? '')
   const [walletType, setWalletType] = useState(initial?.walletType ?? '')
+  const [referralCode, setReferralCode] = useState(initial?.referralCode ?? '')
+  const [email, setEmail] = useState(initial?.email ?? '')
+  const [ensName, setEnsName] = useState(stripEnsSuffix(initial?.ensName ?? ''))
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   function handleSubmit(event: FormEvent) {
@@ -137,7 +219,18 @@ function WalletForm({
     saveWallet.mutate(
       {
         role,
-        payload: { displayName, nickname, network, address, ensOrSecondary: ensOrSecondary || null, walletType },
+        payload: {
+          displayName,
+          nickname,
+          network,
+          profileName,
+          address,
+          ensOrSecondary: ensOrSecondary || null,
+          walletType,
+          referralCode,
+          email,
+          ensName: ensName ? `${ensName}${ENS_SUFFIX}` : null,
+        },
       },
       {
         onSuccess: onSaved,
@@ -170,19 +263,12 @@ function WalletForm({
             </SelectContent>
           </Select>
         </Field>
-        <Field label="Tipo de carteira" required error={fieldErrors.walletType}>
-          <Select value={walletType || undefined} onValueChange={setWalletType}>
-            <SelectTrigger className={selectTriggerClass}>
-              <SelectValue placeholder="Selecione uma carteira" />
-            </SelectTrigger>
-            <SelectContent>
-              {WALLET_TYPES.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Field label="Nome do perfil" required error={fieldErrors.profileName}>
+          <input
+            value={profileName}
+            onChange={(event) => setProfileName(event.target.value)}
+            className={inputClass}
+          />
         </Field>
 
         <Field label="Endereço da carteira" required error={fieldErrors.address}>
@@ -199,6 +285,55 @@ function WalletForm({
             onChange={(event) => setEnsOrSecondary(event.target.value)}
             className={inputClass}
           />
+        </Field>
+
+        <Field label="Tipo de carteira" required error={fieldErrors.walletType}>
+          <Select value={walletType || undefined} onValueChange={setWalletType}>
+            <SelectTrigger className={selectTriggerClass}>
+              <SelectValue placeholder="Selecione uma carteira" />
+            </SelectTrigger>
+            <SelectContent>
+              {WALLET_TYPES.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="Código de indicação" required error={fieldErrors.referralCode}>
+          <input
+            value={referralCode}
+            onChange={(event) => setReferralCode(event.target.value)}
+            className={inputClass}
+          />
+        </Field>
+
+        <Field label="E-mail" required error={fieldErrors.email}>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Nome ENS" required error={fieldErrors.ensName}>
+          <div className="flex gap-2">
+            <Select value={ENS_SUFFIX}>
+              <SelectTrigger className="!h-10 w-24 shrink-0 justify-between rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text focus-visible:border-brand-border-focus focus-visible:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ENS_SUFFIX}>{ENS_SUFFIX}</SelectItem>
+              </SelectContent>
+            </Select>
+            <input
+              value={ensName}
+              onChange={(event) => setEnsName(event.target.value)}
+              placeholder="apelido"
+              className={inputClass}
+            />
+          </div>
         </Field>
       </div>
 
@@ -221,10 +356,10 @@ function WalletForm({
 }
 
 const inputClass =
-  'h-10 w-full rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text focus-visible:border-brand-border-focus focus-visible:outline-none'
+  'h-10 w-full rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none'
 
 const selectTriggerClass =
-  '!h-10 w-full justify-between rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text data-placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:ring-0'
+  '!h-10 w-full justify-between rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text [&_[data-placeholder]]:text-brand-muted focus-visible:border-brand-border-focus focus-visible:ring-0'
 
 function Field({
   label,

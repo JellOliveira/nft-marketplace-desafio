@@ -18,6 +18,7 @@ function toProfile(user: StoredUser): Profile {
     username: user.username,
     email: user.email,
     ensName: user.ensName,
+    walletNickname: user.walletNickname ?? null,
     avatarUrl: user.avatarUrl,
   }
 }
@@ -51,6 +52,7 @@ export const profileHandlers = [
       username: string
       email: string
       ensName: string | null
+      walletNickname: string | null
     }
 
     const fieldErrors: Record<string, string> = {}
@@ -97,6 +99,7 @@ export const profileHandlers = [
     stored.username = payload.username.trim()
     stored.email = payload.email.toLowerCase()
     stored.ensName = payload.ensName?.trim() || null
+    stored.walletNickname = payload.walletNickname?.trim() || null
     writeDb(db)
 
     return HttpResponse.json(toProfile(stored))
@@ -180,9 +183,13 @@ export const profileHandlers = [
       displayName: string
       nickname: string
       network: string
+      profileName: string
       address: string
       ensOrSecondary: string | null
       walletType: string
+      referralCode: string
+      email: string
+      ensName: string | null
     }
 
     const fieldErrors: Record<string, string> = {}

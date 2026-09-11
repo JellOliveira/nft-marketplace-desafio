@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AccountLayout } from '@/features/profile/account-layout'
 import {
@@ -32,6 +33,15 @@ function parseError(error: unknown): ApiErrorBody {
   return { message: 'Não foi possível salvar agora. Tente novamente.' }
 }
 
+// Único sufixo de ENS oferecido no Figma ("Nome ENS" + seletor ".eth" ao lado do campo) — o
+// seletor existe para fidelidade visual, mesmo com uma opção só; o valor persistido já inclui
+// o sufixo (ex.: "apelido.eth"), e é removido de volta ao carregar o campo.
+const ENS_SUFFIX = '.eth'
+
+function stripEnsSuffix(ensName: string): string {
+  return ensName.endsWith(ENS_SUFFIX) ? ensName.slice(0, -ENS_SUFFIX.length) : ensName
+}
+
 function ProfileContent() {
   const { data: profile, isLoading } = useProfile()
 
@@ -45,17 +55,15 @@ function ProfileContent() {
   }
 
   return (
-    <div className="space-y-10">
-      <ProfileForm
-        key={profile.id}
-        displayName={profile.displayName}
-        username={profile.username}
-        email={profile.email}
-        ensName={profile.ensName ?? ''}
-        avatarUrl={profile.avatarUrl}
-      />
-      <PasswordForm />
-    </div>
+    <ProfileForm
+      key={profile.id}
+      displayName={profile.displayName}
+      username={profile.username}
+      email={profile.email}
+      ensName={profile.ensName ?? ''}
+      walletNickname={profile.walletNickname ?? ''}
+      avatarUrl={profile.avatarUrl}
+    />
   )
 }
 
@@ -64,15 +72,18 @@ function ProfileForm({
   username: initialUsername,
   email: initialEmail,
   ensName: initialEnsName,
+  walletNickname: initialWalletNickname,
   avatarUrl,
 }: {
   displayName: string
   username: string
   email: string
   ensName: string
+  walletNickname: string
   avatarUrl: string | null
 }) {
   const updateProfile = useUpdateProfile()
+  const changePassword = useChangePassword()
   const uploadAvatar = useUploadAvatar()
   const removeAvatar = useRemoveAvatar()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -80,18 +91,53 @@ function ProfileForm({
   const [displayName, setDisplayName] = useState(initialDisplayName)
   const [username, setUsername] = useState(initialUsername)
   const [email, setEmail] = useState(initialEmail)
-  const [ensName, setEnsName] = useState(initialEnsName)
+  const [ensName, setEnsName] = useState(stripEnsSuffix(initialEnsName))
+  const [walletNickname, setWalletNickname] = useState(initialWalletNickname)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
+
+  const isSaving = updateProfile.isPending || changePassword.isPending
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setFieldErrors({})
     setSavedMessage(null)
+
+    if (newPassword && newPassword !== confirmPassword) {
+      setFieldErrors({ confirmPassword: 'As senhas não conferem.' })
+      return
+    }
+
     updateProfile.mutate(
-      { displayName, username, email, ensName: ensName || null },
       {
-        onSuccess: () => setSavedMessage('Dados salvos com sucesso.'),
+        displayName,
+        username,
+        email,
+        ensName: ensName ? `${ensName}${ENS_SUFFIX}` : null,
+        walletNickname: walletNickname || null,
+      },
+      {
+        onSuccess: () => {
+          if (!newPassword) {
+            setSavedMessage('Dados salvos com sucesso.')
+            return
+          }
+          changePassword.mutate(
+            { currentPassword, newPassword },
+            {
+              onSuccess: () => {
+                setSavedMessage('Dados e senha salvos com sucesso.')
+                setCurrentPassword('')
+                setNewPassword('')
+                setConfirmPassword('')
+              },
+              onError: (error) => setFieldErrors(parseError(error).fieldErrors ?? {}),
+            },
+          )
+        },
         onError: (error) => setFieldErrors(parseError(error).fieldErrors ?? {}),
       },
     )
@@ -130,6 +176,7 @@ function ProfileForm({
             className={inputClass}
           />
         </Field>
+
         <Field label="E-mail" required error={fieldErrors.email}>
           <input
             type="email"
@@ -139,146 +186,119 @@ function ProfileForm({
             className={inputClass}
           />
         </Field>
-        <Field label="Nome ENS">
+        <Field label="Nome ENS" required error={fieldErrors.ensName}>
+          <div className="flex gap-2">
+            <Select value={ENS_SUFFIX}>
+              <SelectTrigger className="!h-10 w-24 shrink-0 justify-between rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text focus-visible:border-brand-border-focus focus-visible:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ENS_SUFFIX}>{ENS_SUFFIX}</SelectItem>
+              </SelectContent>
+            </Select>
+            <input
+              value={ensName}
+              onChange={(event) => setEnsName(event.target.value)}
+              placeholder="apelido"
+              className={inputClass}
+            />
+          </div>
+        </Field>
+
+        <Field label="Apelido da carteira" required error={fieldErrors.walletNickname}>
           <input
-            value={ensName}
-            onChange={(event) => setEnsName(event.target.value)}
-            placeholder="apelido.eth"
+            required
+            value={walletNickname}
+            onChange={(event) => setWalletNickname(event.target.value)}
             className={inputClass}
           />
         </Field>
-      </div>
-
-      <div className="mt-6">
-        <span className="mb-2 block text-sm text-brand-text">Avatar</span>
-        <div className="flex items-center gap-3">
-          <Avatar className="size-12">
-            {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
-            <AvatarFallback className="bg-brand-elevated text-brand-text">
-              {displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarSelect}
-            className="hidden"
-          />
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadAvatar.isPending}
-            className="bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
-          >
-            Alterar
-          </Button>
-          {avatarUrl && (
-            <button
+        <div>
+          <span className="mb-1 block text-sm text-brand-text">Avatar</span>
+          <div className="flex items-center gap-3">
+            <Avatar className="size-12">
+              {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
+              <AvatarFallback className="bg-brand-elevated text-brand-text">
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarSelect}
+              className="hidden"
+            />
+            <Button
               type="button"
-              onClick={() => removeAvatar.mutate()}
-              className="text-sm text-brand-muted hover:text-brand-error"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadAvatar.isPending}
+              className="bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
             >
-              Remover
-            </button>
-          )}
+              Alterar
+            </Button>
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={() => removeAvatar.mutate()}
+                className="text-sm text-brand-muted hover:text-brand-error"
+              >
+                Remover
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {savedMessage && <p className="mt-4 text-sm text-brand-success">{savedMessage}</p>}
+      <div className="mt-8 max-w-md border-t border-brand-border pt-8">
+        <h2 className="mb-6 text-lg font-bold text-brand-text">Alterar senha</h2>
+        <div className="flex flex-col gap-4">
+          <Field label="Senha atual" error={fieldErrors.currentPassword}>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              className={inputClass}
+              autoComplete="current-password"
+            />
+          </Field>
+          <Field label="Nova senha" error={fieldErrors.newPassword}>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              className={inputClass}
+              autoComplete="new-password"
+            />
+          </Field>
+          <Field label="Confirmar nova senha" error={fieldErrors.confirmPassword}>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className={inputClass}
+              autoComplete="new-password"
+            />
+          </Field>
+        </div>
 
-      <Button
-        type="submit"
-        disabled={updateProfile.isPending}
-        className="mt-6 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
-      >
-        {updateProfile.isPending ? 'Salvando…' : 'Salvar'}
-      </Button>
-    </form>
-  )
-}
+        {savedMessage && <p className="mt-4 text-sm text-brand-success">{savedMessage}</p>}
 
-function PasswordForm() {
-  const changePassword = useChangePassword()
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    setFieldErrors({})
-    setSuccessMessage(null)
-
-    if (newPassword !== confirmPassword) {
-      setFieldErrors({ confirmPassword: 'As senhas não conferem.' })
-      return
-    }
-
-    changePassword.mutate(
-      { currentPassword, newPassword },
-      {
-        onSuccess: () => {
-          setSuccessMessage('Senha alterada com sucesso.')
-          setCurrentPassword('')
-          setNewPassword('')
-          setConfirmPassword('')
-        },
-        onError: (error) => setFieldErrors(parseError(error).fieldErrors ?? {}),
-      },
-    )
-  }
-
-  return (
-    <form onSubmit={handleSubmit} noValidate className="max-w-md border-t border-brand-border pt-8">
-      <h2 className="mb-6 text-lg font-bold text-brand-text">Alterar senha</h2>
-      <div className="flex flex-col gap-4">
-        <Field label="Senha atual" error={fieldErrors.currentPassword}>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(event) => setCurrentPassword(event.target.value)}
-            className={inputClass}
-            autoComplete="current-password"
-          />
-        </Field>
-        <Field label="Nova senha" error={fieldErrors.newPassword}>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(event) => setNewPassword(event.target.value)}
-            className={inputClass}
-            autoComplete="new-password"
-          />
-        </Field>
-        <Field label="Confirmar nova senha" error={fieldErrors.confirmPassword}>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            className={inputClass}
-            autoComplete="new-password"
-          />
-        </Field>
+        <Button
+          type="submit"
+          disabled={isSaving}
+          className="mt-6 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+        >
+          {isSaving ? 'Salvando…' : 'Salvar'}
+        </Button>
       </div>
-
-      {successMessage && <p className="mt-4 text-sm text-brand-success">{successMessage}</p>}
-
-      <Button
-        type="submit"
-        disabled={changePassword.isPending || !currentPassword || !newPassword}
-        className="mt-6 bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
-      >
-        {changePassword.isPending ? 'Salvando…' : 'Salvar'}
-      </Button>
     </form>
   )
 }
 
 const inputClass =
-  'h-10 w-full rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text focus-visible:border-brand-border-focus focus-visible:outline-none'
+  'h-10 w-full rounded-md border border-brand-border bg-transparent px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none'
 
 function Field({
   label,

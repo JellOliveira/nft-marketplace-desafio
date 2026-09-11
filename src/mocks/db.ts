@@ -14,6 +14,7 @@ export interface StoredUser extends User {
   passwordHash: string
   username: string
   ensName: string | null
+  walletNickname: string | null
 }
 
 /** Formato completo do estado simulado. Cada fase do projeto adiciona suas próprias
@@ -100,6 +101,7 @@ function createSeed(): MockDatabase {
         username: 'ana.colecionadora',
         email: 'colecionadora@kurio.app',
         ensName: null,
+        walletNickname: null,
         avatarUrl: null,
         // senha de exemplo: "colecionador123" (ver README.md, seção de credenciais fictícias)
         passwordHash:
@@ -111,6 +113,7 @@ function createSeed(): MockDatabase {
         username: 'theo.artista',
         email: 'artista@kurio.app',
         ensName: null,
+        walletNickname: null,
         avatarUrl: null,
         // senha de exemplo: "artista456" (ver README.md, seção de credenciais fictícias)
         passwordHash:

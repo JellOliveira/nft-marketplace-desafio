@@ -54,8 +54,11 @@ export function NewsletterSection() {
           <h3 className="text-base font-bold text-brand-text">
             Antecipe-se ao próximo lançamento
           </h3>
-          <form onSubmit={handleSubmit} className="mt-4 flex gap-3">
-            <label className="flex-1">
+          {/* Caixa + botão juntos, um só elemento visual — mesmo padrão do cupom promocional
+           *  do carrinho/pagamento (design-refs/Código do Pagamento.html), não input e botão
+           *  separados por um espaço. */}
+          <form onSubmit={handleSubmit} className="mt-4 flex h-10 items-center overflow-hidden rounded-md bg-brand-dark">
+            <label className="min-w-0 flex-1">
               <span className="sr-only">Seu e-mail</span>
               <input
                 type="email"
@@ -65,12 +68,12 @@ export function NewsletterSection() {
                   setStatus('idle')
                 }}
                 placeholder="digite seu e-mail…"
-                className="h-10 w-full rounded-md border border-transparent bg-brand-dark px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:border-brand-border-focus focus-visible:outline-none"
+                className="h-full w-full bg-transparent px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:outline-none"
               />
             </label>
             <Button
               type="submit"
-              className="h-10 bg-brand-accent-alt px-5 text-brand-bg hover:bg-brand-accent"
+              className="h-full shrink-0 rounded-none bg-brand-accent-alt px-5 text-brand-card hover:bg-brand-accent"
             >
               Enviar
             </Button>

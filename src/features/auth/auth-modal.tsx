@@ -55,12 +55,15 @@ export function AuthModal({ mode, redirectTo, onClose, onModeChange }: AuthModal
 
   return (
     <Dialog open onOpenChange={(open) => !open && closeAndReturn()}>
+      {/* Tela cheia abaixo de sm (design-refs/Mobile/Login.png e Cadastro.png: sem cantos
+       *  arredondados, sem cabeçalho/rodapé visíveis por trás) — a partir de sm volta a ser o
+       *  cartão centralizado do desktop (design-refs/Desktop/Login.png). */}
       <DialogContent
         showCloseButton
-        className="max-w-[500px] gap-0 rounded-2xl border border-brand-border bg-brand-card p-0 pt-12 text-brand-text sm:max-w-[500px]"
+        className="inset-0 top-0 left-0 h-dvh max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-y-auto rounded-none border-0 bg-brand-bg p-0 pt-16 text-brand-text sm:inset-auto sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-full sm:max-w-[500px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:border-brand-border sm:bg-brand-card sm:pt-12"
       >
-        <DialogTitle className="sr-only">
-          {mode === 'login' ? 'Entrar na conta' : 'Criar conta'}
+        <DialogTitle className="mb-10 text-center text-2xl font-bold tracking-[2px] text-brand-text sm:sr-only">
+          KURIO
         </DialogTitle>
 
         <div className="flex justify-center gap-2 text-lg">

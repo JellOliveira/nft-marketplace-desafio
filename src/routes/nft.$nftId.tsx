@@ -106,9 +106,34 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
 
   return (
     <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-10">
-      {/* Breadcrumb fixo em "Mercado": não há tela de categoria própria nesta entrega, então
-       *  ele reflete o link "Mercado" do header (agora funcional), não a categoria do item. */}
-      <nav aria-label="Trilha de navegação" className="mb-6 text-sm text-brand-muted">
+      {/* Barra mobile (design-refs/Mobile/Detalhes do NFT.png): só seta "voltar" + favoritar,
+       *  sem título — o header padrão fica escondido nesta tela abaixo de lg (site-header.tsx). */}
+      <div className="mb-4 flex items-center justify-between lg:hidden">
+        <button
+          type="button"
+          onClick={() => navigate({ to: '/', search: DEFAULT_CATALOG_SEARCH })}
+          aria-label="Voltar ao catálogo"
+          className="flex size-9 items-center justify-center rounded-full bg-brand-card text-brand-text"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <button
+          type="button"
+          onClick={() => isAuthenticated && toggleFavorite.mutate({ nftId: nft.id, isFavorited })}
+          disabled={!isAuthenticated || toggleFavorite.isPending}
+          aria-pressed={isFavorited}
+          aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          title={isAuthenticated ? undefined : 'Entre para favoritar'}
+          className="flex size-9 items-center justify-center rounded-full bg-brand-card text-brand-accent-alt disabled:opacity-60"
+        >
+          <Heart size={18} className={cn(isFavorited && 'fill-brand-accent-alt')} />
+        </button>
+      </div>
+
+      {/* Breadcrumb fixo em "Mercado" (desktop): não há tela de categoria própria nesta
+       *  entrega, então ele reflete o link "Mercado" do header (agora funcional), não a
+       *  categoria do item. */}
+      <nav aria-label="Trilha de navegação" className="mb-6 hidden text-sm text-brand-muted lg:block">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início
         </Link>

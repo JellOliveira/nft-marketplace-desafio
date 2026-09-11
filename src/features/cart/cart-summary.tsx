@@ -86,7 +86,13 @@ export function CouponBox({
         <button
           type="submit"
           disabled={!code || applyCoupon.isPending}
-          className="h-full shrink-0 bg-brand-accent px-4 text-base font-bold text-brand-bg disabled:opacity-50"
+          className={cn(
+            'h-full shrink-0 px-4 text-base font-bold text-brand-card disabled:opacity-50',
+            // /pagamento (design-refs/Código do Pagamento.html) usa o dourado mais escuro
+            // (#D28A4C) nos botões de ação; /carrinho usa o tom mais claro (#E89B55) — cada
+            // um reaproveita a cor que já usa no próprio botão "Confirmar"/"finalizar".
+            variant === 'toggle' ? 'bg-brand-accent-alt hover:bg-brand-accent' : 'bg-brand-accent',
+          )}
         >
           Aplicar
         </button>

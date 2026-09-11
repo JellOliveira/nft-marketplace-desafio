@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useCartCount } from '@/features/cart/use-cart-count'
 import { useLogout, useSession } from '@/features/auth/use-session'
 import { useLastViewedNftId } from '@/features/catalog/use-last-viewed-nft'
+import { cn } from '@/lib/utils'
 import { DEFAULT_CATALOG_SEARCH } from '@/types/nft'
 
 /** Links de navegação fora do escopo da entrega, sem tela correspondente — renderizados
@@ -33,6 +34,17 @@ export function SiteHeader() {
 
   const initial = user?.name.charAt(0).toUpperCase() ?? '?'
 
+  // Abaixo de lg, Início/Detalhe do NFT/Carrinho/Pagamento têm o próprio cabeçalho compacto
+  // (design-refs/Mobile/*.png: busca+filtro na Home, seta "voltar"+título nas outras) — a
+  // barra padrão (logo, navegação, avatar) some ali e reaparece a partir do breakpoint lg. As
+  // demais telas (perfil, carteiras, pedido) não têm referência mobile própria e continuam
+  // usando esta barra em qualquer tamanho.
+  const hasOwnMobileHeader =
+    location.pathname === '/' ||
+    location.pathname === '/carrinho' ||
+    location.pathname === '/pagamento' ||
+    location.pathname.startsWith('/nft/')
+
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const value = new FormData(event.currentTarget).get('q')
@@ -44,7 +56,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="border-b border-brand-border/60">
+    <header className={cn('border-b border-brand-border/60', hasOwnMobileHeader && 'hidden lg:block')}>
       <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-5 lg:px-[120px]">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="text-sm font-bold tracking-[1.4px] text-brand-text">
           KURIO

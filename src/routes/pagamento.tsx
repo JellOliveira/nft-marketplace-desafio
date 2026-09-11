@@ -16,6 +16,7 @@
 // que autentica.
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import axios from 'axios'
+import { ChevronLeft } from 'lucide-react'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -222,7 +223,21 @@ function PaymentForm({
 
   return (
     <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
-      <nav aria-label="Trilha de navegação" className="mb-6 text-sm text-brand-muted">
+      {/* Barra mobile (design-refs/Mobile/Pagamento.png): seta "voltar" + título centralizado
+       *  — o header padrão fica escondido nesta tela abaixo de lg. */}
+      <div className="relative mb-6 flex items-center justify-center lg:hidden">
+        <button
+          type="button"
+          onClick={() => navigate({ to: '/carrinho' })}
+          aria-label="Voltar ao carrinho"
+          className="absolute left-0 flex size-9 items-center justify-center rounded-full bg-brand-card text-brand-text"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <h1 className="text-lg font-bold text-brand-text">Pagamento com carteira</h1>
+      </div>
+
+      <nav aria-label="Trilha de navegação" className="mb-6 hidden text-sm text-brand-muted lg:block">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início
         </Link>
@@ -318,16 +333,23 @@ function PaymentForm({
                 className={inputClass}
               />
             </Field>
+            {/* Só seleção, sem texto livre (design-refs/Código do Pagamento.html mostra um
+             *  dropdown, não um campo de digitação): escolhe entre os nomes ENS que já
+             *  existem — o do perfil e o que foi digitado em "ENS ou carteira secundária" ao
+             *  lado — em vez de deixar digitar um nome novo aqui. */}
             <Field label="Nome ENS">
-              <div className="flex h-10 items-center overflow-hidden rounded-md border border-brand-border focus-within:border-brand-border-focus">
-                <input
-                  value={ensName}
-                  onChange={(event) => setEnsName(event.target.value)}
-                  placeholder="apelido"
-                  className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm text-brand-text placeholder:text-brand-muted focus-visible:outline-none"
-                />
-                <span className="shrink-0 pr-3 text-sm text-brand-muted">.eth</span>
-              </div>
+              <Select value={ensName || 'none'} onValueChange={(value) => setEnsName(value === 'none' ? '' : value)}>
+                <SelectTrigger className={selectTriggerClass}>
+                  <SelectValue placeholder="Selecione (opcional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {profile?.ensName && <SelectItem value={profile.ensName}>{profile.ensName}.eth</SelectItem>}
+                  {ensOrSecondary && ensOrSecondary !== profile?.ensName && (
+                    <SelectItem value={ensOrSecondary}>{ensOrSecondary}.eth</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </Field>
           </div>
 
@@ -366,7 +388,7 @@ function PaymentForm({
           </div>
         </section>
 
-        <aside className="h-fit rounded-xl bg-brand-card p-6">
+        <aside className="h-fit">
           <h2 className="mb-4 text-lg font-bold text-brand-text">Seus NFTs</h2>
           <div className="mb-3 flex items-center justify-between text-sm font-bold text-brand-text">
             <span>NFTs</span>
@@ -374,9 +396,15 @@ function PaymentForm({
           </div>
           <div className="mb-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
 
+          {/* Sem moldura ao redor da lista inteira — cada produto tem sua própria, igual em
+           *  /carrinho (design-refs/Código do Pagamento.html: "Seus NFTs" fica solto no fundo
+           *  da página, só os itens em si têm o card #241612). */}
           <ul className="mb-4 flex flex-col gap-3">
             {cart?.lines.map((line) => (
-              <li key={`${line.nftId}-${line.edition}`} className="flex items-center gap-3">
+              <li
+                key={`${line.nftId}-${line.edition}`}
+                className="flex items-center gap-3 rounded-lg bg-brand-card p-2"
+              >
                 <img src={line.imageUrl} alt="" className="size-14 shrink-0 rounded-lg object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-brand-text">{line.name}</p>

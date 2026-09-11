@@ -71,6 +71,10 @@ export interface CatalogSearch {
   priceMax: number | null
   sort: NftSortOption
   page: number
+  /** Tab "Favoritos" da barra inferior mobile (design-refs/Mobile/Tab Bar.svg): filtra o
+   *  catálogo pelos NFTs favoritados do usuário (use-favorites.ts). Fica na própria URL, como
+   *  qualquer outro filtro do catálogo, para sobreviver a refresh e navegação pelo histórico. */
+  favorites: boolean
 }
 
 export const DEFAULT_CATALOG_SEARCH: CatalogSearch = {
@@ -81,6 +85,7 @@ export const DEFAULT_CATALOG_SEARCH: CatalogSearch = {
   priceMax: null,
   sort: 'recent',
   page: 1,
+  favorites: false,
 }
 
 export interface CategoryFacet {

@@ -101,6 +101,7 @@ export const authHandlers = [
       username: `${payload.email!.split('@')[0].toLowerCase()}-${generateId('u').slice(-4)}`,
       email: payload.email!.toLowerCase(),
       ensName: null,
+      walletNickname: null,
       avatarUrl: null,
       passwordHash,
     }

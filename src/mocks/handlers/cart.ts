@@ -37,6 +37,7 @@ function buildSummary(cart: StoredCart): CartSummary {
       return {
         nftId: nft.id,
         name: nft.name,
+        tokenId: nft.tokenId,
         imageUrl: nft.imageUrl,
         edition: line.edition,
         priceEth: nft.priceEth,

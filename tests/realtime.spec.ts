@@ -27,7 +27,7 @@ test.describe('Tempo real — Socket.IO', () => {
     // checar aqui — o preço unitário some em telas estreitas para não apertar o layout.
     await expect(page.getByTestId('cart-line-total')).toHaveText('99.99 ETH', { timeout: 5_000 })
 
-    await page.getByRole('link', { name: 'Ir para o pagamento' }).click()
+    await page.getByRole('link', { name: 'Conectar e finalizar' }).click()
     await page.waitForURL(/\/pagamento/)
     await connectWallet(page, 'MetaMask')
 

@@ -13,7 +13,7 @@ test.describe('Fluxo de compra', () => {
     await login(page)
     await addFirstNftToCart(page)
 
-    await page.getByRole('link', { name: 'Ir para o pagamento' }).click()
+    await page.getByRole('link', { name: 'Conectar e finalizar' }).click()
     await page.waitForURL(/\/pagamento/)
 
     await connectWallet(page, 'MetaMask')

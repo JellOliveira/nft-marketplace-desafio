@@ -4,6 +4,7 @@
 export interface CartLine {
   nftId: string
   name: string
+  tokenId: string
   imageUrl: string
   edition: string
   /** Preço unitário no momento da consulta — pode divergir do preço "no card" do catálogo se

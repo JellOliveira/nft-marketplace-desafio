@@ -172,7 +172,7 @@ categoria abaixo da meta.
 ## Demonstração
 
 🎬 Vídeo (fluxo completo, catálogo → compra → recibo, na URL publicada):
-`<colar o link do YouTube/Loom aqui>`
+[youtu.be/ki3w_C8ngoI](https://youtu.be/ki3w_C8ngoI)
 
 📸 Prints da suíte Playwright (`playwright-report/`):
 - Visão geral (47 passed, 0 failed, 3 skipped): `docs/evidencias/playwright-report.png`

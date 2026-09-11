@@ -5,7 +5,7 @@
 // lugar depois que a versão de /pagamento passou a precisar do mesmo cupom e dos mesmos
 // totais que já existiam em /carrinho — evita duas implementações divergindo com o tempo.
 import axios from 'axios'
-import { useId, useState, type FormEvent } from 'react'
+import { useId, useState, type KeyboardEvent } from 'react'
 import { useApplyCoupon, useRemoveCoupon } from './use-cart'
 import { cn } from '@/lib/utils'
 import type { ApiErrorBody } from '@/types/auth'
@@ -32,8 +32,8 @@ export function CouponBox({
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  function handleApply(event: FormEvent) {
-    event.preventDefault()
+  function handleApply() {
+    if (!code || applyCoupon.isPending) return
     setError(null)
     applyCoupon.mutate(code, {
       onSuccess: () => setCode(''),
@@ -44,6 +44,18 @@ export function CouponBox({
         setError(message ?? 'Não foi possível aplicar o cupom.')
       },
     })
+  }
+
+  function handleInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    // Enter aplica o cupom sem submeter nenhum form. Este componente é usado dentro do form
+    // grande de /pagamento (Perfil do colecionador + envio do pedido) — um <form> próprio aqui
+    // ficaria aninhado dentro daquele, HTML inválido que o navegador corrige removendo este
+    // <form> do DOM, deixando o botão "Aplicar" sem nenhum handler de submit (era exatamente o
+    // bug relatado: cupom só funcionava em /carrinho, nunca em /pagamento).
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      handleApply()
+    }
   }
 
   if (couponCode) {
@@ -74,7 +86,7 @@ export function CouponBox({
   }
 
   return (
-    <form onSubmit={handleApply} className="mb-4">
+    <div className="mb-4">
       {variant === 'inline' && (
         <label htmlFor={couponInputId} className="mb-2 block text-sm font-bold text-brand-text">
           Código promocional
@@ -86,11 +98,13 @@ export function CouponBox({
           data-testid="coupon-input"
           value={code}
           onChange={(event) => setCode(event.target.value)}
+          onKeyDown={handleInputKeyDown}
           placeholder="Digite o código promocional…"
           className="h-full min-w-0 flex-1 bg-transparent pl-4 text-xs text-brand-text placeholder:text-brand-muted focus-visible:outline-none"
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handleApply}
           disabled={!code || applyCoupon.isPending}
           className={cn(
             'h-full shrink-0 rounded-full px-4 text-base font-bold text-brand-card disabled:opacity-50',
@@ -108,7 +122,7 @@ export function CouponBox({
           {error}
         </p>
       )}
-    </form>
+    </div>
   )
 }
 

@@ -4,7 +4,7 @@
 // para lugar nenhum: marcá-las como interativas seria fazer uma ação fora do escopo
 // aparentar sucesso funcional, que é justamente o que o enunciado proíbe.
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
-import { LogIn, Menu, Search, ShoppingCart } from 'lucide-react'
+import { Heart, LogIn, Menu, Search, ShoppingCart } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -31,6 +31,12 @@ export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false)
   const lastViewedNftId = useLastViewedNftId()
   const isOnNftDetail = location.pathname.startsWith('/nft/')
+  // A barra inferior do mobile (mobile-tab-bar.tsx) tem um destino "Favoritos" de verdade
+  // (/?favorites=true), mas essa barra some a partir do breakpoint lg — sem link equivalente
+  // aqui, quem favoritava um NFT no desktop (coração no card/detalhe) não tinha nenhum jeito
+  // de encontrar a própria lista de favoritos depois, só editando a URL manualmente.
+  const isOnFavoritesView =
+    location.pathname === '/' && (location.search as Record<string, unknown>)?.favorites === true
 
   const initial = user?.name.charAt(0).toUpperCase() ?? '?'
 
@@ -129,6 +135,19 @@ export function SiteHeader() {
               </form>
             )}
           </div>
+
+          <Link
+            to="/"
+            search={{ ...DEFAULT_CATALOG_SEARCH, favorites: true }}
+            aria-label="Ver favoritos"
+            aria-current={isOnFavoritesView ? 'page' : undefined}
+            className={cn(
+              'text-brand-text/80 hover:text-brand-text',
+              isOnFavoritesView && 'text-brand-accent-alt',
+            )}
+          >
+            <Heart size={20} fill={isOnFavoritesView ? 'currentColor' : 'none'} />
+          </Link>
 
           <Link to="/carrinho" aria-label="Ver carrinho" className="relative text-brand-text/80 hover:text-brand-text">
             <ShoppingCart size={20} />

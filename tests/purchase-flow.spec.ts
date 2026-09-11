@@ -9,12 +9,31 @@ import { addFirstNftToCart, connectWallet, login } from './support/actions'
 test.describe('Fluxo de compra', () => {
   test('compra completa: catálogo → detalhe → carrinho → pagamento → recibo confirmado', async ({
     page,
-  }) => {
+  }, testInfo) => {
     await login(page)
     await addFirstNftToCart(page)
 
     await page.getByRole('link', { name: 'Conectar e finalizar' }).click()
     await page.waitForURL(/\/pagamento/)
+
+    // Cupom aplicado direto em /pagamento (não só em /carrinho): o CouponBox tem o próprio
+    // <form>, que fica aninhado dentro do <form> grande desta tela — HTML inválido que o
+    // navegador corrige removendo o <form> interno do DOM, deixando "Aplicar" sem nenhum
+    // handler de submit. Regressão coberta aqui. Desktop-only: o mobile de /pagamento
+    // (design-refs/Mobile/Pagamento.png) não tem campo de cupom, por design.
+    if (testInfo.project.name !== 'mobile-chromium') {
+      await page
+        .getByText('Tem um código promocional? Aplique aqui')
+        .filter({ visible: true })
+        .click()
+      await page.getByTestId('coupon-input').filter({ visible: true }).fill('KURIO10')
+      await page.getByRole('button', { name: 'Aplicar' }).filter({ visible: true }).click()
+      await expect(page.getByText('Cupom KURIO10 aplicado').filter({ visible: true })).toBeVisible()
+      // Aplicar cupom muda o total, então muda a versão da cotação já aceita ao abrir a tela —
+      // "Confirmar compra" fica bloqueado até essa revisão explícita (mesma trava de
+      // quoteIsStale usada para preço/disponibilidade, item 3 do desafio).
+      await page.getByRole('button', { name: 'Revisar e continuar' }).filter({ visible: true }).click()
+    }
 
     await connectWallet(page, 'MetaMask')
     await page.getByRole('button', { name: 'Confirmar compra' }).click()

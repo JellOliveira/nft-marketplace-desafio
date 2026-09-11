@@ -145,7 +145,7 @@ export function AuthModal({
             </div>
           </div>
 
-          <p className={cn('mt-6 text-center text-sm text-brand-text', compactMobileLogin ? 'hidden' : 'sm:hidden')}>
+          <p className={cn('mt-6 text-center text-sm text-[#CFB28C]', compactMobileLogin ? 'hidden' : 'sm:hidden')}>
             {mode === 'login' ? (
               <>
                 Novo na Kurio?{' '}
@@ -153,12 +153,12 @@ export function AuthModal({
                   <button
                     type="button"
                     onClick={() => onModeChange('register')}
-                    className="font-bold text-brand-accent-alt"
+                    className="font-bold text-[#CFB28C]"
                   >
                     Crie uma conta
                   </button>
                 ) : (
-                  <Link to="/cadastro" search={{ redirect: redirectTo }} className="font-bold text-brand-accent-alt">
+                  <Link to="/cadastro" search={{ redirect: redirectTo }} className="font-bold text-[#CFB28C]">
                     Crie uma conta
                   </Link>
                 )}
@@ -170,12 +170,12 @@ export function AuthModal({
                   <button
                     type="button"
                     onClick={() => onModeChange('login')}
-                    className="font-bold text-brand-accent-alt"
+                    className="font-bold text-[#CFB28C]"
                   >
                     Entre
                   </button>
                 ) : (
-                  <Link to="/login" search={{ redirect: redirectTo }} className="font-bold text-brand-accent-alt">
+                  <Link to="/login" search={{ redirect: redirectTo }} className="font-bold text-[#CFB28C]">
                     Entre
                   </Link>
                 )}

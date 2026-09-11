@@ -36,7 +36,7 @@ function NftDetailPage() {
 
   if (isError || !nft) {
     return (
-      <main className="mx-auto max-w-[1200px] px-5 py-20 text-center lg:px-[120px]">
+      <main className="mx-auto max-w-[1200px] px-5 py-20 text-center lg:px-6 xl:px-10">
         <h1 className="text-2xl font-bold text-brand-text">NFT não encontrado</h1>
         <p className="mt-2 text-brand-muted">
           O item que você está procurando não existe ou foi removido do catálogo.
@@ -56,7 +56,7 @@ function NftDetailPage() {
 
 function DetailSkeleton() {
   return (
-    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
+    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-10">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[520px_1fr]">
         <Skeleton className="aspect-square w-full rounded-xl" />
         <div className="space-y-4">
@@ -105,7 +105,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
   }
 
   return (
-    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
+    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-10">
       {/* Breadcrumb fixo em "Mercado": não há tela de categoria própria nesta entrega, então
        *  ele reflete o link "Mercado" do header (agora funcional), não a categoria do item. */}
       <nav aria-label="Trilha de navegação" className="mb-6 text-sm text-brand-muted">
@@ -117,7 +117,10 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[104px_520px_1fr]">
-        <div className="order-2 flex gap-3 lg:order-1 lg:flex-col">
+        {/* flex-wrap no mobile: 4 miniaturas de 96px numa linha só (384px+gaps) estouram a
+         *  largura da tela em telas pequenas (390px) — aqui elas quebram em 2 linhas em vez
+         *  de vazar a página. Em lg vira coluna única, então o wrap não se aplica. */}
+        <div className="order-2 flex flex-wrap gap-3 lg:order-1 lg:flex-nowrap lg:flex-col">
           {nft.gallery.map((image, index) => (
             <button
               key={index}
@@ -147,13 +150,17 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
 
         <div className="order-3 min-w-0">
           <h1 className="text-2xl font-bold text-brand-text">{nft.name}</h1>
-          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          {/* Preço à esquerda, avaliação à direita (design-refs/Detalhes do NFT.png) — só
+           *  gruda tudo à esquerda em telas estreitas o bastante pra não caber lado a lado. */}
+          <p className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
             <span className="text-xl text-brand-accent-alt">{nft.priceEth} ETH</span>
             <span className="flex items-center gap-1.5 text-sm whitespace-nowrap text-brand-muted">
               <RatingStars rating={nft.rating} />
               {nft.reviewCount} avaliações de colecionadores
             </span>
           </p>
+
+          <div className="mt-4 h-px bg-brand-accent-alt/30" aria-hidden="true" />
 
           <h2 className="mt-4 text-sm font-bold text-brand-text">Sobre este NFT:</h2>
           <p className="mt-1 text-sm text-brand-muted">{nft.description}</p>

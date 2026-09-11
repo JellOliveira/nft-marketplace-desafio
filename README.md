@@ -4,6 +4,23 @@ Marketplace de NFTs desenvolvido em React + TypeScript, com dados, autenticaçã
 pagamentos totalmente simulados (MSW) e tempo real via Socket.IO. Veja `ARCHITECTURE.md` para
 detalhes de arquitetura, contratos REST/eventos e decisões técnicas.
 
+## App publicado
+
+🔗 **[https://nft-marketplace-desafio.vercel.app](https://nft-marketplace-desafio.vercel.app)**
+
+Roda com os mocks (MSW) e o tempo real (Socket.IO) ativos por padrão — não depende de nenhum
+backend privado. Acesso direto e refresh funcionam em qualquer rota.
+
+**Credenciais para testar:**
+
+| E-mail | Senha |
+| --- | --- |
+| `colecionadora@kurio.app` | `colecionador123` |
+| `artista@kurio.app` | `artista456` |
+
+Ou cadastre uma conta nova em `/cadastro` — não há restrição de convite. Veja mais abaixo os
+cupons de teste e como reproduzir cada cenário de falha.
+
 ## Stack
 
 React · TypeScript · TanStack Router · TanStack Query · Axios · Tailwind CSS · shadcn/ui ·
@@ -154,8 +171,9 @@ categoria abaixo da meta.
 
 ## Deploy
 
-- **App**: Vercel — `https://<preencher-apos-deploy>.vercel.app`
+- **App**: Vercel — `https://nft-marketplace-desafio.vercel.app`
 - **Servidor de tempo real**: VPS própria via EasyPanel — `https://realtime.flowconnectdev.com.br`
+- **Repositório**: `https://github.com/JellOliveira/nft-marketplace-desafio`
 
 O build de produção publicado já roda com os mocks ativados por padrão (não depende de
 nenhum backend real).

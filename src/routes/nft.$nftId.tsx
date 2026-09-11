@@ -4,11 +4,13 @@
 // quebrar (item 3 do desafio).
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import axios from 'axios'
-import { ChevronLeft, ChevronRight, Heart, Mail, Minus, Plus, ShoppingCart, Star } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Mail, Minus, Plus, Search, ShoppingCart, Star } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAddCartItem } from '@/features/cart/use-cart'
+import { AuthModal } from '@/features/auth/auth-modal'
+import { ImageZoomModal } from '@/features/catalog/image-zoom-modal'
 import { NftCard } from '@/features/catalog/nft-card'
 import { useNftDetail, useNftList } from '@/features/catalog/use-catalog'
 import { useFavorites, useToggleFavorite } from '@/features/catalog/use-favorites'
@@ -83,9 +85,22 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
   const [edition, setEdition] = useState(nft.editions[nft.editions.length - 1])
   const [quantity, setQuantity] = useState(1)
   const [feedback, setFeedback] = useState<string | null>(null)
+  // Antes, sem sessão, o coração ficava só desabilitado (opacidade) e o clique não fazia nada
+  // — parecia enfeite quebrado, especialmente no mobile. Agora o clique sempre reage: com
+  // sessão, favorita de verdade; sem sessão, abre o login por cima (mesmo padrão do
+  // /pagamento) em vez de ficar mudo.
+  const [authOverlay, setAuthOverlay] = useState<'login' | 'register' | null>(null)
 
   const isFavorited = Boolean(favoriteIds?.includes(nft.id))
   const maxQuantity = Math.max(1, nft.availableQuantity)
+
+  function handleToggleFavorite() {
+    if (!isAuthenticated) {
+      setAuthOverlay('login')
+      return
+    }
+    toggleFavorite.mutate({ nftId: nft.id, isFavorited })
+  }
 
   function handleBuy() {
     setFeedback(null)
@@ -118,8 +133,8 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
         </button>
         <button
           type="button"
-          onClick={() => isAuthenticated && toggleFavorite.mutate({ nftId: nft.id, isFavorited })}
-          disabled={!isAuthenticated || toggleFavorite.isPending}
+          onClick={handleToggleFavorite}
+          disabled={toggleFavorite.isPending}
           aria-pressed={isFavorited}
           aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
           title={isAuthenticated ? undefined : 'Entre para favoritar'}
@@ -273,8 +288,8 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
 
                 <button
                   type="button"
-                  onClick={() => isAuthenticated && toggleFavorite.mutate({ nftId: nft.id, isFavorited })}
-                  disabled={!isAuthenticated || toggleFavorite.isPending}
+                  onClick={handleToggleFavorite}
+                  disabled={toggleFavorite.isPending}
                   aria-pressed={isFavorited}
                   aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                   title={isAuthenticated ? undefined : 'Entre para favoritar'}
@@ -312,6 +327,15 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
         disabled={!nft.available || addCartItem.isPending}
         buyLabel={nft.available ? 'Comprar NFT' : 'Esgotado'}
       />
+
+      {authOverlay && (
+        <AuthModal
+          mode={authOverlay}
+          redirectTo={`/nft/${nft.id}`}
+          onClose={() => setAuthOverlay(null)}
+          onModeChange={setAuthOverlay}
+        />
+      )}
     </main>
   )
 }
@@ -438,6 +462,7 @@ function ImageGallery({
   nftName: string
 }) {
   const dragRef = useRef<{ startX: number; deltaX: number } | null>(null)
+  const [isZoomOpen, setIsZoomOpen] = useState(false)
 
   function handlePointerDown(event: React.PointerEvent) {
     if (event.pointerType !== 'touch') return
@@ -473,6 +498,17 @@ function ImageGallery({
         draggable={false}
       />
 
+      {/* Lupa no canto da foto (pedido do usuário, com print de referência): abre o zoom em
+       *  tela cheia da imagem ativa da galeria. */}
+      <button
+        type="button"
+        onClick={() => setIsZoomOpen(true)}
+        aria-label="Ampliar imagem do produto"
+        className="absolute top-3 right-3 flex size-9 items-center justify-center rounded-full bg-brand-bg/50 text-brand-text/80 backdrop-blur-sm transition-colors hover:bg-brand-bg/90 hover:text-brand-accent-alt"
+      >
+        <Search size={16} />
+      </button>
+
       {gallery.length > 1 && (
         <>
           {activeIndex > 0 && (
@@ -496,6 +532,14 @@ function ImageGallery({
             </button>
           )}
         </>
+      )}
+
+      {isZoomOpen && (
+        <ImageZoomModal
+          src={gallery[activeIndex] ?? ''}
+          alt={`Imagem ${activeIndex + 1} de ${gallery.length} do NFT ${nftName}`}
+          onClose={() => setIsZoomOpen(false)}
+        />
       )}
     </div>
   )

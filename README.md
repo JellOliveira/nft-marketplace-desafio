@@ -142,12 +142,15 @@ acessibilidade (teclado, foco de diálogo, validação de formulário).
 ## Auditoria Lighthouse
 
 ```bash
-npm run build && npm run preview
-# em outra aba, com o preview no ar:
-npx lighthouse http://localhost:4173/ --preset=desktop --output=html --output-path=./lighthouse-reports/inicio-desktop.html
+npm run audit:lighthouse
 ```
 
-Ver `ARCHITECTURE.md` para a configuração completa e os resultados registrados.
+Builda, sobe `vite preview` e o `realtime-server` juntos, e roda 3 medições por página
+(Início, Detalhe) e por perfil (mobile, desktop) — 12 no total — contra o build de produção.
+Relatórios HTML/JSON de cada rodada ficam em `lighthouse-reports/`, com a mediana consolidada
+em `lighthouse-reports/SUMMARY.md`. Config versionada em `scripts/lighthouse-audit.mjs`. Ver
+`ARCHITECTURE.md` (seção "Lighthouse") para os resultados e a justificativa de qualquer
+categoria abaixo da meta.
 
 ## Deploy
 

@@ -209,6 +209,13 @@ function HomePage() {
         </div>
 
         <section className="min-w-0 flex-1">
+          {/* sr-only: no mobile, a sidebar de filtros (com seus próprios <h2>) fica oculta
+           *  (`hidden lg:block` acima), o que deixava a página pulando de <h1> (hero) direto
+           *  para os <h3> dos cards — hierarquia de heading quebrada, sinalizada pelo
+           *  Lighthouse (heading-order). Este título não é decorativo: descreve de verdade a
+           *  seção que segue, só não precisa aparecer visualmente (o desenho não tem espaço
+           *  reservado para ele). */}
+          <h2 className="sr-only">Catálogo de NFTs</h2>
           <div className="mb-6 flex flex-col flex-wrap gap-x-4 gap-y-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4" role="tablist" aria-label="Filtro rápido do catálogo">
               <QuickTabButton
@@ -248,6 +255,7 @@ function HomePage() {
               >
                 <SelectTrigger
                   size="sm"
+                  aria-label="Ordenar por"
                   className="w-[150px] border-brand-border bg-transparent text-brand-text lg:w-[130px] xl:w-[170px]"
                 >
                   <SelectValue />
@@ -401,11 +409,20 @@ function HeroSection({ nfts, onExplore }: { nfts: Nft[]; onExplore: () => void }
                       aria-selected={dotIndex === clampedActive}
                       aria-label={`Ver destaque ${dotIndex + 1}`}
                       onClick={() => setActive(dotIndex)}
-                      className={cn(
-                        'size-2 rounded-full transition-colors',
-                        dotIndex === clampedActive ? 'bg-brand-accent-alt' : 'bg-brand-accent-alt/30',
-                      )}
-                    />
+                      // A bolinha visual continua com 8px (design), mas a área de toque real
+                      // do botão fica em 24px (padding ao redor) — abaixo disso o Lighthouse
+                      // acusa "target-size" (WCAG 2.5.8), e num carrossel de slides é
+                      // exatamente o tipo de controle que sofre com toque impreciso no mobile.
+                      className="flex items-center justify-center p-2"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'size-2 rounded-full transition-colors',
+                          dotIndex === clampedActive ? 'bg-brand-accent-alt' : 'bg-brand-accent-alt/30',
+                        )}
+                      />
+                    </button>
                   ))}
                 </div>
               ) : null

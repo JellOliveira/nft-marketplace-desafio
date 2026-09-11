@@ -12,7 +12,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test:e2e": "playwright test",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "audit:lighthouse": "npm run build && concurrently -n preview,realtime,lighthouse -k -s first \"npm:preview -- --port 4173\" \"npm:dev:realtime\" \"node scripts/lighthouse-audit.mjs\""
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -37,7 +38,9 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "chrome-launcher": "^1.2.1",
     "concurrently": "^10.0.5",
+    "lighthouse": "^13.4.1",
     "msw": "2.10.2",
     "oxlint": "^1.81.0",
     "shadcn": "^4.21.0",

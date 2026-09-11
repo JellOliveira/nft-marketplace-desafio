@@ -233,4 +233,68 @@ cenário de erro possível.
 
 ## Lighthouse
 
-Configuração e resultados: ver `lighthouse-reports/` (gerados na fase final da entrega).
+Configuração versionada em `scripts/lighthouse-audit.mjs` (`npm run audit:lighthouse` builda,
+sobe `vite preview` + o `realtime-server` juntos, e roda 3 medições por página/perfil contra o
+build de produção — nunca o dev server, nunca uma versão simplificada). Relatórios HTML/JSON
+de cada rodada ficam em `lighthouse-reports/`, com a mediana consolidada em
+`lighthouse-reports/SUMMARY.md`. Auditado com Lighthouse 13.4.1, Chrome (`chrome-launcher`),
+Node 24, Windows 11 — ver `lighthouse-reports/summary.json` para o ambiente completo de cada
+rodada.
+
+### Resultados (mediana de 3 medições, build local via `vite preview`)
+
+| Página | Perfil | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Início | mobile | 58 | 100 | 77 | 92 | 5,7s | 0,019 | 319ms |
+| Início | desktop | 86 | 100 | 77 | 92 | 1,2s | 0,173 | 10ms |
+| Detalhe | mobile | 52 | 96 | 77 | 92 | 5,7s | 0,130 | 325ms |
+| Detalhe | desktop | 83 | 97 | 77 | 92 | 1,6s | 0,121 | 13ms |
+
+Metas: Performance ≥90, Accessibility ≥95, Best Practices ≥95, SEO ≥90.
+
+### Por que Best Practices trava em 77 no build local (e como isso se resolve)
+
+Duas causas, sempre as mesmas nas 12 rodadas — nenhuma delas é falta de otimização:
+
+1. **"Não usa HTTPS"**: artefato de auditar `http://localhost:4173` — `vite preview` não serve
+   TLS localmente. Rodando a mesma auditoria contra a URL pública da Vercel (HTTPS de
+   verdade), essa causa desaparece e o Best Practices sobe para **96** (acima da meta) em
+   todas as combinações — ver `lighthouse-reports/producao/` (rodada de confirmação, 1 medição
+   por página/perfil, complementar às 12 oficiais contra o build local).
+2. **Erro no console: `401` em `GET /auth/session`**: comportamento correto e documentado (ver
+   "Isolamento de dados entre usuários" acima) — é assim que o app descobre que ninguém está
+   logado. O DevTools do Chrome loga qualquer resposta não-2xx como "erro" no console
+   independente da aplicação tratar isso normalmente em JS (e trata: nenhum erro chega ao
+   usuário, nenhum comportamento quebra). Corrigir isso "de verdade" exigiria não usar `401`
+   para uma sessão inexistente — pior design de API só para agradar a métrica, o que o item 10
+   do desafio proíbe explicitamente ("sem simplificações exclusivas para melhorar a
+   pontuação"). Mantido como está, documentado aqui.
+
+### Por que Performance mobile fica abaixo da meta
+
+Início/Detalhe mobile ficam em 52–58 (meta: 90), desktop em 83–86 (perto da meta, mas ainda
+abaixo). LCP mobile em ~5,7s é a causa dominante — decomposto via os relatórios individuais:
+
+- **CPU 4x mais lenta simulada pelo perfil mobile do Lighthouse**: o bundle inicial carrega o
+  worker do MSW (`browser-*.js`, ~264KB) inteiro antes de qualquer requisição de API poder
+  responder — em uma CPU real de topo isso é imperceptível, mas sob o throttling padrão do
+  Lighthouse mobile o parsing/execução desse bundle domina o tempo até a primeira pintura útil.
+- **Máquina de desenvolvimento local**: a auditoria contra o build local roda em uma máquina
+  Windows comum (não um runner de CI dedicado nem o CDN de borda da Vercel) — a mesma
+  auditoria contra a URL pública (`lighthouse-reports/producao/`) mostra números de mobile na
+  mesma faixa, então o gargalo é real e não só do ambiente local, mas a mediana absoluta pode
+  variar numa máquina diferente.
+- **Não simplificado para pontuar**: a auditoria roda com os mocks, o Socket.IO e as imagens
+  reais da entrega — exatamente como o item 10 exige. Uma correção real (que não coube no
+  prazo desta entrega) seria dividir o `browser-*.js` do MSW com `dynamic import()` carregado
+  só depois do primeiro paint, ou trocar o worker do MSW por um `Response` mock mais leve nas
+  rotas de leitura mais chamadas no carregamento inicial (catálogo/destaque).
+
+SEO (92) e o Accessibility de Detalhe (96–97) já superam a meta em toda combinação — Início
+Accessibility chegou a 100 depois da correção de 3 problemas reais encontrados via esta própria
+auditoria (não simulados): um `SelectTrigger` sem nome acessível quando o rótulo visível fica
+oculto abaixo de `xl`, hierarquia de heading quebrada no mobile (a barra lateral de filtros —
+com os únicos `<h2>` da página — fica oculta ali, pulando de `<h1>` direto para os `<h3>` dos
+cards; corrigido com um `<h2 className="sr-only">` antes da grade), e as bolinhas do carrossel
+do herói com área de toque de 8px (abaixo do mínimo recomendado de 24px) — ver
+`src/routes/index.tsx`.

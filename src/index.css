@@ -91,6 +91,17 @@ body {
    (item 8 do desafio). As dimensões do skeleton devem sempre casar com as do conteúdo real
    que ele antecede, para não causar layout shift quando os dados chegam. */
 @layer utilities {
+  /* Esconde a barra de rolagem nativa de um contêiner com overflow (ex.: o carrossel de
+     "Mais desta coleção"), que troca por setas próprias — a rolagem em si continua
+     funcionando normalmente (arrastar/tocar/roda do mouse), só o indicador do SO some. */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .skeleton-shimmer {
     position: relative;
     overflow: hidden;

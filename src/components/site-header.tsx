@@ -118,7 +118,7 @@ export function SiteHeader() {
             )}
           </div>
 
-          <Link to="/" search={DEFAULT_CATALOG_SEARCH} aria-label="Ver carrinho" className="relative text-brand-text/80 hover:text-brand-text">
+          <Link to="/carrinho" aria-label="Ver carrinho" className="relative text-brand-text/80 hover:text-brand-text">
             <ShoppingCart size={20} />
             {cartCount > 0 && (
               <span className="absolute -top-2 -right-2 flex size-4 items-center justify-center rounded-full bg-brand-accent-alt text-[10px] font-medium text-brand-card">

@@ -4,7 +4,7 @@
 // quebrar (item 3 do desafio).
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import axios from 'axios'
-import { Heart, Mail, Minus, Plus, Search, Star } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Mail, Minus, Plus, Star } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -135,7 +135,7 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
           ))}
         </div>
 
-        <div className="relative order-1 aspect-square overflow-hidden rounded-xl lg:order-2">
+        <div className="order-1 aspect-square overflow-hidden rounded-xl lg:order-2">
           <img
             src={activeImage}
             alt={`Imagem principal do NFT ${nft.name}`}
@@ -143,14 +143,6 @@ function NftDetailContent({ nft }: { nft: NonNullable<ReturnType<typeof useNftDe
             width={520}
             height={520}
           />
-          {/* Puramente decorativo (design-refs/Detalhes do NFT.png) — não abre um lightbox
-           *  real nesta entrega, por isso não é um <button> nem tem foco/aria de controle. */}
-          <span
-            aria-hidden="true"
-            className="absolute top-3 right-3 flex size-9 items-center justify-center rounded-full border border-brand-border bg-brand-card/90 text-brand-text"
-          >
-            <Search size={16} />
-          </span>
         </div>
 
         <div className="order-3 min-w-0">
@@ -440,28 +432,56 @@ function RelatedCollectionSection({ nft }: { nft: Nft }) {
 
   if (related.length === 0) return null
 
+  const hasMultiplePages = pages.length > 1
+
   return (
     <section className="mt-16 border-t border-brand-border/60 pt-8">
       <h2 className="text-lg font-bold text-brand-text">Mais desta coleção</h2>
 
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="mt-6 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-2"
-      >
-        {pages.map((page, pageIndex) => (
-          <div
-            key={pageIndex}
-            className="grid w-full shrink-0 snap-start grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5"
+      <div className="relative mt-6">
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="scrollbar-none flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-2"
+        >
+          {pages.map((page, pageIndex) => (
+            <div
+              key={pageIndex}
+              className="grid w-full shrink-0 snap-start grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5"
+            >
+              {page.map((item) => (
+                <NftCard key={item.id} nft={item} />
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Setas discretas — um fundo suave garante contraste sobre qualquer arte de NFT atrás
+         *  (clara ou escura); apagadas por padrão, ganham opacidade e a cor de destaque no
+         *  hover/foco (identidade visual do site, não a barra de rolagem nativa do SO). */}
+        {hasMultiplePages && activePage > 0 && (
+          <button
+            type="button"
+            onClick={() => scrollToPage(activePage - 1)}
+            aria-label="Ver página anterior de mais desta coleção"
+            className="absolute top-1/2 -left-4 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-brand-bg/50 text-brand-text/40 opacity-70 backdrop-blur-sm transition-all hover:bg-brand-bg/90 hover:text-[#E89B55] hover:opacity-100 focus-visible:bg-brand-bg/90 focus-visible:text-[#E89B55] focus-visible:opacity-100"
           >
-            {page.map((item) => (
-              <NftCard key={item.id} nft={item} />
-            ))}
-          </div>
-        ))}
+            <ChevronLeft size={20} />
+          </button>
+        )}
+        {hasMultiplePages && activePage < pages.length - 1 && (
+          <button
+            type="button"
+            onClick={() => scrollToPage(activePage + 1)}
+            aria-label="Ver próxima página de mais desta coleção"
+            className="absolute top-1/2 -right-4 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-brand-bg/50 text-brand-text/40 opacity-70 backdrop-blur-sm transition-all hover:bg-brand-bg/90 hover:text-[#E89B55] hover:opacity-100 focus-visible:bg-brand-bg/90 focus-visible:text-[#E89B55] focus-visible:opacity-100"
+          >
+            <ChevronRight size={20} />
+          </button>
+        )}
       </div>
 
-      {pages.length > 1 && (
+      {hasMultiplePages && (
         <div className="mt-6 flex items-center justify-center gap-2">
           {pages.map((_, index) => (
             <button

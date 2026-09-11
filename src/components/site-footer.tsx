@@ -170,7 +170,7 @@ function ContactStrip() {
 function SocialColumn() {
   return (
     <div className="sm:w-56">
-      <h3 className="mb-3 text-sm font-bold text-brand-text">Redes sociais</h3>
+      <h3 className="mb-3 text-sm font-semibold text-brand-text">Redes sociais</h3>
       <ul className="flex items-center gap-3">
         {SOCIAL_LINKS.map(({ label, Icon }) => (
           <li key={label}>
@@ -186,8 +186,10 @@ function SocialColumn() {
         ))}
       </ul>
 
-      <h3 className="mt-6 mb-2 text-sm font-bold text-brand-text">Carteiras compatíveis</h3>
-      <p className="w-fit rounded-md bg-brand-dark px-3 py-1.5 text-xs tracking-wide text-brand-accent-alt">
+      <h3 className="mt-6 mb-2 text-sm font-semibold text-brand-text">Carteiras compatíveis</h3>
+      {/* text-[9px] (design-refs/Código do Detalhes do NFT.html) — em text-xs (12px) a frase
+       *  não cabe numa linha só dentro da coluna de 224px e quebra ao meio. */}
+      <p className="w-fit rounded-md bg-brand-dark px-3 py-1.5 text-[9px] whitespace-nowrap tracking-wide text-brand-accent-alt">
         METAMASK · WALLETCONNECT · COINBASE
       </p>
     </div>
@@ -205,7 +207,7 @@ function FooterColumn({
 }) {
   return (
     <div className={className}>
-      <h3 className="mb-3 text-sm font-bold text-brand-text">{title}</h3>
+      <h3 className="mb-3 text-sm font-semibold text-brand-text">{title}</h3>
       {children}
     </div>
   )

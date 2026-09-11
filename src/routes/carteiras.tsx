@@ -215,7 +215,26 @@ function WalletForm({
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
+
+    // Campos marcados com "*" (design-refs/Desktop/Carteiras.png) bloqueiam o envio se
+    // ficarem vazios, com o erro aparecendo na hora — sem esperar a resposta do servidor,
+    // que ainda faz a mesma checagem por segurança.
+    const requiredErrors: Record<string, string> = {}
+    if (!displayName.trim()) requiredErrors.displayName = 'Informe o nome de exibição.'
+    if (!nickname.trim()) requiredErrors.nickname = 'Informe um apelido para a carteira.'
+    if (!network) requiredErrors.network = 'Selecione uma rede.'
+    if (!profileName.trim()) requiredErrors.profileName = 'Informe o nome do perfil.'
+    if (!address.trim()) requiredErrors.address = 'Informe o endereço da carteira.'
+    if (!walletType) requiredErrors.walletType = 'Selecione o tipo de carteira.'
+    if (!referralCode.trim()) requiredErrors.referralCode = 'Informe o código de indicação.'
+    if (!email.trim()) requiredErrors.email = 'Informe um e-mail.'
+    if (!ensName.trim()) requiredErrors.ensName = 'Informe um nome ENS.'
+    if (Object.keys(requiredErrors).length > 0) {
+      setFieldErrors(requiredErrors)
+      return
+    }
     setFieldErrors({})
+
     saveWallet.mutate(
       {
         role,

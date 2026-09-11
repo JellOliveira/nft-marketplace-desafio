@@ -65,6 +65,12 @@ export const profileHandlers = [
     if (!payload.email || !EMAIL_RE.test(payload.email)) {
       fieldErrors.email = 'Informe um e-mail válido.'
     }
+    if (!payload.ensName?.trim()) {
+      fieldErrors.ensName = 'Informe um nome ENS.'
+    }
+    if (!payload.walletNickname?.trim()) {
+      fieldErrors.walletNickname = 'Informe um apelido para a carteira.'
+    }
     if (Object.keys(fieldErrors).length > 0) {
       return HttpResponse.json(
         { message: 'Verifique os campos destacados.', fieldErrors },
@@ -200,6 +206,12 @@ export const profileHandlers = [
       fieldErrors.address = 'Informe um endereço de carteira válido (iniciando com 0x).'
     }
     if (!payload.walletType) fieldErrors.walletType = 'Selecione o tipo de carteira.'
+    if (!payload.profileName?.trim()) fieldErrors.profileName = 'Informe o nome do perfil.'
+    if (!payload.referralCode?.trim()) fieldErrors.referralCode = 'Informe o código de indicação.'
+    if (!payload.email || !EMAIL_RE.test(payload.email)) {
+      fieldErrors.email = 'Informe um e-mail válido.'
+    }
+    if (!payload.ensName?.trim()) fieldErrors.ensName = 'Informe um nome ENS.'
     if (Object.keys(fieldErrors).length > 0) {
       return HttpResponse.json(
         { message: 'Verifique os campos destacados.', fieldErrors },

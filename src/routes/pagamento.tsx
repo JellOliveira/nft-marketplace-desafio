@@ -32,9 +32,10 @@ import { useSession } from '@/features/auth/use-session'
 import { CartTotals, CouponBox } from '@/features/cart/cart-summary'
 import { useCart } from '@/features/cart/use-cart'
 import { useCreateOrder, useIdempotencyKey } from '@/features/orders/use-order'
-import { useProfile } from '@/features/profile/use-profile'
+import { useProfile, useWallets } from '@/features/profile/use-profile'
 import { cn } from '@/lib/utils'
 import { DEFAULT_CATALOG_SEARCH } from '@/types/nft'
+import type { Wallet } from '@/types/profile'
 
 type WalletOption = {
   id: string
@@ -111,6 +112,7 @@ function PaymentForm({
   const navigate = useNavigate()
   const { data: cart } = useCart()
   const { data: profile } = useProfile()
+  const { data: wallets } = useWallets()
   const createOrder = useCreateOrder()
   const idempotencyKey = useIdempotencyKey()
 
@@ -160,6 +162,16 @@ function PaymentForm({
   const quoteIsStale = cart != null && cart.quoteVersion !== acknowledgedQuoteVersion
 
   const connectedWallet = walletId ? WALLET_OPTIONS.find((option) => option.id === walletId) : undefined
+  const savedWallets: Wallet[] = [wallets?.secondary, wallets?.primary].filter((wallet): wallet is Wallet => Boolean(wallet))
+
+  // Seção "Carteira conectada" do mobile (design-refs/Mobile/Pagamento.png): escolher uma
+  // carteira já salva na conta (ver /carteiras) conecta na hora — sem a demora simulada do
+  // fluxo "Carteira e rede" abaixo, que existe pra imitar uma conexão nova de verdade.
+  function handleSelectSavedWallet(wallet: Wallet) {
+    setWalletId(null)
+    setConnection('connected')
+    setWalletAddress(wallet.address)
+  }
 
   function handleConnect(option: WalletOption) {
     setWalletId(option.id)
@@ -252,7 +264,10 @@ function PaymentForm({
        *  perfil"), quebrando o fluxo de checkout já testado só por causa de um rótulo
        *  informativo, não de uma regra de negócio real. */}
       <form onSubmit={handleSubmit} noValidate className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_380px]">
-        <section>
+        {/* Formulário completo do desktop (design-refs/Desktop/Pagamento.png). No mobile o
+         *  fluxo é bem mais enxuto — ver MobilePaymentPanel logo abaixo — então esta seção
+         *  inteira some abaixo de lg em vez de ganhar uma versão compacta dela mesma. */}
+        <section className="hidden lg:block">
           <h1 className="mb-4 text-lg font-bold text-brand-text">Perfil do colecionador</h1>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Nome de exibição" required>
@@ -395,7 +410,7 @@ function PaymentForm({
           </div>
         </section>
 
-        <aside className="h-fit">
+        <aside className="hidden h-fit lg:block">
           <h2 className="mb-4 text-lg font-bold text-brand-text">Seus NFTs</h2>
           <div className="mb-3 flex items-center justify-between text-sm font-bold text-brand-text">
             <span>NFTs</span>
@@ -512,6 +527,121 @@ function PaymentForm({
             )
           )}
         </aside>
+
+        {/* Fluxo mobile (design-refs/Mobile/Pagamento.png): bem mais enxuto que o desktop —
+         *  sem os campos de "Perfil do colecionador" nem a revisão linha a linha do carrinho,
+         *  só a carteira já salva na conta, a carteira/rede pra conectar, e o total. Os
+         *  campos escondidos (nome, e-mail, etc.) continuam preenchidos com o que já veio do
+         *  perfil salvo — handleSubmit manda os mesmos valores, só não pede pra revisá-los
+         *  aqui de novo. */}
+        <div className="lg:hidden">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-brand-text">Carteira conectada</h2>
+            <Link to="/carteiras" className="text-sm font-bold text-brand-accent-alt">
+              Trocar carteira
+            </Link>
+          </div>
+
+          {savedWallets.length > 0 ? (
+            <div className="flex flex-col gap-3" role="radiogroup" aria-label="Carteira salva">
+              {savedWallets.map((wallet) => (
+                <label
+                  key={wallet.role}
+                  className="flex cursor-pointer items-center gap-3 rounded-xl bg-brand-card p-4"
+                >
+                  <input
+                    type="radio"
+                    name="saved-wallet"
+                    checked={walletAddress === wallet.address && connection === 'connected'}
+                    onChange={() => handleSelectSavedWallet(wallet)}
+                    className="accent-brand-accent-alt"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-bold text-brand-text">
+                      {wallet.role === 'secondary' ? 'Reserva' : 'Principal'}
+                    </span>
+                    <span className="block truncate text-xs text-brand-muted">
+                      {wallet.nickname || wallet.address}
+                    </span>
+                    <span className="block text-xs text-brand-muted">Rede {wallet.network}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-xl bg-brand-card p-4 text-sm text-brand-muted">
+              Nenhuma carteira salva.{' '}
+              <Link to="/carteiras" className="font-bold text-brand-accent-alt">
+                Adicionar uma carteira
+              </Link>
+              .
+            </p>
+          )}
+
+          <h2 className="mt-6 mb-3 text-sm font-bold text-brand-text">Carteira e rede</h2>
+          <div className="flex flex-col gap-2" role="radiogroup" aria-label="Conectar carteira">
+            {WALLET_OPTIONS.map((option) => (
+              <label
+                key={option.id}
+                className={cn(
+                  'flex cursor-pointer items-center justify-between rounded-md border px-4 py-3 text-sm text-brand-text',
+                  walletId === option.id ? 'border-brand-accent-alt' : 'border-brand-border',
+                )}
+              >
+                <span className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="wallet-mobile"
+                    checked={walletId === option.id}
+                    onChange={() => handleConnect(option)}
+                  />
+                  {option.label}
+                </span>
+                {walletId === option.id && (
+                  <ConnectionBadge connection={connection} onDisconnect={handleDisconnect} />
+                )}
+              </label>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-center justify-between">
+            <span className="font-bold text-brand-text">Total:</span>
+            <span className="text-lg font-bold text-brand-accent">
+              {cart?.totalEth ? `${cart.totalEth} ETH` : '—'}
+            </span>
+          </div>
+
+          {submitError && (
+            <p role="alert" className="mt-4 text-sm text-brand-error">
+              {submitError}
+            </p>
+          )}
+
+          <Button
+            type="submit"
+            disabled={!canSubmit}
+            className="mt-6 w-full rounded-full bg-brand-accent-alt text-brand-card hover:bg-brand-accent"
+          >
+            {createOrder.isPending ? 'Enviando pedido…' : 'Confirmar compra'}
+          </Button>
+
+          {!isAuthenticated ? (
+            <p className="mt-2 text-center text-xs text-brand-muted">
+              <button
+                type="button"
+                onClick={() => setAuthOverlay('login')}
+                className="font-bold text-brand-accent-alt hover:underline"
+              >
+                Entre na sua conta
+              </button>{' '}
+              para confirmar a compra.
+            </p>
+          ) : (
+            connection !== 'connected' && (
+              <p className="mt-2 text-center text-xs text-brand-muted">Conecte uma carteira para continuar.</p>
+            )
+          )}
+        </div>
       </form>
 
       {/* Login/cadastro por cima desta própria tela (sem navegar): fechar (Esc, X, clique

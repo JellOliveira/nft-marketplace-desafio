@@ -224,9 +224,15 @@ function CartSummaryPanel({
          *  — não input e botão separados. */}
         <CouponBox couponCode={couponCode} variant="inline" />
 
-        <CartTotals subtotal={subtotal} discount={discount} networkFee={networkFee} total={total} />
+        <CartTotals
+          subtotal={subtotal}
+          discount={discount}
+          networkFee={networkFee}
+          total={total}
+          estimatedFeeAlign="right"
+        />
 
-        <Button asChild className="mt-6 w-full rounded-sm bg-brand-accent text-brand-bg hover:bg-brand-accent-alt">
+        <Button asChild className="mt-6 w-full rounded-full bg-brand-accent text-brand-bg hover:bg-brand-accent-alt">
           <Link to="/pagamento">Conectar e finalizar</Link>
         </Button>
       </div>

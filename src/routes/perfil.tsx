@@ -103,13 +103,25 @@ function ProfileForm({
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    setFieldErrors({})
     setSavedMessage(null)
 
+    // Campos marcados com "*" (design-refs/Desktop/Perfil do Colecionador.png) bloqueiam o
+    // envio se ficarem vazios, com o erro aparecendo na hora — sem esperar a resposta do
+    // servidor, que ainda faz a mesma checagem por segurança.
+    const requiredErrors: Record<string, string> = {}
+    if (!displayName.trim()) requiredErrors.displayName = 'Informe um nome de exibição.'
+    if (!username.trim()) requiredErrors.username = 'Informe um nome de usuário.'
+    if (!email.trim()) requiredErrors.email = 'Informe um e-mail.'
+    if (!ensName.trim()) requiredErrors.ensName = 'Informe um nome ENS.'
+    if (!walletNickname.trim()) requiredErrors.walletNickname = 'Informe um apelido para a carteira.'
     if (newPassword && newPassword !== confirmPassword) {
-      setFieldErrors({ confirmPassword: 'As senhas não conferem.' })
+      requiredErrors.confirmPassword = 'As senhas não conferem.'
+    }
+    if (Object.keys(requiredErrors).length > 0) {
+      setFieldErrors(requiredErrors)
       return
     }
+    setFieldErrors({})
 
     updateProfile.mutate(
       {

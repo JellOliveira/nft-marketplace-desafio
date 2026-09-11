@@ -75,19 +75,19 @@ export function CouponBox({
           Código promocional
         </label>
       )}
-      <div className="flex h-10 items-center overflow-hidden rounded-sm border border-brand-accent">
+      <div className="flex h-10 items-center overflow-hidden rounded-full border border-brand-accent">
         <input
           id="coupon-code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
           placeholder="Digite o código promocional…"
-          className="h-full min-w-0 flex-1 bg-transparent pl-2 text-xs text-brand-text placeholder:text-brand-muted focus-visible:outline-none"
+          className="h-full min-w-0 flex-1 bg-transparent pl-4 text-xs text-brand-text placeholder:text-brand-muted focus-visible:outline-none"
         />
         <button
           type="submit"
           disabled={!code || applyCoupon.isPending}
           className={cn(
-            'h-full shrink-0 px-4 text-base font-bold text-brand-card disabled:opacity-50',
+            'h-full shrink-0 rounded-full px-4 text-base font-bold text-brand-card disabled:opacity-50',
             // /pagamento (design-refs/Código do Pagamento.html) usa o dourado mais escuro
             // (#D28A4C) nos botões de ação; /carrinho usa o tom mais claro (#E89B55) — cada
             // um reaproveita a cor que já usa no próprio botão "Confirmar"/"finalizar".
@@ -122,7 +122,7 @@ export function CartTotals({
   networkFee?: string
   total?: string
   totalDivider?: boolean
-  estimatedFeeAlign?: 'left' | 'center'
+  estimatedFeeAlign?: 'left' | 'center' | 'right'
 }) {
   return (
     <>
@@ -134,7 +134,16 @@ export function CartTotals({
         />
         <SummaryRow label="Taxa de rede" value={networkFee ? `${networkFee} ETH` : undefined} />
       </dl>
-      <p className={cn('mt-1 text-xs text-brand-accent', estimatedFeeAlign === 'center' && 'text-center')}>
+      {/* "Taxa estimada" (design-refs/Mobile/Payment Summary.svg): pequena legenda logo abaixo
+       *  do valor da taxa de rede, à direita — o /pagamento (Código do Pagamento.html) usa
+       *  centralizada em vez disso, cada tela replica sua própria referência. */}
+      <p
+        className={cn(
+          'mt-1 text-xs text-brand-accent',
+          estimatedFeeAlign === 'center' && 'text-center',
+          estimatedFeeAlign === 'right' && 'text-right',
+        )}
+      >
         Taxa estimada
       </p>
       <div className={cn('mt-3', totalDivider && 'border-t border-brand-border pt-4')}>

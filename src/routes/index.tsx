@@ -3,7 +3,7 @@
 // vive em useState: dar refresh, navegar pelo histórico do navegador ou compartilhar o link
 // reproduz exatamente a mesma consulta. Mudar qualquer filtro reinicia a página para 1.
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ChevronRight, Search, SlidersHorizontal } from 'lucide-react'
+import { ArrowRight, ChevronRight, Search, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { OPEN_CATALOG_FILTERS_EVENT } from '@/components/mobile-tab-bar'
 import { CatalogFilters } from '@/features/catalog/catalog-filters'
@@ -431,64 +431,103 @@ function HeroSlideContent({
   dots: ReactNode
 }) {
   return (
-    <div
-      style={{ width: `${widthPercent}%` }}
-      className="mx-auto flex shrink-0 flex-col gap-8 px-5 py-10 lg:max-w-[1200px] lg:flex-row lg:items-center lg:px-[120px]"
-    >
-      <div className="flex-1">
-        <p className="text-sm text-brand-text">Bem-vindo à Kurio</p>
-        {/* Título muda por breakpoint, não por slide: cada referência (design-refs/Desktop/
-         *  Top.svg vs. Mobile/Hero Banner.svg) traz uma redação diferente pra mesma linha de
-         *  marca. */}
-        <h1 className="mt-3 max-w-xl text-[32px] leading-tight font-bold text-brand-text lg:text-[43px] lg:leading-[70px]">
-          <span className="lg:hidden">SEJA DONO DA CULTURA DIGITAL</span>
-          <span className="hidden lg:inline">SEJA DONO DO FUTURO DA ARTE DIGITAL</span>
-        </h1>
-        <p className="mt-3 max-w-md text-sm text-brand-muted">
-          {nft
-            ? `${nft.name} · ${nft.priceEth} ETH — descubra NFTs selecionados de criadores do mundo todo.`
-            : 'Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital rara, apoie artistas e tenha uma parte da cultura da internet.'}
-        </p>
-        {nft ? (
-          <Link
-            to="/nft/$nftId"
-            params={{ nftId: nft.id }}
-            className="mt-6 inline-flex h-10 items-center gap-1.5 rounded-md bg-brand-accent-alt px-8 font-bold text-brand-bg uppercase tracking-wide hover:bg-brand-accent"
-          >
-            Explorar
-          </Link>
-        ) : (
-          <Button
-            onClick={onExplore}
-            className="mt-6 h-10 rounded-md bg-brand-accent-alt px-8 font-bold text-brand-bg uppercase tracking-wide hover:bg-brand-accent"
-          >
-            Explorar
-          </Button>
-        )}
+    <div style={{ width: `${widthPercent}%` }} className="mx-auto shrink-0 px-5 py-4 lg:max-w-[1200px] lg:px-[120px] lg:py-10">
+      {/* Mobile (design-refs/Mobile/Hero Banner.svg): um único cartão com o texto e a foto
+       *  lado a lado, fundo em degradê sutil da cor de destaque — não texto solto seguido de
+       *  uma caixa de foto separada embaixo (era isso que estava errado antes). */}
+      <div className="overflow-hidden rounded-[30px] bg-brand-card bg-gradient-to-br from-brand-accent-alt/20 to-brand-accent-alt/5 p-5 lg:hidden">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-brand-text">Bem-vindo à Kurio</p>
+            <h1 className="mt-1.5 text-xl leading-tight font-bold text-brand-text">SEJA DONO DA CULTURA DIGITAL</h1>
+            <p className="mt-2 text-xs text-brand-muted">
+              Descubra NFTs selecionados de criadores do mundo todo.
+            </p>
+            {nft ? (
+              <Link
+                to="/nft/$nftId"
+                params={{ nftId: nft.id }}
+                className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-accent-alt uppercase tracking-wide"
+              >
+                Explorar
+                <ArrowRight size={12} />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={onExplore}
+                className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-accent-alt uppercase tracking-wide"
+              >
+                Explorar
+                <ArrowRight size={12} />
+              </button>
+            )}
+          </div>
+
+          <div className="relative mt-1 shrink-0">
+            <img
+              src={nft?.imageUrl ?? heroImage}
+              alt={nft ? `NFT em destaque: ${nft.name}` : 'Ilustração de um dos NFTs em destaque da coleção Kurio'}
+              className="size-24 rounded-2xl object-cover"
+              loading="eager"
+              draggable={false}
+            />
+            {nextNft && (
+              <img
+                src={nextNft.imageUrl}
+                alt=""
+                aria-hidden
+                draggable={false}
+                className="absolute -bottom-3 -left-4 size-11 rounded-lg border-2 border-brand-card object-cover shadow-md"
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-center">{dots}</div>
       </div>
 
-      {/* Bolinhas entre o texto e a foto (design-refs/Desktop/Top.svg) — não abaixo de tudo. */}
-      {dots}
+      {/* Desktop (design-refs/Desktop/Top.svg): texto | bolinhas | foto, sem cartão. */}
+      <div className="hidden lg:flex lg:items-center lg:gap-8">
+        <div className="flex-1">
+          <p className="text-sm text-brand-text">Bem-vindo à Kurio</p>
+          <h1 className="mt-3 max-w-xl text-[43px] leading-[70px] font-bold text-brand-text">
+            SEJA DONO DO FUTURO DA ARTE DIGITAL
+          </h1>
+          <p className="mt-3 max-w-md text-sm text-brand-muted">
+            {nft
+              ? `${nft.name} · ${nft.priceEth} ETH — descubra NFTs selecionados de criadores do mundo todo.`
+              : 'Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital rara, apoie artistas e tenha uma parte da cultura da internet.'}
+          </p>
+          {nft ? (
+            <Link
+              to="/nft/$nftId"
+              params={{ nftId: nft.id }}
+              className="mt-6 inline-flex h-10 items-center gap-1.5 rounded-md bg-brand-accent-alt px-8 font-bold text-brand-bg uppercase tracking-wide hover:bg-brand-accent"
+            >
+              Explorar
+            </Link>
+          ) : (
+            <Button
+              onClick={onExplore}
+              className="mt-6 h-10 rounded-md bg-brand-accent-alt px-8 font-bold text-brand-bg uppercase tracking-wide hover:bg-brand-accent"
+            >
+              Explorar
+            </Button>
+          )}
+        </div>
 
-      <div className="relative flex flex-1 items-center justify-center lg:justify-end">
-        <img
-          src={nft?.imageUrl ?? heroImage}
-          alt={nft ? `NFT em destaque: ${nft.name}` : 'Ilustração de um dos NFTs em destaque da coleção Kurio'}
-          className="w-full max-w-sm rounded-2xl object-cover"
-          loading="eager"
-          draggable={false}
-        />
-        {/* Prévia do próximo item: só no mobile (design-refs/Mobile/Hero Banner.svg) — o
-         *  desktop (design-refs/Desktop/Top.svg) mostra só a foto principal, sem sobreposição. */}
-        {nextNft && (
+        {dots}
+
+        <div className="flex flex-1 items-center justify-end">
           <img
-            src={nextNft.imageUrl}
-            alt=""
-            aria-hidden
+            src={nft?.imageUrl ?? heroImage}
+            alt={nft ? `NFT em destaque: ${nft.name}` : 'Ilustração de um dos NFTs em destaque da coleção Kurio'}
+            className="w-full max-w-sm rounded-2xl object-cover"
+            loading="eager"
             draggable={false}
-            className="absolute bottom-0 left-1/2 size-20 -translate-x-[calc(50%+7rem)] rounded-xl border-4 border-brand-bg object-cover shadow-lg sm:size-24 lg:hidden"
           />
-        )}
+        </div>
       </div>
     </div>
   )

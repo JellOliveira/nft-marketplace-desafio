@@ -11,11 +11,15 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useCartCount } from '@/features/cart/use-cart-count'
 import { useLogout, useSession } from '@/features/auth/use-session'
+import { useLastViewedNftId } from '@/features/catalog/use-last-viewed-nft'
 import { DEFAULT_CATALOG_SEARCH } from '@/types/nft'
 
-/** Links de navegação fora do escopo da entrega — renderizados como não-interativos,
- *  visualmente idênticos ao link ativo, com indicação explícita via aria/tooltip. */
-const OUT_OF_SCOPE_LINKS = ['Mercado', 'Criadores', 'Aprenda']
+/** Links de navegação fora do escopo da entrega, sem tela correspondente — renderizados
+ *  como não-interativos, com indicação explícita via aria/tooltip. "Mercado" é a exceção:
+ *  a página de detalhe do NFT existe, então assim que o usuário visitar algum produto o
+ *  item vira um link de verdade para o último visitado (ver use-last-viewed-nft.ts), em
+ *  vez de continuar decorativo — não é fingir uma funcionalidade que não existe. */
+const OUT_OF_SCOPE_LINKS = ['Criadores', 'Aprenda']
 
 export function SiteHeader() {
   const { user, isAuthenticated } = useSession()
@@ -24,6 +28,8 @@ export function SiteHeader() {
   const navigate = useNavigate()
   const cartCount = useCartCount()
   const [searchOpen, setSearchOpen] = useState(false)
+  const lastViewedNftId = useLastViewedNftId()
+  const isOnNftDetail = location.pathname.startsWith('/nft/')
 
   const initial = user?.name.charAt(0).toUpperCase() ?? '?'
 
@@ -39,7 +45,7 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-brand-border/60">
-      <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-5 lg:px-6 xl:px-[120px]">
+      <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-5 lg:px-[120px]">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="text-sm font-bold tracking-[1.4px] text-brand-text">
           KURIO
         </Link>
@@ -52,6 +58,27 @@ export function SiteHeader() {
           >
             Início
           </Link>
+          {lastViewedNftId ? (
+            <Link
+              to="/nft/$nftId"
+              params={{ nftId: lastViewedNftId }}
+              className={
+                isOnNftDetail
+                  ? 'text-base font-bold text-brand-accent-alt underline underline-offset-4'
+                  : 'text-base font-normal text-brand-text hover:text-brand-accent-alt'
+              }
+            >
+              Mercado
+            </Link>
+          ) : (
+            <span
+              aria-disabled="true"
+              title="Visite um NFT para habilitar este link"
+              className="cursor-not-allowed text-base font-normal text-brand-text/50"
+            >
+              Mercado
+            </span>
+          )}
           {OUT_OF_SCOPE_LINKS.map((label) => (
             <span
               key={label}
@@ -148,6 +175,23 @@ export function SiteHeader() {
                 <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="text-base font-bold text-brand-text">
                   Início
                 </Link>
+                {lastViewedNftId ? (
+                  <Link
+                    to="/nft/$nftId"
+                    params={{ nftId: lastViewedNftId }}
+                    className={
+                      isOnNftDetail
+                        ? 'text-base font-bold text-brand-accent-alt underline underline-offset-4'
+                        : 'text-base text-brand-text'
+                    }
+                  >
+                    Mercado
+                  </Link>
+                ) : (
+                  <span aria-disabled="true" className="text-base text-brand-text/50">
+                    Mercado
+                  </span>
+                )}
                 {OUT_OF_SCOPE_LINKS.map((label) => (
                   <span key={label} aria-disabled="true" className="text-base text-brand-text/50">
                     {label}

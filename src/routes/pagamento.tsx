@@ -55,7 +55,7 @@ function PaymentPage() {
 
   if (isSessionLoading || isCartLoading) {
     return (
-      <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-[120px]">
+      <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
         <Skeleton className="h-96 w-full rounded-xl" />
       </main>
     )
@@ -65,7 +65,7 @@ function PaymentPage() {
 
   if (!cart || cart.lines.length === 0) {
     return (
-      <main className="mx-auto max-w-[1200px] px-5 py-20 text-center lg:px-6 xl:px-[120px]">
+      <main className="mx-auto max-w-[1200px] px-5 py-20 text-center lg:px-[120px]">
         <h1 className="text-xl font-bold text-brand-text">Seu carrinho está vazio</h1>
         <p className="mt-2 text-brand-muted">Adicione um NFT antes de ir para o pagamento.</p>
         <Link
@@ -169,7 +169,7 @@ function PaymentForm({ collectorName, collectorEmail }: { collectorName: string;
   const canSubmit = connection === 'connected' && !quoteIsStale && !createOrder.isPending
 
   return (
-    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-[120px]">
+    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
       <nav aria-label="Trilha de navegação" className="mb-6 text-sm text-brand-muted">
         <Link to="/" search={DEFAULT_CATALOG_SEARCH} className="hover:text-brand-text">
           Início

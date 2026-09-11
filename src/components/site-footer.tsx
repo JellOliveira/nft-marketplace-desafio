@@ -80,54 +80,56 @@ export function SiteFooter() {
     <footer className="border-t border-brand-border/60 bg-brand-bg text-brand-text">
       <ContactStrip />
 
-      <div className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-[120px]">
-        <div className="grid grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-[repeat(3,auto)_1fr]">
-          <FooterColumn title="Meu perfil">
-            <ul className="flex flex-col gap-2">
-              {PROFILE_LINKS.map((item) =>
-                item.to ? (
-                  <li key={item.label}>
-                    <Link to={item.to} className="text-sm text-brand-text hover:text-brand-accent-alt">
-                      {item.label}
+      <div className="bg-brand-card">
+        <div className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
+          <div className="flex flex-col gap-8 sm:flex-row sm:flex-wrap sm:gap-10 lg:flex-nowrap lg:gap-16">
+            <FooterColumn title="Meu perfil" className="sm:flex-1">
+              <ul className="flex flex-col gap-2">
+                {PROFILE_LINKS.map((item) =>
+                  item.to ? (
+                    <li key={item.label}>
+                      <Link to={item.to} className="text-sm text-brand-text hover:text-brand-accent-alt">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ) : (
+                    <OutOfScopeItem key={item.label} label={item.label} />
+                  ),
+                )}
+              </ul>
+            </FooterColumn>
+
+            <FooterColumn title="Central de ajuda" className="sm:flex-1">
+              <ul className="flex flex-col gap-2">
+                {HELP_LINKS.map((label) => (
+                  <OutOfScopeItem key={label} label={label} />
+                ))}
+              </ul>
+            </FooterColumn>
+
+            <FooterColumn title="Coleções" className="sm:flex-1">
+              <ul className="flex flex-col gap-2">
+                {COLLECTION_CATEGORIES.map((category) => (
+                  <li key={category}>
+                    <Link
+                      to="/"
+                      search={{ ...DEFAULT_CATALOG_SEARCH, category }}
+                      className="text-sm text-brand-text hover:text-brand-accent-alt"
+                    >
+                      {category}
                     </Link>
                   </li>
-                ) : (
-                  <OutOfScopeItem key={item.label} label={item.label} />
-                ),
-              )}
-            </ul>
-          </FooterColumn>
+                ))}
+              </ul>
+            </FooterColumn>
 
-          <FooterColumn title="Central de ajuda">
-            <ul className="flex flex-col gap-2">
-              {HELP_LINKS.map((label) => (
-                <OutOfScopeItem key={label} label={label} />
-              ))}
-            </ul>
-          </FooterColumn>
+            <SocialColumn />
+          </div>
 
-          <FooterColumn title="Coleções">
-            <ul className="flex flex-col gap-2">
-              {COLLECTION_CATEGORIES.map((category) => (
-                <li key={category}>
-                  <Link
-                    to="/"
-                    search={{ ...DEFAULT_CATALOG_SEARCH, category }}
-                    className="text-sm text-brand-text hover:text-brand-accent-alt"
-                  >
-                    {category}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </FooterColumn>
-
-          <SocialColumn />
+          <p className="mt-10 text-center text-xs text-brand-text">
+            © {new Date().getFullYear()} Kurio. Propriedade digital para todos.
+          </p>
         </div>
-
-        <p className="mt-10 text-center text-xs text-brand-text">
-          © {new Date().getFullYear()} Kurio. Propriedade digital para todos.
-        </p>
       </div>
     </footer>
   )
@@ -138,7 +140,7 @@ export function SiteFooter() {
  *  um link "fora do escopo" fingindo uma central de contato). */
 function ContactStrip() {
   return (
-    <div className="mx-auto max-w-[1200px] px-5 pt-8 lg:px-6 xl:px-[120px]">
+    <div className="mx-auto max-w-[1200px] px-5 pt-8 lg:px-[120px]">
       <div className="flex flex-col flex-wrap items-center gap-4 rounded-2xl bg-brand-border-subtle px-6 py-5 text-center sm:flex-row sm:justify-between sm:text-left">
         <span className="text-sm font-bold tracking-[1.4px] text-brand-text">KURIO</span>
         <p className="text-sm text-brand-text">
@@ -159,7 +161,7 @@ function ContactStrip() {
 
 function SocialColumn() {
   return (
-    <div>
+    <div className="sm:w-56">
       <h3 className="mb-3 text-sm font-bold text-brand-text">Redes sociais</h3>
       <ul className="flex items-center gap-3">
         {SOCIAL_LINKS.map(({ label, Icon }) => (
@@ -167,9 +169,9 @@ function SocialColumn() {
             <span
               aria-disabled="true"
               title="Fora do escopo desta entrega"
-              className="flex size-10 cursor-not-allowed items-center justify-center rounded-md bg-brand-accent-alt text-brand-bg"
+              className="flex size-7 cursor-not-allowed items-center justify-center rounded-sm outline outline-1 outline-brand-accent-alt text-brand-accent-alt"
             >
-              <Icon className="size-4" aria-hidden />
+              <Icon className="size-3.5" aria-hidden />
               <span className="sr-only">{label}</span>
             </span>
           </li>
@@ -184,9 +186,17 @@ function SocialColumn() {
   )
 }
 
-function FooterColumn({ title, children }: { title: string; children: ReactNode }) {
+function FooterColumn({
+  title,
+  children,
+  className,
+}: {
+  title: string
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <div>
+    <div className={className}>
       <h3 className="mb-3 text-sm font-bold text-brand-text">{title}</h3>
       {children}
     </div>

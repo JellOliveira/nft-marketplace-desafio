@@ -109,7 +109,7 @@ function HomePage() {
     <main>
       <HeroSection onExplore={() => updateSearch({})} />
 
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:gap-6 lg:px-6 xl:px-[120px]">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:gap-6 lg:px-[120px]">
         <CatalogFilters
           categories={facets?.categories ?? []}
           networks={facets?.networks ?? []}
@@ -156,14 +156,14 @@ function HomePage() {
             </div>
 
             <div className="flex items-center gap-2 text-sm text-brand-text">
-              <span className="whitespace-nowrap text-brand-text">Ordenar por:</span>
+              <span className="hidden whitespace-nowrap text-brand-text xl:inline">Ordenar por:</span>
               <Select
                 value={search.sort}
                 onValueChange={(value) => updateSearch({ sort: value as NftSortOption })}
               >
                 <SelectTrigger
                   size="sm"
-                  className="border-brand-border bg-transparent text-brand-text"
+                  className="w-[150px] border-brand-border bg-transparent text-brand-text lg:w-[130px] xl:w-[170px]"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -224,7 +224,7 @@ function HomePage() {
         </section>
       </div>
 
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-5 pb-14 sm:flex-row lg:px-6 xl:px-[120px]">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-5 pb-14 sm:flex-row lg:px-[120px]">
         <PromoBanner
           image={banner1Image}
           title="Lançamentos gênese de edição limitada"
@@ -246,7 +246,7 @@ function HomePage() {
 
 function HeroSection({ onExplore }: { onExplore: () => void }) {
   return (
-    <section className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:items-center lg:px-6 xl:px-[120px]">
+    <section className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:items-center lg:px-[120px]">
       <div className="flex-1">
         <p className="text-sm text-brand-text">Bem-vindo à Kurio</p>
         <h1 className="mt-3 max-w-xl text-[32px] leading-tight font-bold text-brand-text lg:text-[43px] lg:leading-[70px]">

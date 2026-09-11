@@ -6,7 +6,7 @@ import { BLOG_POSTS } from './posts'
 
 export function BlogSection() {
   return (
-    <section className="mx-auto max-w-[1200px] px-5 py-14 lg:px-6 xl:px-[120px]">
+    <section className="mx-auto max-w-[1200px] px-5 py-14 lg:px-[120px]">
       <h2 className="text-center text-2xl font-bold text-brand-text">Diário da Cunhagem</h2>
       <p className="mx-auto mt-2 max-w-md text-center text-sm text-brand-muted">
         Histórias, guias e insights para colecionadores sobre o universo da propriedade

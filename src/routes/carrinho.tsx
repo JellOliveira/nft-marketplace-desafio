@@ -27,7 +27,7 @@ function CartPage() {
   const { data: cart, isLoading } = useCart()
 
   return (
-    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-6 xl:px-[120px]">
+    <main className="mx-auto max-w-[1200px] px-5 py-10 lg:px-[120px]">
       <h1 className="mb-6 text-lg font-bold text-brand-text">NFTs</h1>
 
       {isLoading && <CartSkeleton />}

@@ -32,7 +32,7 @@ export function AccountLayout({ active, children }: { active: 'perfil' | 'cartei
   if (!isAuthenticated) return null
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:px-6 xl:px-[120px]">
+    <main className="mx-auto flex max-w-[1200px] flex-col gap-8 px-5 py-10 lg:flex-row lg:px-[120px]">
       <aside className="w-full shrink-0 rounded-xl bg-brand-card p-4 lg:w-[280px]">
         <h1 className="mb-4 px-2 text-lg font-bold text-brand-text">Meu perfil</h1>
         <nav className="flex flex-col gap-1" aria-label="Navegação da conta">
